@@ -1,3 +1,5 @@
+#include <Clockstar.h>
+
 void init();
 
 extern "C" void app_main(void){
@@ -5,5 +7,6 @@ extern "C" void app_main(void){
 }
 
 void init(){
+	Clockstar.begin();
 
 }

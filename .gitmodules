@@ -1,0 +1,3 @@
+[submodule "components/Clockstar-Library"]
+	path = components/Clockstar-Library
+	url = git@github.com:CircuitMess/Clockstar-Library.git
