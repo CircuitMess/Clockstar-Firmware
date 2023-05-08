@@ -54,6 +54,10 @@ void Display::setupPanel(){
 	panel.setBus(&bus);
 }
 
+LGFX_Device& Display::getLGFX(){
+	return lgfx;
+}
+
 void Display::drawTest(){
 	printf("Draw test...\n");
 	lgfx.clear(TFT_RED);

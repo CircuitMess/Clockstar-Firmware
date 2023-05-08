@@ -8,6 +8,8 @@ public:
 	Display();
 	virtual ~Display();
 
+	LGFX_Device& getLGFX();
+
 	void drawTest();
 
 private:
