@@ -1,0 +1,73 @@
+#include "Threaded.h"
+#include <esp_log.h>
+
+Threaded::Threaded(const char* name, size_t stackSize, uint8_t priority, int8_t core) : name(name), stackSize(stackSize), priority(priority), core(core){
+	stopSem = xSemaphoreCreateBinary();
+	stopMut = xSemaphoreCreateMutex();
+}
+
+Threaded::~Threaded(){
+	if(state != Stopped){
+		ESP_LOGE("Threaded", "Threaded %s destructing while still running", name);
+		abort();
+	}
+
+	vSemaphoreDelete(stopSem);
+	vSemaphoreDelete(stopMut);
+}
+
+void Threaded::start(){
+	if(state != Stopped) return;
+
+	if(!onStart()) return;
+
+	state = Running;
+
+	if(core == -1){
+		xTaskCreate(Threaded::threadFunc, name, stackSize, this, priority, &task);
+	}else{
+		xTaskCreatePinnedToCore(Threaded::threadFunc, name, stackSize, this, priority, &task, core);
+	}
+}
+
+void Threaded::stop(TickType_t wait){
+	if(xSemaphoreTake(stopMut, wait) == pdFALSE) return;
+
+	if(state != Running){
+		xSemaphoreGive(stopMut);
+		return;
+	}
+
+	beforeStop();
+	state = Stopping;
+	afterStopSignal();
+
+	xSemaphoreTake(stopSem, wait);
+
+	xSemaphoreGive(stopMut);
+}
+
+void Threaded::threadFunc(void* arg){
+	auto thr = static_cast<Threaded*>(arg);
+
+	while(thr->state == Running){
+		thr->loop();
+	}
+
+	thr->onStop();
+
+	thr->state = Stopped;
+	xSemaphoreGive(thr->stopSem);
+
+	vTaskDelete(nullptr);
+}
+
+bool Threaded::onStart(){
+	return true;
+}
+
+void Threaded::onStop(){ }
+
+void Threaded::beforeStop(){ }
+
+void Threaded::afterStopSignal(){ }
