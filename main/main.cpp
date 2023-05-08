@@ -3,6 +3,9 @@
 #include "Periph/I2C.h"
 #include "Periph/PinOut.h"
 #include "Devices/Display.h"
+#include "LV_Interface/LVGL.h"
+
+#include <lvgl/lvgl.h>
 
 void init(){
 	gpio_config_t io_conf = {
@@ -19,7 +22,15 @@ void init(){
 
 	auto i2c = new I2C(0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 
-	auto display = new Display();
+	auto disp = new Display();
+	auto lvgl = new LVGL(*disp);
+
+	// Load start screen here
+	auto scr = lv_obj_create(nullptr);
+	lv_scr_load(scr);
+
+	// Start UI thread after initialization
+	lvgl->start();
 }
 
 extern "C" void app_main(void){
