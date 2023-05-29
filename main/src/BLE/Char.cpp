@@ -42,6 +42,12 @@ void Char::establish(std::unique_ptr<CharInfo> info, esp_gatt_char_prop_t rProps
 	}else{
 		configDone(Config::Notify);
 	}
+
+	if(props & ESP_GATT_CHAR_PROP_BIT_WRITE){
+		if(!(remoteProps & ESP_GATT_CHAR_PROP_BIT_WRITE)){
+			ESP_LOGW(TAG, "Have WRITE bit set, but remote characteristic doesn't");
+		}
+	}
 }
 
 void Char::close(){
@@ -78,10 +84,27 @@ void Char::onNotify(const esp_ble_gattc_cb_param_t::gattc_notify_evt_param* para
 	}
 }
 
+void Char::onWriteResp(esp_gattc_cb_event_t evt, const esp_ble_gattc_cb_param_t::gattc_write_evt_param* param){
+	if(param->status != ESP_GATT_OK){
+		ESP_LOGE(TAG, "write failed, error status = 0x%x", param->status);
+		return;
+	}
+}
+
 void Char::writeDescr(uint16_t uuid, const std::vector<uint8_t>& data){
 	if(!connected()) return;
 
-	esp_bt_uuid_t id = { .len = 2 };
-	id.uuid.uuid16 = uuid;
+	esp_bt_uuid_t id = { .len = 2, .uuid = { .uuid16 = uuid } };
 	chr->writeDescr(id, (uint8_t*) data.data(), data.size());
+}
+
+void Char::write(const std::vector<uint8_t>& data){
+	if(!connected()) return;
+
+	if(!(props & ESP_GATT_CHAR_PROP_BIT_WRITE) || !(remoteProps & ESP_GATT_CHAR_PROP_BIT_WRITE)){
+		ESP_LOGW(TAG, "Requesting writy, but WRITE property bit isn't");
+		return;
+	}
+
+	chr->write((uint8_t*) data.data(), data.size(), true);
 }

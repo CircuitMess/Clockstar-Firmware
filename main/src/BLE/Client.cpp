@@ -86,6 +86,7 @@ void Client::ble_GATTC_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, es
 		switch(event){
 			case ESP_GATTC_REG_FOR_NOTIFY_EVT:
 			case ESP_GATTC_NOTIFY_EVT:
+			case ESP_GATTC_WRITE_CHAR_EVT:
 				passToChar(event, param);
 				break;
 			default:
@@ -189,6 +190,14 @@ void Client::passToChar(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_t* pa
 		check(chr);
 
 		chr->second->onNotify(&param->notify);
+	}else if(event == ESP_GATTC_WRITE_CHAR_EVT){
+		ESP_LOGI(TAG, "ESP_GATTC_WRITE_CHAR_EVT");
+
+		auto chr = chars.find(param->write.handle);
+		check(chr);
+
+		chr->second->onWriteResp(event, &param->write);
+
 	}else{
 		ESP_LOGW(TAG, "Unhandled characteristic event: 0x%d", event);
 	}

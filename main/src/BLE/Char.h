@@ -27,6 +27,8 @@ public:
 
 	void writeDescr(uint16_t uuid, const std::vector<uint8_t>& data);
 
+	void write(const std::vector<uint8_t>& data);
+
 private:
 	friend Client;
 	friend Service;
@@ -53,6 +55,7 @@ private:
 
 	void onNotify(const esp_ble_gattc_cb_param_t::gattc_notify_evt_param* param);
 	void onRegNotify(const esp_ble_gattc_cb_param_t::gattc_reg_for_notify_evt_param* param);
+	void onWriteResp(esp_gattc_cb_event_t evt, const esp_ble_gattc_cb_param_t::gattc_write_evt_param* param);
 
 };
 

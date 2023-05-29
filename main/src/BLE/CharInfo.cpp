@@ -34,3 +34,7 @@ void CharInfo::writeDescr(esp_bt_uuid_t uuid, uint8_t* data, size_t len){
 	// TODO: this function passes the data ptr to the BT thread
 	esp_ble_gattc_write_char_descr(client->iface.hndl, client->con.hndl, descr.handle, len, data, ESP_GATT_WRITE_TYPE_RSP, ESP_GATT_AUTH_REQ_NONE);
 }
+
+void CharInfo::write(uint8_t* data, size_t len, bool needResponse){
+	esp_ble_gattc_write_char(client->iface.hndl, client->con.hndl, hndl, len, data, needResponse ? ESP_GATT_WRITE_TYPE_RSP : ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+}

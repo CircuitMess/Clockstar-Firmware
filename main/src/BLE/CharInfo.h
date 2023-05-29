@@ -15,6 +15,8 @@ public:
 
 	void writeDescr(esp_bt_uuid_t uuid, uint8_t* data, size_t len);
 
+	void write(uint8_t* data, size_t len, bool needResponse);
+
 private:
 	const Client* client;
 
