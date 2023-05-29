@@ -3,6 +3,7 @@
 
 
 #include "CharInfo.h"
+#include <Util/Queue.h>
 #include <esp_bt_defs.h>
 #include <memory>
 #include <esp_gatt_defs.h>
@@ -16,13 +17,23 @@ class Service;
 class Char {
 public:
 
+	struct Notif {
+		std::vector<uint8_t> data;
+		bool isIndicate;
+		Notif(std::vector<uint8_t> data, bool isIndicate) : data(std::move(data)), isIndicate(isIndicate){}
+	};
+
+	/** Whether Characteristic is associated with the remote */
 	bool established();
+
+	/** Whether Characteristic is associated with the remote, and all configs are done */
 	bool connected();
 
-	using NotifyCB = std::function<void(const std::vector<uint8_t>& data, bool isIndicate)>;
 	using ConnectedCB = std::function<void()>;
 
-	void setOnNotifyCb(NotifyCB cb);
+	/** Gets next notification in the queue. This is a blocking function. */
+	std::unique_ptr<Notif> getNextNotif(TickType_t wait = portMAX_DELAY);
+
 	void setOnConnectedCb(ConnectedCB cb);
 
 	void writeDescr(uint16_t uuid, const std::vector<uint8_t>& data);
@@ -50,8 +61,8 @@ private:
 	std::unordered_set<Config> configsDone;
 	void configDone(Config config);
 
+	PtrQueue<Notif> notifQueue;
 	ConnectedCB onConnectedCB;
-	NotifyCB onNotifyCB;
 
 	void onNotify(const esp_ble_gattc_cb_param_t::gattc_notify_evt_param* param);
 	void onRegNotify(const esp_ble_gattc_cb_param_t::gattc_reg_for_notify_evt_param* param);

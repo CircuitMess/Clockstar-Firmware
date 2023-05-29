@@ -3,20 +3,21 @@
 
 static const char* TAG = "BLE::Char";
 
-Char::Char(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props) : uuid(uuid), props(props){
+Char::Char(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props) : uuid(uuid), props(props), notifQueue((props & ESP_GATT_CHAR_PROP_BIT_NOTIFY) ? 12 : 1){
 
+}
+
+std::unique_ptr<Char::Notif> Char::getNextNotif(TickType_t wait){
+	if(!(props & ESP_GATT_CHAR_PROP_BIT_NOTIFY) || !(remoteProps & ESP_GATT_CHAR_PROP_BIT_NOTIFY)){
+		ESP_LOGW(TAG, "Requesting notify, but NOTIFY property bit isn't");
+		return nullptr;
+	}
+
+	return notifQueue.get(wait);
 }
 
 void Char::setOnConnectedCb(ConnectedCB cb){
 	onConnectedCB = cb;
-}
-
-void Char::setOnNotifyCb(NotifyCB cb){
-	if(!(props & ESP_GATT_CHAR_PROP_BIT_NOTIFY)){
-		ESP_LOGW(TAG, "Notify CB set, but NOTIFY property bit isn't");
-	}
-
-	onNotifyCB = std::move(cb);
 }
 
 bool Char::established(){
@@ -79,8 +80,8 @@ void Char::onRegNotify(const esp_ble_gattc_cb_param_t::gattc_reg_for_notify_evt_
 }
 
 void Char::onNotify(const esp_ble_gattc_cb_param_t::gattc_notify_evt_param* param){
-	if(onNotifyCB){
-		onNotifyCB(std::vector(param->value, param->value + param->value_len), !param->is_notify);
+	if(notifQueue.size != 1){
+		notifQueue.post(std::make_unique<Notif>(std::vector(param->value, param->value + param->value_len), !param->is_notify), 0);
 	}
 }
 
