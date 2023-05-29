@@ -12,7 +12,7 @@ class Client;
 
 class Service {
 public:
-	std::shared_ptr<Char> addChar(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props);
+	std::shared_ptr<Char> addChar(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props = 0);
 
 	bool established();
 	bool populated();
