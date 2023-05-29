@@ -3,11 +3,11 @@
 
 static const char* TAG = "BLE::Char";
 
-Char::Char(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props) : uuid(uuid), props(props), notifQueue((props & ESP_GATT_CHAR_PROP_BIT_NOTIFY) ? 12 : 1){
+BLE::Char::Char(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props) : uuid(uuid), props(props), notifQueue((props & ESP_GATT_CHAR_PROP_BIT_NOTIFY) ? 12 : 1){
 
 }
 
-std::unique_ptr<Char::Notif> Char::getNextNotif(TickType_t wait){
+std::unique_ptr<BLE::Char::Notif> BLE::Char::getNextNotif(TickType_t wait){
 	if(!(props & ESP_GATT_CHAR_PROP_BIT_NOTIFY) || !(remoteProps & ESP_GATT_CHAR_PROP_BIT_NOTIFY)){
 		ESP_LOGW(TAG, "Requesting notify, but NOTIFY property bit isn't");
 		return nullptr;
@@ -16,19 +16,19 @@ std::unique_ptr<Char::Notif> Char::getNextNotif(TickType_t wait){
 	return notifQueue.get(wait);
 }
 
-void Char::setOnConnectedCb(ConnectedCB cb){
+void BLE::Char::setOnConnectedCb(ConnectedCB cb){
 	onConnectedCB = cb;
 }
 
-bool Char::established(){
+bool BLE::Char::established(){
 	return chr != nullptr;
 }
 
-bool Char::connected(){
+bool BLE::Char::connected(){
 	return configsDone.size() == (int) Config::COUNT;
 }
 
-void Char::establish(std::unique_ptr<CharInfo> info, esp_gatt_char_prop_t rProps){
+void BLE::Char::establish(std::unique_ptr<CharInfo> info, esp_gatt_char_prop_t rProps){
 	ESP_LOGI(TAG, "Established");
 	chr = std::move(info);
 
@@ -51,7 +51,7 @@ void Char::establish(std::unique_ptr<CharInfo> info, esp_gatt_char_prop_t rProps
 	}
 }
 
-void Char::close(){
+void BLE::Char::close(){
 	if(!chr) return;
 	ESP_LOGI(TAG, "Closed");
 
@@ -60,7 +60,7 @@ void Char::close(){
 	configsDone.clear();
 }
 
-void Char::configDone(Char::Config config){
+void BLE::Char::configDone(Char::Config config){
 	configsDone.insert(config);
 	if(configsDone.size() == (int) Config::COUNT){
 		if(onConnectedCB){
@@ -69,7 +69,7 @@ void Char::configDone(Char::Config config){
 	}
 }
 
-void Char::onRegNotify(const esp_ble_gattc_cb_param_t::gattc_reg_for_notify_evt_param* param){
+void BLE::Char::onRegNotify(const esp_ble_gattc_cb_param_t::gattc_reg_for_notify_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "reg for notify failed, error status = 0x%x", param->status);
 		return;
@@ -79,27 +79,27 @@ void Char::onRegNotify(const esp_ble_gattc_cb_param_t::gattc_reg_for_notify_evt_
 	configDone(Config::Notify);
 }
 
-void Char::onNotify(const esp_ble_gattc_cb_param_t::gattc_notify_evt_param* param){
+void BLE::Char::onNotify(const esp_ble_gattc_cb_param_t::gattc_notify_evt_param* param){
 	if(notifQueue.size != 1){
 		notifQueue.post(std::make_unique<Notif>(std::vector(param->value, param->value + param->value_len), !param->is_notify), 0);
 	}
 }
 
-void Char::onWriteResp(esp_gattc_cb_event_t evt, const esp_ble_gattc_cb_param_t::gattc_write_evt_param* param){
+void BLE::Char::onWriteResp(esp_gattc_cb_event_t evt, const esp_ble_gattc_cb_param_t::gattc_write_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "write failed, error status = 0x%x", param->status);
 		return;
 	}
 }
 
-void Char::writeDescr(uint16_t uuid, const std::vector<uint8_t>& data){
+void BLE::Char::writeDescr(uint16_t uuid, const std::vector<uint8_t>& data){
 	if(!connected()) return;
 
 	esp_bt_uuid_t id = { .len = 2, .uuid = { .uuid16 = uuid } };
 	chr->writeDescr(id, (uint8_t*) data.data(), data.size());
 }
 
-void Char::write(const std::vector<uint8_t>& data){
+void BLE::Char::write(const std::vector<uint8_t>& data){
 	if(!connected()) return;
 
 	if(!(props & ESP_GATT_CHAR_PROP_BIT_WRITE) || !(remoteProps & ESP_GATT_CHAR_PROP_BIT_WRITE)){

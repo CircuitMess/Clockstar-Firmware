@@ -6,7 +6,7 @@
 #include "Periph/Bluetooth.h"
 #include "Devices/Display.h"
 #include "LV_Interface/LVGL.h"
-#include "BLE/BLE.h"
+#include "BLE/GAP.h"
 #include "BLE/Client.h"
 
 #include <lvgl/lvgl.h>
@@ -34,8 +34,8 @@ void init(){
 	auto i2c = new I2C(0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 
 	auto bt = new Bluetooth();
-	auto ble = new BLE();
-	auto client = new Client(ble);
+	auto gap = new BLE::GAP();
+	auto client = new BLE::Client(gap);
 
 	auto disp = new Display();
 	auto lvgl = new LVGL(*disp);

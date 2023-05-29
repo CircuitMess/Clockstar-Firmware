@@ -1,14 +1,14 @@
 #include "Client.h"
-#include "BLE.h"
+#include "GAP.h"
 #include <cstring>
 #include <esp_log.h>
 #include <esp_gap_ble_api.h>
 
 static const char* TAG = "BLE::Client";
 
-Client* Client::self = nullptr;
+BLE::Client* BLE::Client::self = nullptr;
 
-Client::Client(BLE* ble) : ble(ble){
+BLE::Client::Client(GAP* gap) : gap(gap){
 	if(self != nullptr){
 		ESP_LOGE(TAG, "Client already exists");
 		return;
@@ -25,21 +25,22 @@ Client::Client(BLE* ble) : ble(ble){
 		esp_ble_gattc_app_register(AppID);
 	}
 
-	ble->setClient(this);
+	// TODO: This is only needed so GAP can notify the GATT Client when pairing is done
+	gap->setClient(this);
 }
 
-Client::~Client(){
+BLE::Client::~Client(){
 	self = nullptr;
-	ble->setClient(nullptr);
+	gap->setClient(nullptr);
 }
 
-std::shared_ptr<Service> Client::addService(esp_bt_uuid_t uuid){
+std::shared_ptr<BLE::Service> BLE::Client::addService(esp_bt_uuid_t uuid){
 	std::shared_ptr<Service> srv(new Service(uuid));
 	services.insert(srv);
 	return srv;
 }
 
-void Client::ble_GATTC_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t* param){
+void BLE::Client::ble_GATTC_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t* param){
 	/* 0xff, not specify a certain gatt_if, need to call every profile cb function */
 	if(gattc_if == 0xff){
 		printf("GATTC CB interface 0xff - event %d\n", event);
@@ -96,7 +97,7 @@ void Client::ble_GATTC_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, es
 	}
 }
 
-void Client::onConnect(const esp_ble_gattc_cb_param_t::gattc_connect_evt_param* param){
+void BLE::Client::onConnect(const esp_ble_gattc_cb_param_t::gattc_connect_evt_param* param){
 	memcpy(con.addr, param->remote_bda, 6);
 
 	esp_ble_set_encryption(con.addr, ESP_BLE_SEC_ENCRYPT_MITM);
@@ -104,11 +105,11 @@ void Client::onConnect(const esp_ble_gattc_cb_param_t::gattc_connect_evt_param* 
 	// the ESP_GAP_BLE_AUTH_CMPL_EVT comes up (handled by BLE), and BLE calls onPairDone().
 }
 
-void Client::onPairDone(){
+void BLE::Client::onPairDone(){
 	esp_ble_gattc_open(iface.hndl, con.addr, BLE_ADDR_TYPE_PUBLIC, true);
 }
 
-void Client::onOpen(const esp_ble_gattc_cb_param_t::gattc_open_evt_param* param){
+void BLE::Client::onOpen(const esp_ble_gattc_cb_param_t::gattc_open_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "open failed, error status = 0x%x", param->status);
 		return;
@@ -119,7 +120,7 @@ void Client::onOpen(const esp_ble_gattc_cb_param_t::gattc_open_evt_param* param)
 	esp_ble_gattc_send_mtu_req(iface.hndl, con.hndl);
 }
 
-void Client::onMtuResp(const esp_ble_gattc_cb_param_t::gattc_cfg_mtu_evt_param* param){
+void BLE::Client::onMtuResp(const esp_ble_gattc_cb_param_t::gattc_cfg_mtu_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "config mtu failed, error status = 0c%x", param->status);
 		return;
@@ -130,13 +131,13 @@ void Client::onMtuResp(const esp_ble_gattc_cb_param_t::gattc_cfg_mtu_evt_param* 
 	searchServices();
 }
 
-void Client::searchServices(){
+void BLE::Client::searchServices(){
 	for(const auto& service : services){
 		esp_ble_gattc_search_service(iface.hndl, con.hndl, &service->uuid);
 	}
 }
 
-void Client::onSearchResult(const esp_ble_gattc_cb_param_t::gattc_search_res_evt_param* param){
+void BLE::Client::onSearchResult(const esp_ble_gattc_cb_param_t::gattc_search_res_evt_param* param){
 	for(const auto& service : services){
 		if(param->srvc_id.uuid.len == ESP_UUID_LEN_128 && memcmp(param->srvc_id.uuid.uuid.uuid128, service->uuid.uuid.uuid128, 16) == 0){
 			service->establish(std::make_unique<ServiceInfo>(this, param->start_handle, param->end_handle));
@@ -144,7 +145,7 @@ void Client::onSearchResult(const esp_ble_gattc_cb_param_t::gattc_search_res_evt
 	}
 }
 
-void Client::onSearchComplete(const esp_ble_gattc_cb_param_t::gattc_search_cmpl_evt_param* param){
+void BLE::Client::onSearchComplete(const esp_ble_gattc_cb_param_t::gattc_search_cmpl_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "search service failed, error status = %x", param->status);
 		return;
@@ -159,7 +160,7 @@ void Client::onSearchComplete(const esp_ble_gattc_cb_param_t::gattc_search_cmpl_
 	}
 }
 
-void Client::onClose(const esp_ble_gattc_cb_param_t::gattc_close_evt_param* param){
+void BLE::Client::onClose(const esp_ble_gattc_cb_param_t::gattc_close_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "close failed, error status = %x", param->status);
 		return;
@@ -168,12 +169,12 @@ void Client::onClose(const esp_ble_gattc_cb_param_t::gattc_close_evt_param* para
 	close();
 }
 
-void Client::onDisconnect(const esp_ble_gattc_cb_param_t::gattc_disconnect_evt_param* param){
+void BLE::Client::onDisconnect(const esp_ble_gattc_cb_param_t::gattc_disconnect_evt_param* param){
 	ESP_LOGI(TAG, "Disconnected. Reason: 0x%x", param->reason);
 	close();
 }
 
-void Client::passToChar(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_t* param){
+void BLE::Client::passToChar(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_t* param){
 #define check(x) do { if(x == chars.end()){ ESP_LOGW(TAG, "Received event %d directed to non-registered characteristic", event); return; } } while(0)
 
 	if(event == ESP_GATTC_REG_FOR_NOTIFY_EVT){
@@ -203,11 +204,11 @@ void Client::passToChar(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_t* pa
 	}
 }
 
-void Client::close(){
+void BLE::Client::close(){
 	for(auto& svc : services){
 		svc->close();
 	}
 	chars.clear();
 
-	ble->startAdvertising();
+	gap->startAdvertising();
 }

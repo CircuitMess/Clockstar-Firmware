@@ -12,6 +12,8 @@
 #include <esp_gattc_api.h>
 #include <unordered_set>
 
+namespace BLE {
+
 class Service;
 
 class Char {
@@ -69,6 +71,8 @@ private:
 	void onWriteResp(esp_gattc_cb_event_t evt, const esp_ble_gattc_cb_param_t::gattc_write_evt_param* param);
 
 };
+
+}
 
 
 #endif //CLOCKSTAR_FIRMWARE_CHAR_H

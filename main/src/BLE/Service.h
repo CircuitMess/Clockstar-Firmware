@@ -8,6 +8,8 @@
 #include <unordered_set>
 #include <memory>
 
+namespace BLE {
+
 class Client;
 
 class Service {
@@ -39,6 +41,8 @@ private:
 	DisconnectCB onDisconnectCB;
 
 };
+
+}
 
 
 #endif //CLOCKSTAR_FIRMWARE_SERVICE_H

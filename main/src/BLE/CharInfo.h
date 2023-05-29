@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <esp_bt_defs.h>
 
+namespace BLE {
+
 class Client;
 
 class CharInfo {
@@ -23,6 +25,8 @@ private:
 	const uint16_t hndl;
 
 };
+
+}
 
 
 #endif //CLOCKSTAR_FIRMWARE_CHARINFO_H
