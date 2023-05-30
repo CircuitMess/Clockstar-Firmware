@@ -41,6 +41,6 @@ void LVGL::loop(){
 	}
 
 	auto ttn = lv_timer_handler();
-	if(ttn <= 0) ttn = 1;
+	if(ttn <= 0 || ttn > LV_DISP_DEF_REFR_PERIOD) ttn = 1;
 	vTaskDelay(ttn);
 }
