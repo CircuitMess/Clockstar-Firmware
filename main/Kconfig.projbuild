@@ -9,4 +9,6 @@ choice CM_BUILD_EXAMPLE
         bool "Clockstar firmware"
     config CM_EXAMPLE_ANCS
         bool "ANCS example"
+    config CM_TEST_STABILITY
+            bool "Stability test"
 endchoice
