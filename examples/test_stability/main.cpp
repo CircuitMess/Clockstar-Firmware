@@ -8,6 +8,7 @@
 #include <LV_Interface/LVGL.h>
 #include <BLE/GAP.h>
 #include <BLE/Client.h>
+#include <Devices/IMU.h>
 
 #include <lvgl/lvgl.h>
 #include <Notifs/ANCS/Client.h>
@@ -50,8 +51,13 @@ void init(){
 
 	auto batt = new Battery();
 
+	auto imu = new IMU(*i2c);
+	imu->init();
+
+
+
 	// Load start screen here
-	auto scr = new Scr(*rtc, *ancs, *batt);
+	auto scr = new Scr(*rtc, *ancs, *batt, *imu);
 	scr->start();
 
 	// Start UI thread after initialization

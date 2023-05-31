@@ -3,7 +3,20 @@
 #include <sstream>
 #include <iomanip>
 
-Scr::Scr(RTC& rtc, ANCS::Client& ancs, Battery& battery) : rtc(rtc), ancs(ancs), battery(battery){
+Scr::Scr(RTC& rtc, ANCS::Client& ancs, Battery& battery, IMU& imu) : rtc(rtc), ancs(ancs), battery(battery), imu(imu),
+																	 IMUPoller([this, &imu](){
+																		 float res;
+																		 std::stringstream ss;
+																		 if(!imu.getXTilt(&res)){
+																			 IMUErrCount++;
+																			 ss << "Errors: " << IMUErrCount;
+																			 requestText(IMUErrors, ss.str());
+																		 }else{
+																			 ss << "X tilt: " << std::setprecision(3) << res;
+																			 requestText(gyro, ss.str());
+																		 }
+																		 vTaskDelay(100 / portTICK_PERIOD_MS);
+																	 }, "IMUPoller"){
 	startTimeSystem = millis();
 	startTimeRtc = rtc.getTime();
 
@@ -20,7 +33,7 @@ Scr::Scr(RTC& rtc, ANCS::Client& ancs, Battery& battery) : rtc(rtc), ancs(ancs),
 
 	textQueue = xQueueCreate(12, sizeof(TextRequest));
 
-	for(auto text : { &time, &uptime, &drift, &notif, &batt, &gyro, &stepsKnocks }){
+	for(auto text: { &time, &uptime, &drift, &notif, &batt, &gyro, &stepsKnocks, &IMUErrors }){
 		*text = lv_label_create(obj);
 		lv_obj_add_style(*text, &textStyle, 0);
 		lv_label_set_text(*text, "");
@@ -39,6 +52,25 @@ Scr::Scr(RTC& rtc, ANCS::Client& ancs, Battery& battery) : rtc(rtc), ancs(ancs),
 	requestText(notif, "Phone not connected.");
 	ancs.setOnConnect([this](){ requestText(notif, "Phone connected."); });
 	ancs.setOnDisconnect([this](){ requestText(notif, "Phone connection broken."); });
+
+	auto replaceSteps = [this](){
+		std::stringstream text;
+		text << "Steps: " << stepCount << " Knocks: " << knockCount;
+		requestText(stepsKnocks, text.str());
+	};
+	replaceSteps();
+
+	imu.onKnock([this, replaceSteps](){
+		knockCount++;
+		replaceSteps();
+	});
+	imu.onStep([this, replaceSteps](){
+		stepCount++;
+		replaceSteps();
+	});
+	IMUPoller.start();
+	requestText(IMUErrors, "Errors: 0");
+
 
 	redraw();
 }
@@ -61,7 +93,7 @@ void Scr::loop(){
 }
 
 void Scr::requestText(lv_obj_t* label, std::string text){
-	auto buf = (char*) malloc(text.size()+1);
+	auto buf = (char*) malloc(text.size() + 1);
 	buf[text.size()] = 0;
 	memcpy(buf, text.data(), text.size());
 	TextRequest request = { .label = label, .text = buf };

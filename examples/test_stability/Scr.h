@@ -5,10 +5,11 @@
 #include "Devices/RTC.h"
 #include "Notifs/ANCS/Client.h"
 #include "Devices/Battery.h"
+#include "Devices/IMU.h"
 
 class Scr : public LVScreen {
 public:
-	Scr(RTC& rtc, ANCS::Client& ancs, Battery& batt);
+	Scr(RTC& rtc, ANCS::Client& ancs, Battery& batt, IMU& imu);
 	virtual ~Scr();
 
 private:
@@ -21,6 +22,9 @@ private:
 	lv_obj_t* batt;
 	lv_obj_t* gyro;
 	lv_obj_t* stepsKnocks;
+	lv_obj_t* IMUErrors;
+
+
 
 	void redraw();
 
@@ -35,6 +39,10 @@ private:
 	RTC& rtc;
 	ANCS::Client& ancs;
 	Battery& battery;
+	IMU& imu;
+
+	ThreadedClosure IMUPoller;
+	uint32_t knockCount = 0, stepCount = 0, IMUErrCount = 0;
 
 	struct TextRequest {
 		lv_obj_t* label;
