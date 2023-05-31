@@ -1923,7 +1923,7 @@ int32_t lsm6ds3tr_c_mag_calibrated_raw_get(stmdev_ctx_t *ctx,
 
 int32_t lsm6ds3tr_c_fifo_raw_data_get(stmdev_ctx_t *ctx,
 									  uint8_t *buffer,
-									  uint8_t len);
+									  uint16_t len);
 
 typedef enum
 {
