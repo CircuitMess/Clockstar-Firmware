@@ -4,10 +4,11 @@
 #include "LV_Interface/LVScreen.h"
 #include "Devices/RTC.h"
 #include "Notifs/ANCS/Client.h"
+#include "Devices/Battery.h"
 
 class Scr : public LVScreen {
 public:
-	Scr(RTC& rtc, ANCS::Client& ancs);
+	Scr(RTC& rtc, ANCS::Client& ancs, Battery& batt);
 	virtual ~Scr();
 
 private:
@@ -25,13 +26,15 @@ private:
 
 	void drawUptime();
 	void drawTime();
+	void drawBatt();
 	void loop() override;
 	uint32_t lastDraw = 0;
 	tm startTimeRtc;
 	uint32_t startTimeSystem;
 
-	RTC rtc;
+	RTC& rtc;
 	ANCS::Client& ancs;
+	Battery& battery;
 
 	struct TextRequest {
 		lv_obj_t* label;

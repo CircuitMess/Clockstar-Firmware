@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-Scr::Scr(RTC& rtc, ANCS::Client& ancs) : rtc(rtc), ancs(ancs){
+Scr::Scr(RTC& rtc, ANCS::Client& ancs, Battery& battery) : rtc(rtc), ancs(ancs), battery(battery){
 	startTimeSystem = millis();
 	startTimeRtc = rtc.getTime();
 
@@ -20,7 +20,7 @@ Scr::Scr(RTC& rtc, ANCS::Client& ancs) : rtc(rtc), ancs(ancs){
 
 	textQueue = xQueueCreate(12, sizeof(TextRequest));
 
-	for(auto text : { &time, &uptime, &drift, &notif, &gyro, &batt, &stepsKnocks }){
+	for(auto text : { &time, &uptime, &drift, &notif, &batt, &gyro, &stepsKnocks }){
 		*text = lv_label_create(obj);
 		lv_obj_add_style(*text, &textStyle, 0);
 		lv_label_set_text(*text, "");
@@ -71,6 +71,7 @@ void Scr::requestText(lv_obj_t* label, std::string text){
 void Scr::redraw(){
 	drawUptime();
 	drawTime();
+	drawBatt();
 }
 
 void Scr::drawUptime(){
@@ -110,4 +111,10 @@ void Scr::drawTime(){
 	std::stringstream text;
 	text << std::put_time(&time, "%b %d %H:%M:%S");
 	requestText(this->time, text.str());
+}
+
+void Scr::drawBatt(){
+	std::stringstream text;
+	text << "Batt: " << (int) battery.getPercentage() << "% USB: " << (battery.isCharging() ? 1 : 0);
+	requestText(this->batt, text.str());
 }

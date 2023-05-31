@@ -10,8 +10,9 @@
 #include <BLE/Client.h>
 
 #include <lvgl/lvgl.h>
-#include "Scr.h"
 #include <Notifs/ANCS/Client.h>
+#include <Devices/Battery.h>
+#include "Scr.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -47,8 +48,10 @@ void init(){
 
 	auto ancs = new ANCS::Client(gattc);
 
+	auto batt = new Battery();
+
 	// Load start screen here
-	auto scr = new Scr(*rtc, *ancs);
+	auto scr = new Scr(*rtc, *ancs, *batt);
 	scr->start();
 
 	// Start UI thread after initialization
