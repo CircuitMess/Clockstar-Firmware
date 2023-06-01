@@ -135,7 +135,7 @@ void ANCS::Client::processData(bool sendIncomplete){
 	// Exits the notification processing state (resets processingAttrs)
 	auto send = [this](){
 		std::unique_lock lock(needDataMut);
-		auto nd = needData.front();
+		QueuedNotif nd = needData.front(); // important: create a copy, the reference is going to get invalidated after pop below
 		needData.pop();
 		lock.unlock();
 
@@ -168,11 +168,14 @@ void ANCS::Client::processData(bool sendIncomplete){
 
 #define err() if(sendIncomplete){ send(); } return
 
-	std::unique_lock lock(needDataMut);
-	while(needData.size()){
-		auto uid = needData.front().uid;
-		lock.unlock();
+	auto getNext = [this]() -> uint32_t {
+		std::lock_guard lock(needDataMut);
+		if(needData.size() == 0) return -1;
+		return needData.front().uid;
+	};
 
+	uint32_t uid = -1;
+	while((uid = getNext()) != (uint32_t) -1){
 		// Search for start of data for this notification
 		if(!processingAttrs){
 			uint8_t target[5] = { 0 };
@@ -224,7 +227,7 @@ void ANCS::Client::processData(bool sendIncomplete){
 			dataQueue.erase(dataQueue.begin(), dataQueue.begin() + len + 3);
 
 			// Insert new attribute
-			lock.lock();
+			std::unique_lock lock(needDataMut);
 			needData.front().attrs[attrID] = val;
 			auto attrCount = needData.front().attrs.size();
 			lock.unlock();
