@@ -3,6 +3,7 @@
 #include <esp_log.h>
 #include "Periph/Bluetooth.h"
 #include "BLE/GAP.h"
+#include "BLE/Client.h"
 #include "Notifs/ANCS/Client.h"
 
 void init(){

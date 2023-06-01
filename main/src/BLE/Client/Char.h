@@ -1,20 +1,4 @@
-#ifndef CLOCKSTAR_FIRMWARE_CHAR_H
-#define CLOCKSTAR_FIRMWARE_CHAR_H
-
-
-#include "CharInfo.h"
-#include <Util/Queue.h>
-#include <esp_bt_defs.h>
-#include <memory>
-#include <esp_gatt_defs.h>
-#include <functional>
-#include <vector>
-#include <esp_gattc_api.h>
-#include <unordered_set>
-
-namespace BLE {
-
-class Service;
+#ifdef CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
 
 class Char {
 public:
@@ -43,17 +27,17 @@ public:
 	void write(const std::vector<uint8_t>& data);
 
 private:
-	friend Client;
-	friend Service;
+	friend BLE::Client;
+	friend BLE::Client::Service;
 	Char(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props);
 
 	esp_bt_uuid_t uuid;
 	esp_gatt_char_prop_t props;
 	esp_gatt_char_prop_t remoteProps;
 
-	std::unique_ptr<CharInfo> chr;
+	std::unique_ptr<BLE::Client::CharInfo> chr;
 
-	void establish(std::unique_ptr<CharInfo> info, esp_gatt_char_prop_t rProps);
+	void establish(std::unique_ptr<BLE::Client::CharInfo> info, esp_gatt_char_prop_t rProps);
 	void close();
 
 	enum class Config {
@@ -72,7 +56,5 @@ private:
 
 };
 
-}
 
-
-#endif //CLOCKSTAR_FIRMWARE_CHAR_H
+#endif //CLOCKSTAR_FIRMWARE_BLE_CLIENT_H

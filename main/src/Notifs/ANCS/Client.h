@@ -1,10 +1,7 @@
 #ifndef CLOCKSTAR_FIRMWARE_ANCS_H
 #define CLOCKSTAR_FIRMWARE_ANCS_H
 
-
-#include "BLE/Client.h"
-#include "BLE/Service.h"
-#include "BLE/Char.h"
+#include <BLE/Client.h>
 #include "Notifs/NotifSource.h"
 #include "Util/Threaded.h"
 #include "Model.h"
@@ -23,11 +20,11 @@ public:
 	void actionNeg(uint32_t uid) override;
 
 private:
-	std::shared_ptr<BLE::Service> service;
+	std::shared_ptr<BLE::Client::Service> service;
 	struct {
-		std::shared_ptr<BLE::Char> notif;
-		std::shared_ptr<BLE::Char> ctrl;
-		std::shared_ptr<BLE::Char> data;
+		std::shared_ptr<BLE::Client::Char> notif;
+		std::shared_ptr<BLE::Client::Char> ctrl;
+		std::shared_ptr<BLE::Client::Char> data;
 	} chr;
 
 	bool connected = false;

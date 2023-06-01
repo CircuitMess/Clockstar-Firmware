@@ -34,7 +34,7 @@ BLE::Client::~Client(){
 	gap->setClient(nullptr);
 }
 
-std::shared_ptr<BLE::Service> BLE::Client::addService(esp_bt_uuid_t uuid){
+std::shared_ptr<BLE::Client::Service> BLE::Client::addService(esp_bt_uuid_t uuid){
 	std::shared_ptr<Service> srv(new Service(uuid));
 	services.insert(srv);
 	return srv;
