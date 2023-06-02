@@ -149,7 +149,6 @@ void IMU::printInterruptInfo(){
 void IMU::thread1Func(){
 	for(;;){
 		if(xSemaphoreTake(sem1, portMAX_DELAY)){
-			printf("INT1\n");
 
 			lsm6ds3tr_c_all_sources_t src;
 			lsm6ds3tr_c_all_sources_get(&ctx, &src);
@@ -187,7 +186,6 @@ void IMU::thread1Func(){
 void IMU::thread2Func(){
 	for(;;){
 		if(xSemaphoreTake(sem2, portMAX_DELAY)){
-			printf("INT2\n");
 
 			lsm6ds3tr_c_all_sources_t src;
 			lsm6ds3tr_c_all_sources_get(&ctx, &src);
