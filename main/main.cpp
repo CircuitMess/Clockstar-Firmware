@@ -8,8 +8,10 @@
 #include "LV_Interface/LVGL.h"
 #include "BLE/BLE.h"
 #include "BLE/Client.h"
-
+#include "Devices/IMU.h"
 #include <lvgl/lvgl.h>
+#include <esp_sleep.h>
+#include <driver/uart.h>
 
 void init(){
 	gpio_config_t io_conf = {
@@ -32,6 +34,7 @@ void init(){
 	bl->on();
 
 	auto i2c = new I2C(0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto imu = new IMU(*i2c);
 
 	auto bt = new Bluetooth();
 	auto ble = new BLE();
@@ -46,6 +49,8 @@ void init(){
 
 	// Start UI thread after initialization
 	lvgl->start();
+	imu->init();
+
 }
 
 extern "C" void app_main(void){
