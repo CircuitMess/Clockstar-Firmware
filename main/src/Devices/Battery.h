@@ -28,8 +28,11 @@ private:
 	uint8_t measureCount = 0;
 
 	uint16_t voltage = 0;
+	bool wasCharging = false;
 
 	void loop() override;
+
+	void quickSample();
 
 };
 
