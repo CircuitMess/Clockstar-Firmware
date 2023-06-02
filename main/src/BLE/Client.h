@@ -1,17 +1,30 @@
-#ifndef CLOCKSTAR_FIRMWARE_CLIENT_H
-#define CLOCKSTAR_FIRMWARE_CLIENT_H
+#ifndef CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
+#define CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
 
-#include "Service.h"
 #include <memory>
+#include <vector>
+#include <unordered_set>
+#include <functional>
+#include <Util/Queue.h>
+#include <esp_bt_defs.h>
+#include <esp_gatt_defs.h>
 #include <esp_gattc_api.h>
 
 namespace BLE {
 
-class ServiceInfo;
 class GAP;
 
 class Client {
 public:
+	class Char;
+	class CharInfo;
+	class Service;
+	class ServiceInfo;
+#include "Client/Char.h"
+#include "Client/CharInfo.h"
+#include "Client/Service.h"
+#include "Client/ServiceInfo.h"
+
 	Client(GAP* gap);
 	~Client();
 
@@ -67,4 +80,4 @@ private:
 }
 
 
-#endif //CLOCKSTAR_FIRMWARE_CLIENT_H
+#endif //CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
