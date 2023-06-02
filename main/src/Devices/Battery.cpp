@@ -13,11 +13,7 @@ Battery::Battery() : Threaded("Battery", 4 * 1024, 4), adc((gpio_num_t) PIN_BATT
 	cfg_gpio.pin_bit_mask = 1ULL << PIN_CHARGE;
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
-	uint32_t sum = 0;
-	for(int i = 0; i < MeasureCount; i++){
-		sum += adc.sample();
-	}
-	voltage = mapReading(sum/MeasureCount);
+	quickSample();
 
 	start();
 }
@@ -26,12 +22,31 @@ Battery::~Battery(){
 	stop();
 }
 
+void Battery::quickSample(){
+	uint32_t sum = 0;
+	for(int i = 0; i < MeasureCount; i++){
+		sum += adc.sample();
+	}
+	voltage = mapReading(sum/MeasureCount);
+}
+
 bool Battery::isCharging() const{
 	return gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
 }
 
 void Battery::loop(){
 	vTaskDelay(MeasureInverval);
+
+	if(isCharging()){
+		wasCharging = true;
+		return;
+	}else if(wasCharging){
+		wasCharging = false;
+		adc.resetEma();
+		quickSample();
+		measureSum = 0;
+		measureCount = 0;
+	}
 
 	measureSum += adc.sample();
 	measureCount++;
