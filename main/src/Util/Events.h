@@ -42,6 +42,7 @@ public:
 	virtual ~EventQueue();
 
 	bool get(Event& item, TickType_t timeout);
+	void reset();
 
 private:
 	QueueHandle_t queue;
