@@ -1,16 +1,31 @@
-#ifndef CLOCKSTAR_FIRMWARE_CLIENT_H
-#define CLOCKSTAR_FIRMWARE_CLIENT_H
+#ifndef CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
+#define CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
 
-#include "Service.h"
 #include <memory>
+#include <vector>
+#include <unordered_set>
+#include <functional>
+#include <Util/Queue.h>
+#include <esp_bt_defs.h>
+#include <esp_gatt_defs.h>
 #include <esp_gattc_api.h>
 
-class ServiceInfo;
-class BLE;
+namespace BLE {
+
+class GAP;
 
 class Client {
 public:
-	Client(BLE* ble);
+	class Char;
+	class CharInfo;
+	class Service;
+	class ServiceInfo;
+#include "Client/Char.h"
+#include "Client/CharInfo.h"
+#include "Client/Service.h"
+#include "Client/ServiceInfo.h"
+
+	Client(GAP* gap);
 	~Client();
 
 	std::shared_ptr<Service> addService(esp_bt_uuid_t uuid);
@@ -19,7 +34,7 @@ private:
 	static Client* self;
 	friend ServiceInfo;
 	friend CharInfo;
-	friend BLE;
+	friend GAP;
 
 	std::unordered_set<std::shared_ptr<Service>> services;
 	std::unordered_map<uint16_t, Char*> chars;
@@ -43,7 +58,7 @@ private:
 
 	void ble_GATTC_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 
-	BLE* ble;
+	GAP* gap;
 	void onPairDone();
 
 	void onConnect(const esp_ble_gattc_cb_param_t::gattc_connect_evt_param* param);
@@ -62,5 +77,7 @@ private:
 
 };
 
+}
 
-#endif //CLOCKSTAR_FIRMWARE_CLIENT_H
+
+#endif //CLOCKSTAR_FIRMWARE_BLE_CLIENT_H

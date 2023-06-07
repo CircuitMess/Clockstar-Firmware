@@ -1,0 +1,12 @@
+
+choice CM_BUILD_EXAMPLE
+    prompt "Examples"
+    help
+        Build the Clockstar firmware or one of the examples.
+    default CM_BUILD_FIRMWARE
+
+    config CM_BUILD_FIRMWARE
+        bool "Clockstar firmware"
+    config CM_EXAMPLE_ANCS
+        bool "ANCS example"
+endchoice

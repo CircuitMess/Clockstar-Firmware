@@ -1,4 +1,4 @@
-#include "BLE.h"
+#include "GAP.h"
 #include "Client.h"
 #include <esp_log.h>
 #include <esp_gap_ble_api.h>
@@ -6,10 +6,9 @@
 
 static const char* TAG = "BLE";
 
-BLE* BLE::self = nullptr;
+BLE::GAP* BLE::GAP::self = nullptr;
 
-
-BLE::BLE(){
+BLE::GAP::GAP(){
 	self = this;
 
 	esp_ble_gatt_set_local_mtu(500);
@@ -29,20 +28,20 @@ BLE::BLE(){
 	esp_ble_gap_config_adv_data((esp_ble_adv_data_t*) &AdvertRespConfig);
 }
 
-BLE::~BLE(){
+BLE::GAP::~GAP(){
 	self = nullptr;
 	esp_ble_gap_register_callback([](esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param){});
 }
 
-void BLE::setClient(Client* client){
+void BLE::GAP::setClient(Client* client){
 	this->client = client;
 }
 
-void BLE::startAdvertising(){
+void BLE::GAP::startAdvertising(){
 	esp_ble_gap_start_advertising((esp_ble_adv_params_t*) &AdvertParams);
 }
 
-void BLE::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param){
+void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param){
 	ESP_LOGV(TAG, "GAP_EVT, event %d", event);
 
 	switch(event){
@@ -96,14 +95,14 @@ void BLE::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param
 	}
 }
 
-void BLE::configDone(BLE::Config config){
+void BLE::GAP::configDone(Config config){
 	configsDone.insert(config);
 	if(configsDone.size() == (int) Config::COUNT){
 		this->startAdvertising();
 	}
 }
 
-void BLE::initSecure(){
+void BLE::GAP::initSecure(){
 	uint32_t passkey = 123456; // static passkey
 	esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
 

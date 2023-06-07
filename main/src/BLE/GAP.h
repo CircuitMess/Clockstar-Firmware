@@ -1,17 +1,19 @@
-#ifndef CLOCKSTAR_FIRMWARE_BLE_H
-#define CLOCKSTAR_FIRMWARE_BLE_H
+#ifndef CLOCKSTAR_FIRMWARE_GAP_H
+#define CLOCKSTAR_FIRMWARE_GAP_H
 
 
 #include <esp_gap_ble_api.h>
 #include <unordered_set>
 #include <esp_gattc_api.h>
 
+namespace BLE {
+
 class Client;
 
-class BLE {
+class GAP {
 public:
-	BLE();
-	virtual ~BLE();
+	GAP();
+	virtual ~GAP();
 
 	struct InterfaceInfo {
 		uint8_t appID = 0xff;
@@ -21,7 +23,7 @@ public:
 	};
 
 private:
-	static BLE* self;
+	static GAP* self;
 
 	InterfaceInfo iface;
 
@@ -85,5 +87,7 @@ private:
 
 };
 
+}
 
-#endif //CLOCKSTAR_FIRMWARE_BLE_H
+
+#endif //CLOCKSTAR_FIRMWARE_GAP_H
