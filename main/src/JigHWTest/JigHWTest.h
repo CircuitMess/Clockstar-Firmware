@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "Periph/I2C.h"
-#include "Devices/IMU.h"
+#include "Devices/IMU/IMU.h"
 #include "Devices/RTC.h"
 
 struct Test {

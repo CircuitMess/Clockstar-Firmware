@@ -2,10 +2,12 @@
 #include <freertos/task.h>
 #include <esp_log.h>
 #include <driver/gpio.h>
+#include "Madgwick_Filter/madgwickFilter.h"
 
 static const char* tag = "IMU";
 
-IMU::IMU(I2C& i2c) : i2c(i2c), rawReads(MaxReads), thread1([this](){ thread1Func(); }, "IMU_INT1"), thread2([this](){ thread2Func(); }, "IMU_INT2"){
+IMU::IMU(I2C& i2c) : i2c(i2c), rawReads(MaxReads), thread1([this](){ thread1Func(); }, "IMU_INT1"), thread2([this](){ thread2Func(); }, "IMU_INT2"),
+					 fusionThread([this](){ fusionThreadFunc(); }, "IMU_Fusion"){
 	ctx = {
 			.write_reg = platform_write,
 			.read_reg = platform_read,
@@ -29,6 +31,7 @@ bool IMU::init(){
 	//gyro setup
 	lsm6ds3tr_c_gy_data_rate_set(&ctx, LSM6DS3TR_C_GY_ODR_104Hz);
 	lsm6ds3tr_c_gy_full_scale_set(&ctx, LSM6DS3TR_C_2000dps);
+	lsm6ds3tr_c_gy_band_pass_set(&ctx, LSM6DS3TR_C_HP_65mHz_LP1_NORMAL);
 
 	//FIFO setup
 	lsm6ds3tr_c_fifo_watermark_set(&ctx, ReadingsWatermark);
@@ -91,6 +94,7 @@ bool IMU::init(){
 	gpio_isr_handler_add(static_cast<gpio_num_t>(IMU_INT1), gpio_isr_handler, (void*) isrArgs1.get());
 	gpio_isr_handler_add(static_cast<gpio_num_t>(IMU_INT2), gpio_isr_handler, (void*) isrArgs2.get());
 
+	fusionThread.start();
 
 	return true;
 }
@@ -229,4 +233,22 @@ void IMU::setWristPosition(WatchPosition wristPosition){
 
 void IMU::enableMotionDetection(bool enable){
 	lsm6ds3tr_c_motion_sens_set(&ctx, enable);
+}
+
+void IMU::fusionThreadFunc(){
+	GyroAcceleroRaw data{};
+	const auto xlConv = [](int16_t raw){ return lsm6ds3tr_c_from_fs16g_to_mg(raw) / 1000; };
+	const auto gyConv = [](int16_t raw){ return (lsm6ds3tr_c_from_fs2000dps_to_mdps(raw) * PI / 180) / 1000; };
+	while(1){
+		if(rawReads.get(data)){
+			imu_filter(xlConv(data.acceleroX), xlConv(data.acceleroY), xlConv(data.acceleroZ), gyConv(data.gyroX), gyConv(data.gyroY), gyConv(data.gyroZ));
+			const std::lock_guard<std::mutex> lock(fusionMutex);
+			eulerAngles(q_est, &orientation.roll, &orientation.pitch, &orientation.yaw);
+		}
+	}
+}
+
+IMU::Orientation IMU::getOrientation(){
+	const std::lock_guard<std::mutex> lock(fusionMutex);
+	return orientation;
 }

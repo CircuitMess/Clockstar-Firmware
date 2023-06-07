@@ -8,7 +8,7 @@
 #include "LV_Interface/LVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
-#include "Devices/IMU.h"
+#include "Devices/IMU/IMU.h"
 #include <lvgl/lvgl.h>
 #include <esp_sleep.h>
 #include <driver/uart.h>

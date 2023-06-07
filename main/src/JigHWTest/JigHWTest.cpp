@@ -5,7 +5,7 @@
 #include <ctime>
 #include <driver/gpio.h>
 #include "Devices/RTC.h"
-#include "Devices/IMU.h"
+#include "Devices/IMU/IMU.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -14,9 +14,9 @@ JigHWTest* JigHWTest::test = nullptr;
 JigHWTest::JigHWTest(I2C& i2c) : i2c(i2c){
 	test = this;
 
-	tests.push_back({ JigHWTest::RTCTest, "RTC"});
-	tests.push_back({ JigHWTest::Time, "Time"});
-	tests.push_back({ JigHWTest::Gyro, "Gyro"});
+	tests.push_back({ JigHWTest::RTCTest, "RTC" });
+	tests.push_back({ JigHWTest::Time, "Time" });
+	tests.push_back({ JigHWTest::Gyro, "Gyro" });
 
 	imu = new IMU(i2c);
 	rtc = new RTC(i2c);
@@ -27,7 +27,7 @@ void JigHWTest::start(){
 	esp_read_mac(mac, ESP_MAC_WIFI_STA);
 	uint64_t uid = 0;
 	for(int i = 0; i < 6; i++){
-		uid |= mac[i] << 8*i;
+		uid |= mac[i] << 8 * i;
 	}
 
 	printf("\n");
@@ -51,7 +51,7 @@ void JigHWTest::start(){
 	// display->commit();
 
 	bool pass = true;
-	for(const Test& test : tests){
+	for(const Test& test: tests){
 		currentTest = test.name;
 
 		// canvas->setTextColor(TFT_WHITE);

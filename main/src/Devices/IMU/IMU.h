@@ -4,13 +4,15 @@
 #include "Drivers/lsm6ds3tr-c_reg.h"
 #include "Periph/I2C.h"
 #include <cstdint>
-#include "../Util/Threaded.h"
+#include "Util/Threaded.h"
 #include <vector>
 #include <freertos/semphr.h>
 #include <memory>
-#include "../Pins.hpp"
-#include <Util/Events.h>
-#include <Util/Queue.h>
+#include "Pins.hpp"
+#include "Util/Events.h"
+#include "Util/Queue.h"
+#include <mutex>
+
 
 /**
  * Axis orientation when the watch is on your left wrist:
@@ -25,12 +27,12 @@ public:
 	bool init();
 
 	struct GyroAcceleroRaw {
-		uint16_t gyroX;
-		uint16_t gyroY;
-		uint16_t gyroZ;
-		uint16_t acceleroX;
-		uint16_t acceleroY;
-		uint16_t acceleroZ;
+		int16_t gyroX;
+		int16_t gyroY;
+		int16_t gyroZ;
+		int16_t acceleroX;
+		int16_t acceleroY;
+		int16_t acceleroZ;
 	};
 
 	enum class TiltDirection {
@@ -63,6 +65,13 @@ public:
 
 	[[nodiscard]] Queue<GyroAcceleroRaw>& getRawReads();
 	void enableGyroAccelero(bool enable);
+
+	struct Orientation{
+		float roll;
+		float pitch;
+		float yaw;
+	};
+	Orientation getOrientation();
 
 private:
 	static constexpr uint8_t Addr = 0x6A;
@@ -111,6 +120,11 @@ private:
 	ThreadedClosure thread2;
 	void thread1Func();
 	void thread2Func();
+
+	Orientation orientation{};
+	ThreadedClosure fusionThread;
+	void fusionThreadFunc();
+	std::mutex fusionMutex;
 };
 
 
