@@ -7,3 +7,5 @@ elseif(CONFIG_CM_EXAMPLE_ANCS)
 endif()
 
 idf_component_register(SRCS ${ENTRY} ${SOURCES} INCLUDE_DIRS "src")
+
+spiffs_create_partition_image(storage ../spiffs_image FLASH_IN_PROJECT)

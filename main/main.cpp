@@ -8,7 +8,8 @@
 #include "LV_Interface/LVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
-
+#include <esp_spiffs.h>
+#include <esp_log.h>
 #include <lvgl/lvgl.h>
 
 void init(){
@@ -43,6 +44,26 @@ void init(){
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
 	lv_scr_load(scr);
+
+	//init spiffs
+	esp_vfs_spiffs_conf_t conf = {
+			.base_path = "/spiffs",
+			.partition_label = NULL,
+			.max_files = 5,
+			.format_if_mount_failed = false
+	};
+	ret = esp_vfs_spiffs_register(&conf);
+	const char* TAG = "spiffs";
+	if(ret != ESP_OK){
+		if(ret == ESP_FAIL){
+			ESP_LOGE(TAG, "Failed to mount or format filesystem");
+		}else if(ret == ESP_ERR_NOT_FOUND){
+			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+		}else{
+			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+		}
+		return;
+	}
 
 	// Start UI thread after initialization
 	lvgl->start();
