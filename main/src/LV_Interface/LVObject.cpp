@@ -21,7 +21,7 @@ LVObject::~LVObject(){
 	}
 }
 
-lv_obj_t* LVObject::getLvObj(){
+LVObject::operator lv_obj_t*(){
 	return obj;
 }
 
