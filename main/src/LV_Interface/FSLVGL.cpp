@@ -63,7 +63,6 @@ void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t m
 
 	auto fslvgl = (FSLVGL*) drv->user_data;
 	std::string p = std::string(fslvgl->root) + std::string(path);
-	printf("fslvgl opening: %s\n", p.c_str());
 
 	return (void*) fopen(p.c_str(), fsMode);
 }
