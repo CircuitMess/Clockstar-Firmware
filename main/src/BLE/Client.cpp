@@ -200,7 +200,7 @@ void BLE::Client::passToChar(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_
 		chr->second->onWriteResp(event, &param->write);
 
 	}else{
-		ESP_LOGW(TAG, "Unhandled characteristic event: 0x%d", event);
+		ESP_LOGW(TAG, "Unhandled characteristic event: 0x%x", event);
 	}
 }
 

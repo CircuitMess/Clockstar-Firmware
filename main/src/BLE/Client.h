@@ -1,6 +1,7 @@
 #ifndef CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
 #define CLOCKSTAR_FIRMWARE_BLE_CLIENT_H
 
+#include <cstdint>
 #include <memory>
 #include <vector>
 #include <unordered_set>

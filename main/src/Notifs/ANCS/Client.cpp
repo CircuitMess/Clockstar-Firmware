@@ -47,7 +47,7 @@ void ANCS::Client::actionPos(uint32_t uid){
 	buf.push_back(2);
 	buf.insert(buf.cend(), (uint8_t*) &uid, (uint8_t*) (((uint32_t*) &uid) + 1));
 	buf.push_back(ActionID::ActionIDPositive);
-	ESP_LOGI(TAG, "Sending pos action for notif 0x%x\n", uid);
+	ESP_LOGI(TAG, "Sending pos action for notif 0x%lx\n", uid);
 	chr.ctrl->write(buf);
 }
 
@@ -56,7 +56,7 @@ void ANCS::Client::actionNeg(uint32_t uid){
 	buf.push_back(2);
 	buf.insert(buf.cend(), (uint8_t*) &uid, (uint8_t*) (((uint32_t*) &uid) + 1));
 	buf.push_back(ActionID::ActionIDNegative);
-	ESP_LOGI(TAG, "Sending neg action for notif 0x%x\n", uid);
+	ESP_LOGI(TAG, "Sending neg action for notif 0x%lx\n", uid);
 	chr.ctrl->write(buf);
 }
 
@@ -127,7 +127,7 @@ void ANCS::Client::requestData(uint32_t uid){
 
 	chr.ctrl->write(buf);
 
-	ESP_LOGI(TAG, "Requesting data for notif 0x%x\n", uid);
+	ESP_LOGI(TAG, "Requesting data for notif 0x%lx\n", uid);
 }
 
 void ANCS::Client::processData(bool sendIncomplete){
@@ -156,7 +156,7 @@ void ANCS::Client::processData(bool sendIncomplete){
 				.category = (Notif::Category) nd.category // TODO: Currently, Notif categories map 1:1 to ANCS categories. In the future, mapping will be needed
 		};
 
-		ESP_LOGI(TAG, "Sending notif 0x%x. Modify: %d\n", nd.uid, nd.modify);
+		ESP_LOGI(TAG, "Sending notif 0x%lx. Modify: %d\n", nd.uid, nd.modify);
 		if(nd.modify){
 			notifModify(notif);
 		}else{
@@ -198,7 +198,7 @@ void ANCS::Client::processData(bool sendIncomplete){
 			if(matched == 5){
 				// Matched whole header
 				processingAttrs = true;
-				ESP_LOGI(TAG, "Found header for notif 0x%x\n", uid);
+				ESP_LOGI(TAG, "Found header for notif 0x%lx\n", uid);
 			}else{
 				// No header found => data is incomplete
 				err();

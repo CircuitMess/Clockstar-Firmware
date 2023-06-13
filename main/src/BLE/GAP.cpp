@@ -66,7 +66,7 @@ void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* 
 			/* The app will receive this evt when the IO has DisplayYesNO capability and the peer device IO also has DisplayYesNo capability.
 			show the passkey number to the user to confirm it with the number displayed by peer device. */
 			esp_ble_confirm_reply(param->ble_security.ble_req.bd_addr, true); // true for accept, false for not accept
-			ESP_LOGI(TAG, "ESP_GAP_BLE_NC_REQ_EVT, the passkey Notify number:%d", param->ble_security.key_notif.passkey);
+			ESP_LOGI(TAG, "ESP_GAP_BLE_NC_REQ_EVT, the passkey Notify number:%lu", param->ble_security.key_notif.passkey);
 			break;
 
 		case ESP_GAP_BLE_SEC_REQ_EVT:
