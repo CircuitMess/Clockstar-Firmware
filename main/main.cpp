@@ -11,6 +11,7 @@
 #include <esp_spiffs.h>
 #include <esp_log.h>
 #include <lvgl/lvgl.h>
+#include "LV_Interface/FSLVGL.h"
 
 void init(){
 	gpio_config_t io_conf = {
