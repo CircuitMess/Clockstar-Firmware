@@ -4,3 +4,6 @@
 [submodule "components/lvgl"]
 	path = components/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "components/glm"]
+	path = components/glm
+	url = https://github.com/g-truc/glm.git

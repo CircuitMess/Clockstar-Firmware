@@ -8,8 +8,10 @@
 #include "LV_Interface/LVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
-
+#include <esp_spiffs.h>
+#include <esp_log.h>
 #include <lvgl/lvgl.h>
+#include "LV_Interface/FSLVGL.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -43,6 +45,8 @@ void init(){
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
 	lv_scr_load(scr);
+
+	auto lvglSpiffs = new FSLVGL("/spiffs", 'S');
 
 	// Start UI thread after initialization
 	lvgl->start();
