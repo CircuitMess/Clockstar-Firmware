@@ -1,4 +1,5 @@
 #include "LVScreen.h"
+#include "InputLVGL.h"
 #include <cstdio>
 
 LVScreen* LVScreen::current = nullptr;
@@ -12,7 +13,7 @@ LVScreen::LVScreen() : LVObject(nullptr){
 		auto screen = static_cast<LVScreen*>(event->user_data);
 
 		// LoopManager::defer([screen](uint32_t){ TODO: check if this is necessary since it should only be invoked from UI thread
-			// lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
+			lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
 
 			for(auto del : screen->delOnStart){
 				lv_obj_del((lv_obj_t*)del);

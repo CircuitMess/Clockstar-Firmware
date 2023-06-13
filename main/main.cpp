@@ -6,8 +6,10 @@
 #include "Periph/Bluetooth.h"
 #include "Devices/Display.h"
 #include "LV_Interface/LVGL.h"
+#include "LV_Interface/InputLVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
+#include "Devices/Input.h"
 #include <esp_spiffs.h>
 #include <esp_log.h>
 #include <lvgl/lvgl.h>
@@ -40,7 +42,9 @@ void init(){
 	auto client = new BLE::Client(gap);
 
 	auto disp = new Display();
+	auto input = new Input();
 	auto lvgl = new LVGL(*disp);
+	auto lvglInput = new InputLVGL();
 
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
