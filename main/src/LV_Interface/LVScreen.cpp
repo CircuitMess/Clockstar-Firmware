@@ -1,4 +1,5 @@
 #include "LVScreen.h"
+#include <cstdio>
 
 LVScreen* LVScreen::current = nullptr;
 
