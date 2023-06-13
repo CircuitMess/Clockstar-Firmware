@@ -39,7 +39,6 @@ void InputLVGL::loop(){
 		auto inputData = *((Input::Data*) event.data);
 		lastKey = inputData.btn;
 		action = inputData.action;
-		printf("button: %d, action: %d\n", lastKey, action);
 	}
 }
 
