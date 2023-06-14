@@ -1,5 +1,6 @@
 #include "LVGL.h"
 #include <lvgl.h>
+#include "LVScreen.h"
 
 LVGL::LVGL(Display& display) : Threaded("LVGL", 8 * 1024, 5, 0), display(display){
 	lv_init();
@@ -34,7 +35,12 @@ void LVGL::flush(lv_disp_drv_t* dispDrv, const lv_area_t* area, lv_color_t* pixe
 }
 
 void LVGL::loop(){
+	auto scr = LVScreen::getCurrent();
+	if(scr != nullptr){
+		scr->loop();
+	}
+
 	auto ttn = lv_timer_handler();
-	if(ttn <= 0) ttn = 1;
+	if(ttn <= 0 || ttn > LV_DISP_DEF_REFR_PERIOD) ttn = 1;
 	vTaskDelay(ttn);
 }

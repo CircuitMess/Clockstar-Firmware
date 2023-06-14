@@ -1,32 +1,31 @@
-#include <cstring>
+#include "../Client.h"
 #include <esp_log.h>
-#include "Service.h"
 
-static const char* TAG = "BLE::Service";
+static const char* TAG = "BLE::Client::Service";
 
-Service::Service(esp_bt_uuid_t uuid) : uuid(uuid){
+BLE::Client::Service::Service(esp_bt_uuid_t uuid) : uuid(uuid){
 
 }
 
-std::shared_ptr<Char> Service::addChar(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props){
+std::shared_ptr<BLE::Client::Char> BLE::Client::Service::addChar(esp_bt_uuid_t uuid, esp_gatt_char_prop_t props){
 	std::shared_ptr<Char> chr(new Char(uuid, props));
 	chars.insert(chr);
 	return chr;
 }
 
-void Service::setOnConnectCb(Service::ConnectCB onConnectedCb){
+void BLE::Client::Service::setOnConnectCb(Service::ConnectCB onConnectedCb){
 	onConnectCB = std::move(onConnectedCb);
 }
 
-void Service::setOnDisconnectCb(Service::DisconnectCB onDisconnectCb){
+void BLE::Client::Service::setOnDisconnectCb(Service::DisconnectCB onDisconnectCb){
 	onDisconnectCB = std::move(onDisconnectCb);
 }
 
-bool Service::established(){
+bool BLE::Client::Service::established(){
 	return svc != nullptr;
 }
 
-bool Service::populated(){
+bool BLE::Client::Service::populated(){
 	for(const auto& chr : chars){
 		if(chr->established()) return true;
 	}
@@ -34,12 +33,12 @@ bool Service::populated(){
 	return false;
 }
 
-void Service::establish(std::unique_ptr<ServiceInfo> info){
+void BLE::Client::Service::establish(std::unique_ptr<ServiceInfo> info){
 	ESP_LOGI(TAG, "Established");
 	svc = std::move(info);
 }
 
-void Service::pull(){
+void BLE::Client::Service::pull(){
 	if(!svc) return;
 
 	for(const auto& chr : chars){
@@ -60,7 +59,7 @@ void Service::pull(){
 	}
 }
 
-void Service::close(){
+void BLE::Client::Service::close(){
 	if(!svc) return;
 	ESP_LOGI(TAG, "Closing");
 

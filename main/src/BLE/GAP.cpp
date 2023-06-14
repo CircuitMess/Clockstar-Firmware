@@ -1,15 +1,15 @@
-#include "BLE.h"
+#include "GAP.h"
 #include "Client.h"
+#include "Server.h"
 #include <esp_log.h>
 #include <esp_gap_ble_api.h>
 #include <esp_gatt_common_api.h>
 
 static const char* TAG = "BLE";
 
-BLE* BLE::self = nullptr;
+BLE::GAP* BLE::GAP::self = nullptr;
 
-
-BLE::BLE(){
+BLE::GAP::GAP(){
 	self = this;
 
 	esp_ble_gatt_set_local_mtu(500);
@@ -29,21 +29,26 @@ BLE::BLE(){
 	esp_ble_gap_config_adv_data((esp_ble_adv_data_t*) &AdvertRespConfig);
 }
 
-BLE::~BLE(){
+BLE::GAP::~GAP(){
 	self = nullptr;
 	esp_ble_gap_register_callback([](esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param){});
 }
 
-void BLE::setClient(Client* client){
+void BLE::GAP::setClient(Client* client){
 	this->client = client;
 }
 
-void BLE::startAdvertising(){
+void BLE::GAP::setServer(Server* server){
+	this->server = server;
+}
+
+void BLE::GAP::startAdvertising(){
 	esp_ble_gap_start_advertising((esp_ble_adv_params_t*) &AdvertParams);
 }
 
-void BLE::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param){
+void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param){
 	ESP_LOGV(TAG, "GAP_EVT, event %d", event);
+	// TODO: handle ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT -> contains connection parameters (min & max interval, etc.)
 
 	switch(event){
 		case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
@@ -67,7 +72,7 @@ void BLE::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param
 			/* The app will receive this evt when the IO has DisplayYesNO capability and the peer device IO also has DisplayYesNo capability.
 			show the passkey number to the user to confirm it with the number displayed by peer device. */
 			esp_ble_confirm_reply(param->ble_security.ble_req.bd_addr, true); // true for accept, false for not accept
-			ESP_LOGI(TAG, "ESP_GAP_BLE_NC_REQ_EVT, the passkey Notify number:%d", param->ble_security.key_notif.passkey);
+			ESP_LOGI(TAG, "ESP_GAP_BLE_NC_REQ_EVT, the passkey Notify number:%lu", param->ble_security.key_notif.passkey);
 			break;
 
 		case ESP_GAP_BLE_SEC_REQ_EVT:
@@ -88,6 +93,10 @@ void BLE::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param
 				client->onPairDone();
 			}
 
+			if(server){
+				server->onPairDone();
+			}
+
 			break;
 		}
 
@@ -96,14 +105,14 @@ void BLE::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param
 	}
 }
 
-void BLE::configDone(BLE::Config config){
+void BLE::GAP::configDone(Config config){
 	configsDone.insert(config);
 	if(configsDone.size() == (int) Config::COUNT){
 		this->startAdvertising();
 	}
 }
 
-void BLE::initSecure(){
+void BLE::GAP::initSecure(){
 	uint32_t passkey = 123456; // static passkey
 	esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
 

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-enum class Facility { Events, SignMotion, DoubleTap, SingleTap, WristTilt, FIFO };
+enum class Facility { Input, Events, SignMotion, DoubleTap, SingleTap, WristTilt, FIFO };
 
 struct Event {
 	Facility facility;

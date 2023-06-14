@@ -1,15 +1,13 @@
-#include "ServiceInfo.h"
-#include "Client.h"
-#include "Char.h"
+#include "../Client.h"
 #include <esp_log.h>
 
-static const char* TAG = "BLE::ServiceInfo";
+static const char* TAG = "BLE::Client::ServiceInfo";
 
-ServiceInfo::ServiceInfo(Client* client, uint16_t startHndl, uint16_t endHndl) : client(client), startHndl(startHndl), endHndl(endHndl){
+BLE::Client::ServiceInfo::ServiceInfo(Client* client, uint16_t startHndl, uint16_t endHndl) : client(client), startHndl(startHndl), endHndl(endHndl){
 
 }
 
-std::vector<esp_gattc_char_elem_t> ServiceInfo::getChars() const{
+std::vector<esp_gattc_char_elem_t> BLE::Client::ServiceInfo::getChars() const{
 	uint16_t count;
 	auto ret = esp_ble_gattc_get_attr_count(client->iface.hndl, client->con.hndl, ESP_GATT_DB_CHARACTERISTIC, startHndl, endHndl, 0, &count);
 	if(ret != ESP_GATT_OK){
@@ -28,7 +26,7 @@ std::vector<esp_gattc_char_elem_t> ServiceInfo::getChars() const{
 	return chars;
 }
 
-esp_gattc_char_elem_t ServiceInfo::getCharByUUID(esp_bt_uuid_t uuid) const{
+esp_gattc_char_elem_t BLE::Client::ServiceInfo::getCharByUUID(esp_bt_uuid_t uuid) const{
 	esp_gattc_char_elem_t chr;
 	uint16_t count = 1;
 
@@ -44,10 +42,10 @@ esp_gattc_char_elem_t ServiceInfo::getCharByUUID(esp_bt_uuid_t uuid) const{
 	return chr;
 }
 
-std::unique_ptr<CharInfo> ServiceInfo::makeCharInfo(uint16_t hndl){
+std::unique_ptr<BLE::Client::CharInfo> BLE::Client::ServiceInfo::makeCharInfo(uint16_t hndl){
 	return std::make_unique<CharInfo>(client, hndl);
 }
 
-void ServiceInfo::regChar(Char* chr, uint16_t hndl){
+void BLE::Client::ServiceInfo::regChar(Char* chr, uint16_t hndl){
 	client->chars.insert(std::make_pair(hndl, chr));
 }

@@ -1,17 +1,20 @@
-#ifndef CLOCKSTAR_FIRMWARE_BLE_H
-#define CLOCKSTAR_FIRMWARE_BLE_H
+#ifndef CLOCKSTAR_FIRMWARE_GAP_H
+#define CLOCKSTAR_FIRMWARE_GAP_H
 
 
 #include <esp_gap_ble_api.h>
 #include <unordered_set>
 #include <esp_gattc_api.h>
 
-class Client;
+namespace BLE {
 
-class BLE {
+class Client;
+class Server;
+
+class GAP {
 public:
-	BLE();
-	virtual ~BLE();
+	GAP();
+	virtual ~GAP();
 
 	struct InterfaceInfo {
 		uint8_t appID = 0xff;
@@ -21,7 +24,7 @@ public:
 	};
 
 private:
-	static BLE* self;
+	static GAP* self;
 
 	InterfaceInfo iface;
 
@@ -43,12 +46,18 @@ private:
 	Client* client = nullptr;
 	void setClient(Client* client);
 
+	friend Server;
+	Server* server = nullptr;
+	void setServer(Server* client);
+
 	/** ### BLE device and advertising parameters ### */
 
 	static constexpr uint8_t ServiceUUID[] = {
 			/* LSB <--------------------------------------------------------------------------------> MSB */
-			//first uuid, 16bit, [12],[13] is the value
-			0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x12, 0x18, 0x00, 0x00
+			// first uuid, 16bit, [12],[13] is the value
+			// 0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x12, 0x18, 0x00, 0x00
+			// Nordic UART:
+			0x9E, 0xCA, 0xDC, 0x24, 0x0E, 0xE5, 0xA9, 0xE0, 0x93, 0xF3, 0xA3, 0xB5, 0x01, 0x00, 0x40, 0x6E
 	};
 
 	static constexpr uint8_t Manufacturer[] = "CircuitMess";
@@ -64,26 +73,33 @@ private:
 
 	static constexpr esp_ble_adv_data_t AdvertConfig = {
 			.set_scan_rsp = false,
+			.include_name = true,
 			.include_txpower = false,
 			.min_interval = 0x0006, // slave connection min interval, Time = min_interval * 1.25 msec
 			.max_interval = 0x0010, // slave connection max interval, Time = max_interval * 1.25 msec
-			.appearance = ESP_BLE_APPEARANCE_GENERIC_HID,
+			.appearance = ESP_BLE_APPEARANCE_GENERIC_WATCH,
 			.manufacturer_len = sizeof(Manufacturer),
 			.p_manufacturer_data = (uint8_t*) Manufacturer,
 			.service_uuid_len = sizeof(ServiceUUID),
 			.p_service_uuid = (uint8_t*) ServiceUUID,
-			.flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
-
+			.flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT)
 	};
 
 	static constexpr esp_ble_adv_data_t AdvertRespConfig = {
 			.set_scan_rsp = true,
 			.include_name = true,
+			.include_txpower = false,
+			.appearance = ESP_BLE_APPEARANCE_GENERIC_WATCH,
 			.manufacturer_len = sizeof(Manufacturer),
-			.p_manufacturer_data = (uint8_t*) Manufacturer
+			.p_manufacturer_data = (uint8_t*) Manufacturer,
+			.service_uuid_len = sizeof(ServiceUUID),
+			.p_service_uuid = (uint8_t*) ServiceUUID,
+			.flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT)
 	};
 
 };
 
+}
 
-#endif //CLOCKSTAR_FIRMWARE_BLE_H
+
+#endif //CLOCKSTAR_FIRMWARE_GAP_H

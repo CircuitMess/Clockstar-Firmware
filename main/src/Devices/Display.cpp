@@ -1,5 +1,5 @@
 #include "Display.h"
-#include <../Pins.hpp>
+#include <Pins.hpp>
 
 Display::Display(){
 	setupBus();
