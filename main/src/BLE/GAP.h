@@ -9,6 +9,7 @@
 namespace BLE {
 
 class Client;
+class Server;
 
 class GAP {
 public:
@@ -44,6 +45,10 @@ private:
 	friend Client;
 	Client* client = nullptr;
 	void setClient(Client* client);
+
+	friend Server;
+	Server* server = nullptr;
+	void setServer(Server* client);
 
 	/** ### BLE device and advertising parameters ### */
 
