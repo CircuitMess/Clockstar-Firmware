@@ -4,6 +4,8 @@ if(CONFIG_CM_BUILD_FIRMWARE)
     set(ENTRY "main.cpp")
 elseif(CONFIG_CM_EXAMPLE_ANCS)
     set(ENTRY "../examples/ancs.cpp")
+elseif(CONFIG_CM_EXAMPLE_GATT_SERVER)
+    set(ENTRY "../examples/GATT_Server.cpp")
 endif()
 
 idf_component_register(SRCS ${ENTRY} ${SOURCES} INCLUDE_DIRS "src")

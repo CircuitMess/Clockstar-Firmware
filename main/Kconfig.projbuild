@@ -9,4 +9,6 @@ choice CM_BUILD_EXAMPLE
         bool "Clockstar firmware"
     config CM_EXAMPLE_ANCS
         bool "ANCS example"
+    config CM_EXAMPLE_GATT_SERVER
+            bool "GATT server example"
 endchoice
