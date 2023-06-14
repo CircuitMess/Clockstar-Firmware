@@ -6,6 +6,7 @@
 #include "BLE/GAP.h"
 #include "BLE/Server.h"
 #include <esp_pm.h>
+#include "Pins.hpp"
 
 /**
  * Exactly the same as the GATT Server example, with added auto sleep. Server parameters should be updated - src/BLE/Server.cpp:198
@@ -27,6 +28,9 @@ void init(){
 		ret = nvs_flash_init();
 	}
 	ESP_ERROR_CHECK(ret);
+
+	gpio_set_direction((gpio_num_t) PIN_BL, GPIO_MODE_OUTPUT);
+	gpio_set_level((gpio_num_t) PIN_BL, 1);
 
 	esp_log_level_set("*", ESP_LOG_WARN);
 	esp_log_level_set("clk", ESP_LOG_DEBUG);
