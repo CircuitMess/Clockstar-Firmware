@@ -48,6 +48,7 @@ void BLE::GAP::startAdvertising(){
 
 void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* param){
 	ESP_LOGV(TAG, "GAP_EVT, event %d", event);
+	// TODO: handle ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT -> contains connection parameters (min & max interval, etc.)
 
 	switch(event){
 		case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
