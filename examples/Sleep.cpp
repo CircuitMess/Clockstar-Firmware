@@ -12,6 +12,33 @@
  * Exactly the same as the GATT Server example, with added auto sleep. Server parameters should be updated - src/BLE/Server.cpp:198
  */
 
+std::shared_ptr<BLE::Server::Char> rxChar;
+std::shared_ptr<BLE::Server::Char> txChar;
+
+[[noreturn]] void process(void* arg){
+	std::vector<uint8_t> data;
+
+	for(;;){
+		auto msg = rxChar->getNextWrite();
+		if(msg == nullptr) continue;
+
+		data.insert(data.end(), msg->data.cbegin(), msg->data.cend());
+		msg->data.push_back(0);
+		printf("Received: %s\n", msg->data.data());
+		msg->data.pop_back();
+
+		auto nl = std::find(data.begin(), data.end(), '\n');
+		if(nl != data.end()){
+			std::vector forSend(data.begin(), nl+1);
+			data.erase(data.begin(), nl+1);
+			txChar->sendNotif(forSend);
+
+			forSend.push_back(0);
+			printf("Sending: %s", forSend.data());
+		}
+	}
+}
+
 void init(){
 	gpio_config_t io_conf = {
 			.pin_bit_mask = 1 << 13,
@@ -67,31 +94,13 @@ void init(){
 	};
 
 	auto service = server->addService(ServiceUID);
-	auto txChar = service->addChar(TxCharUID, ESP_GATT_CHAR_PROP_BIT_NOTIFY);
-	auto rxChar = service->addChar(RxCharUID, ESP_GATT_CHAR_PROP_BIT_WRITE);
+	txChar = service->addChar(TxCharUID, ESP_GATT_CHAR_PROP_BIT_NOTIFY);
+	rxChar = service->addChar(RxCharUID, ESP_GATT_CHAR_PROP_BIT_WRITE);
 
 	server->start();
 
-	std::vector<uint8_t> data;
-	for(;;){
-		auto msg = rxChar->getNextWrite();
-		if(msg == nullptr) continue;
-
-		data.insert(data.end(), msg->data.cbegin(), msg->data.cend());
-		msg->data.push_back(0);
-		printf("Received: %s\n", msg->data.data());
-		msg->data.pop_back();
-
-		auto nl = std::find(data.begin(), data.end(), '\n');
-		if(nl != data.end()){
-			std::vector forSend(data.begin(), nl+1);
-			data.erase(data.begin(), nl+1);
-			txChar->sendNotif(forSend);
-
-			forSend.push_back(0);
-			printf("Sending: %s", forSend.data());
-		}
-	}
+	TaskHandle_t procTask;
+	xTaskCreatePinnedToCore(process, "Process", 12 * 1024, nullptr, 5, &procTask, 1);
 
 	pm_config.light_sleep_enable = true;
 	ESP_ERROR_CHECK(esp_pm_configure(&pm_config));
