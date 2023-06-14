@@ -210,7 +210,6 @@ void BLE::Server::onDisconnect(const esp_ble_gatts_cb_param_t::gatts_disconnect_
 	ESP_LOGI(TAG, "Disconnected. Reason: 0x%x", param->reason);
 	memset(con.addr, 0, 6);
 	con.hndl = 0xffff;
-	chars.clear();
 
 	gap->startAdvertising(); // TODO: remove. should be invoked by whatever will encapsulate phone interface classes
 }
