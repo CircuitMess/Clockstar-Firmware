@@ -1,23 +1,34 @@
 #include "IMU.h"
-#include <freertos/task.h>
-#include <esp_log.h>
+#include <Util/Events.h>
 #include <driver/gpio.h>
+#include <esp_log.h>
+#include "Pins.hpp"
 
-static const char* tag = "IMU";
+static const char* TAG = "IMU";
 
-IMU::IMU(I2C& i2c) : i2c(i2c), rawReads(MaxReads), thread1([this](){ thread1Func(); }, "IMU_INT1"), thread2([this](){ thread2Func(); }, "IMU_INT2"){
-	ctx = {
-			.write_reg = platform_write,
-			.read_reg = platform_read,
-			.mdelay = delayMillis,
-			.handle = this
-	};
+IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(MaxReads), thread1([this](){ thread1Func(); }, "IMU1"), thread2([this](){ thread2Func(); }, "IMU2"){
+	sem1 = xSemaphoreCreateBinary();
+	sem2 = xSemaphoreCreateBinary();
+
+	thread1.start();
+	thread2.start();
+}
+
+IMU::~IMU(){
+	vSemaphoreDelete(sem1);
+	vSemaphoreDelete(sem2);
+
+	thread1.stop();
+	thread2.stop();
 }
 
 bool IMU::init(){
 	uint8_t id;
 	lsm6ds3tr_c_device_id_get(&ctx, &id);
-	if(id != LSM6DS3TR_C_ID) return false;
+	if(id != LSM6DS3TR_C_ID){
+		ESP_LOGE(TAG, "Init error, got ID 0x%x, expected 0x%x", id, LSM6DS3TR_C_ID);
+		return false;
+	}
 
 	lsm6ds3tr_c_block_data_update_set(&ctx, 1); //for reading 2 byte long values
 
@@ -46,7 +57,6 @@ bool IMU::init(){
 	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, 0, 0, 0, 0 };
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 
-
 	//significant motion setup
 	lsm6ds3tr_c_motion_sens_set(&ctx, 0);
 	uint8_t motionSenseThresh = SignificantMotionSens;
@@ -64,33 +74,23 @@ bool IMU::init(){
 
 
 	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0 });
-	gpio_config_t io_conf = {};
-	io_conf.intr_type = GPIO_INTR_POSEDGE;
-	io_conf.pin_bit_mask = (1ULL << IMU_INT1);
-	io_conf.mode = GPIO_MODE_INPUT;
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-	gpio_config(&io_conf);
-//	gpio_wakeup_enable(static_cast<gpio_num_t>(IMU_INT1), GPIO_INTR_HIGH_LEVEL);
+	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
+
 	gpio_install_isr_service(0);
 
-	isrArgs1 = std::make_shared<ISRArgs>(IMU_INT1, this);
+	gpio_config_t io_conf = {};
+	io_conf.intr_type = GPIO_INTR_POSEDGE;
+	io_conf.mode = GPIO_MODE_INPUT;
+	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+	io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
 
-	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
+	io_conf.pin_bit_mask = (1ULL << IMU_INT1);
+	gpio_config(&io_conf);
+	gpio_isr_handler_add((gpio_num_t) IMU_INT1, isr1, this);
+
 	io_conf.pin_bit_mask = (1ULL << IMU_INT2);
 	gpio_config(&io_conf);
-//	gpio_wakeup_enable(static_cast<gpio_num_t>(IMU_INT2), GPIO_INTR_HIGH_LEVEL);
-	isrArgs2 = std::make_shared<ISRArgs>(IMU_INT2, this);
-
-	sem1 = xSemaphoreCreateBinary();
-	sem2 = xSemaphoreCreateBinary();
-
-	thread1.start();
-	thread2.start();
-
-
-	gpio_isr_handler_add(static_cast<gpio_num_t>(IMU_INT1), gpio_isr_handler, (void*) isrArgs1.get());
-	gpio_isr_handler_add(static_cast<gpio_num_t>(IMU_INT2), gpio_isr_handler, (void*) isrArgs2.get());
-
+	gpio_isr_handler_add((gpio_num_t) IMU_INT2, isr2, this);
 
 	return true;
 }
@@ -105,8 +105,8 @@ int32_t IMU::platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len)
 	return imu->i2c.readReg(Addr, reg, data, len, 10);
 }
 
-void IMU::delayMillis(uint32_t millis){
-	vTaskDelay(millis);
+bool IMU::getNextSample(IMU::Sample& sample, TickType_t wait){
+	return fifoSamples.get(sample, wait);
 }
 
 void IMU::clearFifo(){
@@ -146,64 +146,75 @@ void IMU::printInterruptInfo(){
 
 }
 
-void IMU::thread1Func(){
+void IRAM_ATTR IMU::isr1(void* arg){
+	auto imu = static_cast<IMU*>(arg);
+	xSemaphoreGiveFromISR(imu->sem1, nullptr);
+}
+
+void IRAM_ATTR IMU::isr2(void* arg){
+	auto imu = static_cast<IMU*>(arg);
+	xSemaphoreGiveFromISR(imu->sem2, nullptr);
+}
+
+[[noreturn]] void IMU::thread1Func(){
 	for(;;){
-		if(xSemaphoreTake(sem1, portMAX_DELAY)){
+		if(xSemaphoreTake(sem1, portMAX_DELAY) != pdTRUE) continue;
 
-			lsm6ds3tr_c_all_sources_t src;
-			lsm6ds3tr_c_all_sources_get(&ctx, &src);
+		lsm6ds3tr_c_all_sources_t src;
+		lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
-			uint8_t fifoThresh = 0;
-			lsm6ds3tr_c_fifo_wtm_flag_get(&ctx, &fifoThresh);
+		uint8_t fifoThresh = 0;
+		lsm6ds3tr_c_fifo_wtm_flag_get(&ctx, &fifoThresh);
 
-			if(fifoThresh){
-				uint16_t numReadings;
-				lsm6ds3tr_c_fifo_data_level_get(&ctx, &numReadings);
-				Events::post(Facility::FIFO, nullptr, 0);
+		if(fifoThresh){
+			uint16_t numReadings;
+			lsm6ds3tr_c_fifo_data_level_get(&ctx, &numReadings);
+			const auto numDataSets = numReadings / 6;
 
-				const auto numDataSets = numReadings / 6;
-				IMU::GyroAcceleroRaw buf[numDataSets];
-
-				lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(buf), numReadings * 2);
-
-				for(auto& read: buf){
-					rawReads.post(read);
-				}
+			Sample buf[numDataSets];
+			lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(buf), numReadings * 2);
+			for(auto& read: buf){
+				fifoSamples.post(read);
 			}
-			if(src.func_src1.sign_motion_ia){
-				Events::post(Facility::SignMotion, nullptr, 0);
-			}
-			if(src.tap_src.single_tap){
-				Events::post(Facility::SingleTap, nullptr, 0);
-			}
-			if(src.tap_src.double_tap){
-				Events::post(Facility::DoubleTap, nullptr, 0);
-			}
+
+			Event evt = { .action = Event::FIFO };
+			Events::post(Facility::Motion, &evt, sizeof(evt));
+		}
+
+		if(src.func_src1.sign_motion_ia){
+			Event evt = { .action = Event::SignMotion };
+			Events::post(Facility::Motion, &evt, sizeof(evt));
+		}
+
+		if(src.tap_src.single_tap){
+			Event evt = { .action = Event::SingleTap };
+			Events::post(Facility::Motion, &evt, sizeof(evt));
+		}
+
+		if(src.tap_src.double_tap){
+			Event evt = { .action = Event::DoubleTap };
+			Events::post(Facility::Motion, &evt, sizeof(evt));
 		}
 	}
 }
 
-void IMU::thread2Func(){
+[[noreturn]] void IMU::thread2Func(){
 	for(;;){
-		if(xSemaphoreTake(sem2, portMAX_DELAY)){
+		if(xSemaphoreTake(sem2, portMAX_DELAY) != pdTRUE) continue;
 
-			lsm6ds3tr_c_all_sources_t src;
-			lsm6ds3tr_c_all_sources_get(&ctx, &src);
+		lsm6ds3tr_c_all_sources_t src;
+		lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
-			if(src.wrist_tilt_ia.wrist_tilt_ia_yneg){
-				Events::post(Facility::WristTilt, nullptr, 0);
-			}
+		if(src.wrist_tilt_ia.wrist_tilt_ia_yneg){
+			Event evt = { .action = Event::WristTilt };
+			Events::post(Facility::Motion, &evt, sizeof(evt));
 		}
 	}
-}
-
-Queue<IMU::GyroAcceleroRaw>& IMU::getRawReads(){
-	return rawReads;
 }
 
 void IMU::enableGyroAccelero(bool enable){
 	clearFifo();
-	rawReads.reset();
+	fifoSamples.reset();
 
 	if(enable){
 		lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_STREAM_MODE);
