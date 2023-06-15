@@ -40,7 +40,7 @@ Theremin::Theremin(){
 	lv_obj_set_pos(textVertical, VerticalTextX, VerticalTextY);
 	lv_obj_set_style_pad_column(textVertical, 3, 0);
 	auto label = lv_label_create(textVertical);
-	lv_label_set_text(label, "Tilt");
+	lv_label_set_text(label, "Move");
 	lv_obj_add_style(label, textStyle, 0);
 	auto arrow = lv_img_create(textVertical);
 	lv_img_set_src(arrow, "S:/theremin/up.bin");
@@ -63,7 +63,7 @@ Theremin::Theremin(){
 	lv_obj_set_pos(textHorizontal, HorizontalTextX, HorizontalTextY);
 	lv_obj_set_style_pad_column(textHorizontal, 3, 0);
 	label = lv_label_create(textHorizontal);
-	lv_label_set_text(label, "Tilt");
+	lv_label_set_text(label, "Move");
 	lv_obj_add_style(label, textStyle, 0);
 	arrow = lv_img_create(textHorizontal);
 	lv_img_set_src(arrow, "S:/theremin/left.bin");
