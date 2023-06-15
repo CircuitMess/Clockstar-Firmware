@@ -126,7 +126,7 @@ void BLE::Client::onMtuResp(const esp_ble_gattc_cb_param_t::gattc_cfg_mtu_evt_pa
 		return;
 	}
 
-	con.MTU_size = param->mtu;
+	con.MTU_size = param->mtu; // TODO: check if this really sets the MTU on the remote device side
 
 	searchServices();
 }
@@ -158,6 +158,8 @@ void BLE::Client::onSearchComplete(const esp_ble_gattc_cb_param_t::gattc_search_
 		if(svc->populated()) return;
 		svc->pull();
 	}
+
+	// TODO: disconnect if no registered service is found on remote server
 }
 
 void BLE::Client::onClose(const esp_ble_gattc_cb_param_t::gattc_close_evt_param* param){
@@ -200,7 +202,7 @@ void BLE::Client::passToChar(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_
 		chr->second->onWriteResp(event, &param->write);
 
 	}else{
-		ESP_LOGW(TAG, "Unhandled characteristic event: 0x%d", event);
+		ESP_LOGW(TAG, "Unhandled characteristic event: 0x%x", event);
 	}
 }
 
@@ -210,5 +212,8 @@ void BLE::Client::close(){
 	}
 	chars.clear();
 
-	gap->startAdvertising();
+	con.hndl = 0;
+	memset(con.addr, 0, 6);
+
+	gap->startAdvertising(); // TODO: remove. should be invoked by whatever will encapsulate phone interface classes
 }
