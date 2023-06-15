@@ -8,6 +8,8 @@ elseif(CONFIG_CM_EXAMPLE_GATT_SERVER)
     set(ENTRY "../examples/GATT_Server.cpp")
 elseif(CONFIG_CM_TEST_SLEEP)
     set(ENTRY "../examples/Sleep.cpp")
+elseif(CONFIG_CM_TEST_SLEEP_WAKE)
+    set(ENTRY "../examples/Sleep_Wake.cpp")
 endif()
 
 idf_component_register(SRCS ${ENTRY} ${SOURCES} INCLUDE_DIRS "src")

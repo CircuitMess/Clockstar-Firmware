@@ -13,4 +13,6 @@ choice CM_BUILD_EXAMPLE
             bool "GATT server example"
     config CM_TEST_SLEEP
         bool "Light sleep with BT test"
+    config CM_TEST_SLEEP_WAKE
+            bool "Light sleep with wake on GPIO"
 endchoice
