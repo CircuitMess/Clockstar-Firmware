@@ -11,6 +11,8 @@ elseif(CONFIG_CM_EXAMPLE_GYRO)
     list(APPEND ENTRY "../examples/Gyro/main.cpp")
 elseif(CONFIG_CM_TEST_SLEEP)
     set(ENTRY "../examples/Sleep.cpp")
+elseif(CONFIG_CM_TEST_SLEEP_WAKE)
+    set(ENTRY "../examples/Sleep_Wake.cpp")
 endif()
 
 idf_component_register(SRCS ${ENTRY} ${SOURCES} INCLUDE_DIRS "src")
