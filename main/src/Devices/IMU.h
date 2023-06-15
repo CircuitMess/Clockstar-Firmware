@@ -54,8 +54,8 @@ private:
 	std::shared_ptr<ISRArgs> isrArgs1, isrArgs2;
 
 
-	xSemaphoreHandle sem1 = nullptr;
-	xSemaphoreHandle sem2 = nullptr;
+	SemaphoreHandle_t sem1 = nullptr;
+	SemaphoreHandle_t sem2 = nullptr;
 	ThreadedClosure thread1;
 	ThreadedClosure thread2;
 	void thread1Func();
