@@ -24,7 +24,7 @@ public:
 	bool init();
 
 	struct Event {
-		enum { SignMotion, DoubleTap, SingleTap, WristTilt, FIFO } action;
+		enum { SignMotion, SingleTap, WristTilt, FIFO } action;
 	};
 
 	struct Sample {

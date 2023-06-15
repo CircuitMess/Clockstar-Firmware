@@ -71,6 +71,7 @@ bool IMU::init(){
 	lsm6ds3tr_c_tap_quiet_set(&ctx, 3);
 	lsm6ds3tr_c_tap_shock_set(&ctx, 3);
 	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);
+	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
 
 
 	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0 });
@@ -191,10 +192,6 @@ void IRAM_ATTR IMU::isr2(void* arg){
 			Events::post(Facility::Motion, &evt, sizeof(evt));
 		}
 
-		if(src.tap_src.double_tap){
-			Event evt = { .action = Event::DoubleTap };
-			Events::post(Facility::Motion, &evt, sizeof(evt));
-		}
 	}
 }
 
@@ -205,7 +202,8 @@ void IRAM_ATTR IMU::isr2(void* arg){
 		lsm6ds3tr_c_all_sources_t src;
 		lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
-		if(src.wrist_tilt_ia.wrist_tilt_ia_yneg){
+		bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+		if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
 			Event evt = { .action = Event::WristTilt };
 			Events::post(Facility::Motion, &evt, sizeof(evt));
 		}
@@ -225,15 +223,15 @@ void IMU::enableGyroAccelero(bool enable){
 
 void IMU::setTiltDirection(IMU::TiltDirection direction){
 	this->tiltDirection = direction;
-	//XOR - tilt logic is inverted if WristPosition is FaceDown
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceDown);
+	//XOR - tilt logic is inverted if WristPosition is FaceUp
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
 	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 }
 
 void IMU::setWristPosition(WatchPosition wristPosition){
 	this->position = wristPosition;
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceDown);
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
 	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 }

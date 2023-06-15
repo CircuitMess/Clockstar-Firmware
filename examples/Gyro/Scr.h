@@ -22,13 +22,11 @@ private:
 	lv_obj_t* gyroY;
 	lv_obj_t* gyroZ;
 	lv_obj_t* singleTap;
-	lv_obj_t* doubleTap;
 	lv_obj_t* sigMotion;
 	lv_obj_t* wristTilt;
 
 	struct {
 		uint32_t singleTap = 0;
-		uint32_t doubleTap = 0;
 		uint32_t sigMotion = 0;
 		uint32_t wristTilt = 0;
 	} counts;

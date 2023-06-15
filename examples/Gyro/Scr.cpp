@@ -14,7 +14,7 @@ Scr::Scr(IMU& imu) : imu(imu), evtQueue(24), evtChecker([this](){ for(;;){ check
 	lv_style_set_text_font(&textStyle, &lv_font_unscii_8);
 	lv_style_set_width(&textStyle, LV_PCT(100));
 
-	for(auto text : { &gyroX, &gyroY, &gyroZ, &singleTap, &doubleTap, &sigMotion, &wristTilt }){
+	for(auto text : { &gyroX, &gyroY, &gyroZ, &singleTap, &sigMotion, &wristTilt }){
 		*text = lv_label_create(obj);
 		lv_obj_add_style(*text, &textStyle, 0);
 		lv_label_set_text(*text, "");
@@ -25,6 +25,9 @@ Scr::Scr(IMU& imu) : imu(imu), evtQueue(24), evtChecker([this](){ for(;;){ check
 	evtChecker.start();
 
 	imu.enableGyroAccelero(true);
+	imu.enableMotionDetection(true);
+	imu.setWristPosition(IMU::WatchPosition::FaceUp);
+	imu.setTiltDirection(IMU::TiltDirection::Lifted);
 	gyroUpdater.start();
 }
 
@@ -64,10 +67,6 @@ void Scr::check(){
 		printf("single tap\n");
 		counts.singleTap++;
 		requestText(singleTap, "Single tap", counts.singleTap);
-	}else if(data->action == IMU::Event::DoubleTap){
-		printf("double tap\n");
-		counts.doubleTap++;
-		requestText(doubleTap, "Double tap", counts.doubleTap);
 	}else if(data->action == IMU::Event::SignMotion){
 		printf("sig motion\n");
 		counts.sigMotion++;
