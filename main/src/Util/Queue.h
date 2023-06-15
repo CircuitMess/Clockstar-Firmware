@@ -26,6 +26,10 @@ public:
 		return xQueueSend(queue, &item, timeout) == pdTRUE;
 	}
 
+	void reset(){
+		xQueueReset(queue);
+	}
+
 private:
 	QueueHandle_t queue;
 
@@ -54,6 +58,10 @@ public:
 			ptr = nullptr;
 		}
 		return std::unique_ptr<T>(ptr);
+	}
+
+	void reset(){
+		xQueueReset(queue);
 	}
 
 	const size_t size;

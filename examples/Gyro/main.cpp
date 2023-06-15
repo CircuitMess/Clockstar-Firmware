@@ -1,17 +1,12 @@
 #include <driver/gpio.h>
 #include <nvs_flash.h>
+#include <esp_log.h>
 #include "Pins.hpp"
 #include "Periph/I2C.h"
-#include "Periph/PinOut.h"
-#include "Periph/Bluetooth.h"
+#include "Devices/IMU.h"
 #include "Devices/Display.h"
 #include "LV_Interface/LVGL.h"
-#include "BLE/GAP.h"
-#include "BLE/Client.h"
-#include "Devices/IMU.h"
-#include <lvgl/lvgl.h>
-#include <esp_sleep.h>
-#include <driver/uart.h>
+#include "Scr.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -30,31 +25,28 @@ void init(){
 	}
 	ESP_ERROR_CHECK(ret);
 
-	auto bl = new PinOut(PIN_BL, true);
-	bl->on();
+	// esp_log_level_set("BLE", ESP_LOG_VERBOSE);
+	// esp_log_level_set("BLE::Client", ESP_LOG_VERBOSE);
+	// esp_log_level_set("BLE::Service", ESP_LOG_VERBOSE);
+	// esp_log_level_set("BLE::ServiceInfo", ESP_LOG_VERBOSE);
+	// esp_log_level_set("BLE::Char", ESP_LOG_VERBOSE);
+	// esp_log_level_set("BLE::CharInfo", ESP_LOG_VERBOSE);
+	// esp_log_level_set("ANCS", ESP_LOG_VERBOSE);
 
-	auto i2c = new I2C(0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto imu = new IMU(*i2c);
-
-	auto bt = new Bluetooth();
-	auto gap = new BLE::GAP();
-	auto client = new BLE::Client(gap);
-
-	auto disp = new Display();
-	auto lvgl = new LVGL(*disp);
-
-	// Load start screen here
-	auto scr = lv_obj_create(nullptr);
-	lv_scr_load(scr);
-
-	// Start UI thread after initialization
-	lvgl->start();
 	imu->init();
 
+	auto display = new Display();
+	auto lvgl = new LVGL(*display);
+
+	auto scr = new Scr(*imu);
+	scr->start();
+
+	lvgl->start();
 }
 
 extern "C" void app_main(void){
 	init();
-
 	vTaskDelete(nullptr);
 }
