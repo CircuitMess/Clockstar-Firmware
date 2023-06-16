@@ -17,4 +17,7 @@ elseif(CONFIG_CM_TEST_SLEEP_WAKE_INT)
     set(ENTRY "../examples/Sleep_Wake_Interrupt.cpp")
 endif()
 
-idf_component_register(SRCS ${ENTRY} ${SOURCES} INCLUDE_DIRS "src")
+file(GLOB_RECURSE LIBS "lib/*/src/**.cpp" "lib/*/src/**.c")
+set(LIBS_INCL "lib/mjson/src")
+
+idf_component_register(SRCS ${ENTRY} ${SOURCES} ${LIBS} INCLUDE_DIRS "src" ${LIBS_INCL})

@@ -4,3 +4,6 @@
 [submodule "components/lvgl"]
 	path = components/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "main/lib/mjson"]
+	path = main/lib/mjson
+	url = https://github.com/cesanta/mjson.git
