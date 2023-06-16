@@ -10,13 +10,12 @@ public:
 	explicit StatusBar(lv_obj_t* parent);
 
 	void hideClock();
-
-private:
 	void setTime(uint8_t h, uint8_t m);
 	void setConnection(bool connected);
 	void setDeviceBattery(uint8_t percent);
 	void setPhoneBattery(uint8_t percent);
 
+private:
 	bool connection = false;
 
 	static constexpr uint8_t Width = 128;
@@ -32,9 +31,6 @@ private:
 	LVStyle textStyle;
 	const lv_color_t textColor = lv_color_make(207, 198, 184);
 	static const char* percentToIcon(uint8_t percent);
-
-
-	LVStyle debugStyle;
 };
 
 
