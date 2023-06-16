@@ -13,6 +13,8 @@ elseif(CONFIG_CM_TEST_SLEEP)
     set(ENTRY "../examples/Sleep.cpp")
 elseif(CONFIG_CM_TEST_SLEEP_WAKE)
     set(ENTRY "../examples/Sleep_Wake.cpp")
+elseif(CONFIG_CM_TEST_SLEEP_WAKE_INT)
+    set(ENTRY "../examples/Sleep_Wake_Interrupt.cpp")
 endif()
 
 idf_component_register(SRCS ${ENTRY} ${SOURCES} INCLUDE_DIRS "src")

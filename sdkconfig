@@ -339,6 +339,7 @@ CONFIG_CM_BUILD_FIRMWARE=y
 # CONFIG_CM_EXAMPLE_GYRO is not set
 # CONFIG_CM_TEST_SLEEP is not set
 # CONFIG_CM_TEST_SLEEP_WAKE is not set
+# CONFIG_CM_TEST_SLEEP_WAKE_INT is not set
 
 #
 # Compiler options
