@@ -33,6 +33,11 @@ public:
 
 	void start();
 
+	using ConnectCB = std::function<void(const esp_bd_addr_t)>;
+	using DisconnectCB = std::function<void(const esp_bd_addr_t)>;
+	void setOnConnectCb(ConnectCB cb);
+	void setOnDisconnectCb(DisconnectCB cb);
+
 private:
 	static Server* self;
 	friend CharInfo;
@@ -40,6 +45,9 @@ private:
 	std::unordered_set<std::shared_ptr<Service>> services;
 	std::unordered_map<uint16_t, Char*> chars;
 	std::unordered_map<uint16_t, uint16_t> descRequests; // descr uuid -> char hndl
+
+	ConnectCB onConnectCB;
+	DisconnectCB onDisconnectCB;
 
 	friend GAP;
 	GAP* gap;

@@ -46,8 +46,16 @@ void BLE::Server::start(){
 	esp_ble_gatts_app_register(AppID);
 }
 
+void BLE::Server::setOnConnectCb(BLE::Server::ConnectCB cb){
+	onConnectCB = cb;
+}
+
+void BLE::Server::setOnDisconnectCb(BLE::Server::DisconnectCB cb){
+	onDisconnectCB = cb;
+}
+
 void BLE::Server::onPairDone(){
-	printf("Server: paired\n");
+	ESP_LOGI(TAG, "Paired\n");
 }
 
 void BLE::Server::ble_GATTS_cb(esp_gatts_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gatts_cb_param_t* param){
@@ -189,10 +197,9 @@ void BLE::Server::onMtuResp(const esp_ble_gatts_cb_param_t::gatts_mtu_evt_param*
 void BLE::Server::onConnect(const esp_ble_gatts_cb_param_t::gatts_connect_evt_param* param){
 	memcpy(con.addr, param->remote_bda, 6);
 	con.hndl = param->conn_id;
-	// Client will initiate pairing, after which onPairDone() is called
-	// Here, we only set up the connection parameters TODO: check if this is necessary, since we're not doing it in client mode, and this is also slave
 
-	// return;
+	// Client will initiate pairing, after which onPairDone() is called
+	// Here, we only set up the connection parameters
 
 	/* For the IOS system, please reference the apple official documents about the ble connection parameters restrictions. */
 	esp_ble_conn_update_params_t conn_params = {
@@ -204,6 +211,10 @@ void BLE::Server::onConnect(const esp_ble_gatts_cb_param_t::gatts_connect_evt_pa
 	memcpy(conn_params.bda, param->remote_bda, 6);
 
 	esp_ble_gap_update_conn_params(&conn_params);
+
+	if(onConnectCB){
+		onConnectCB(con.addr);
+	}
 }
 
 void BLE::Server::onDisconnect(const esp_ble_gatts_cb_param_t::gatts_disconnect_evt_param* param){
@@ -212,6 +223,10 @@ void BLE::Server::onDisconnect(const esp_ble_gatts_cb_param_t::gatts_disconnect_
 	con.hndl = 0xffff;
 
 	gap->startAdvertising(); // TODO: remove. should be invoked by whatever will encapsulate phone interface classes
+
+	if(onDisconnectCB){
+		onDisconnectCB(con.addr);
+	}
 }
 
 void BLE::Server::passToChar(esp_gatts_cb_event_t event, const esp_ble_gatts_cb_param_t* param){
