@@ -33,7 +33,7 @@ void init(){
 	auto bl = new PinOut(PIN_BL, true);
 	bl->on();
 
-	auto i2c = new I2C(0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto imu = new IMU(*i2c);
 
 	auto bt = new Bluetooth();

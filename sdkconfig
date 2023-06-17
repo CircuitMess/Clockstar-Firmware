@@ -984,6 +984,15 @@ CONFIG_LCD_PANEL_IO_FORMAT_BUF_SIZE=32
 # end of LCD and Touch Panel
 
 #
+# ESP Memory Management
+#
+
+#
+# MMAP Configuration
+#
+# end of ESP Memory Management
+
+#
 # ESP NETIF Adapter
 #
 CONFIG_ESP_NETIF_IP_LOST_TIMER_INTERVAL=120
@@ -1052,12 +1061,6 @@ CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=240
 # CONFIG_ESP32_RTCDATA_IN_FAST_MEM is not set
 # CONFIG_ESP32_USE_FIXED_STATIC_RAM_SIZE is not set
 # CONFIG_ESP32_IRAM_AS_8BIT_ACCESSIBLE_MEMORY is not set
-
-#
-# Non-backward compatible options
-#
-# CONFIG_ESP_SYSTEM_ESP32_SRAM1_REGION_AS_IRAM is not set
-# end of Non-backward compatible options
 # end of Memory
 
 #
