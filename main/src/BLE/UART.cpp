@@ -33,7 +33,7 @@ void BLE::UART::printf(const char* fmt, ...){
 }
 
 void BLE::UART::print(const std::vector<uint8_t>& data){
-	txChar->sendNotif(std::move(data));
+	txChar->sendNotif(data);
 }
 
 std::vector<uint8_t> BLE::UART::scan(){
@@ -52,6 +52,7 @@ void BLE::UART::loop(){
 	auto nl = std::find(rxBuf.begin(), rxBuf.end(), '\n');
 	if(nl != rxBuf.end()){
 		do {
+			// TODO: Possible fragmentation: lines are created on heap
 			auto line = std::make_unique<Line>(rxBuf.begin(), nl+1);
 			rxBuf.erase(rxBuf.begin(), nl+1);
 
@@ -62,9 +63,9 @@ void BLE::UART::loop(){
 	}
 }
 
-std::vector<uint8_t> BLE::UART::scan_nl(TickType_t wait){
+std::unique_ptr<BLE::UART::Line> BLE::UART::scan_nl(TickType_t wait){
 	auto line = rxQueue.get(wait);
-	if(!line) return { };
+	if(!line) return nullptr;
 
-	return *line;
+	return line;
 }

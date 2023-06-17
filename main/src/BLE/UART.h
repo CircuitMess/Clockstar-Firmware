@@ -22,7 +22,7 @@ public:
 	 * Waits until a new-line character, and returns the contents including the nl char.
 	 * May contain multiple lines. This is a blocking function.
 	 */
-	std::vector<uint8_t> scan_nl(TickType_t wait = portMAX_DELAY);
+	std::unique_ptr<std::vector<uint8_t>> scan_nl(TickType_t wait = portMAX_DELAY);
 
 private:
 	BLE::Server* server;
