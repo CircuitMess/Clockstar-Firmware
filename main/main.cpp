@@ -9,11 +9,14 @@
 #include "LV_Interface/InputLVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
+#include "Devices/IMU.h"
 #include "Devices/Input.h"
 #include <esp_spiffs.h>
 #include <esp_log.h>
 #include <lvgl/lvgl.h>
 #include "LV_Interface/FSLVGL.h"
+#include <esp_sleep.h>
+#include <driver/uart.h>
 
 void init(){
 	gpio_config_t io_conf = {
@@ -35,7 +38,8 @@ void init(){
 	auto bl = new PinOut(PIN_BL, true);
 	bl->on();
 
-	auto i2c = new I2C(0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto imu = new IMU(*i2c);
 
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
@@ -54,6 +58,8 @@ void init(){
 
 	// Start UI thread after initialization
 	lvgl->start();
+	imu->init();
+
 }
 
 extern "C" void app_main(void){
