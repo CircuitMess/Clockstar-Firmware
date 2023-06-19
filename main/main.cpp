@@ -9,6 +9,8 @@
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
 #include "Devices/IMU.h"
+#include <esp_spiffs.h>
+#include <esp_log.h>
 #include <lvgl/lvgl.h>
 #include <esp_sleep.h>
 #include <driver/uart.h>
@@ -46,6 +48,8 @@ void init(){
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
 	lv_scr_load(scr);
+
+	auto lvglSpiffs = new FSLVGL("/spiffs", 'S');
 
 	// Start UI thread after initialization
 	lvgl->start();
