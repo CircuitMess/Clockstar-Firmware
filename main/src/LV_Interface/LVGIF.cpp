@@ -39,6 +39,8 @@ LVGIF::LVGIF(lv_obj_t* parent, const char* path) : LVObject(parent), path(path){
 		durations.push_back(duration * 10);
 	}
 
+	fclose(f);
+
 	lv_obj_set_size(obj, w, h);
 	lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, 0);
 	img = lv_img_create(obj);
