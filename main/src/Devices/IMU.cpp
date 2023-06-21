@@ -178,10 +178,23 @@ void IRAM_ATTR IMU::isr2(void* arg){
 			lsm6ds3tr_c_fifo_data_level_get(&ctx, &numReadings);
 			const auto numDataSets = numReadings / 6;
 
-			Sample buf[numDataSets];
+			struct RawSample { uint16_t gX, gY, gZ, aX, aY, aZ; } buf[numDataSets];
 			lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(buf), numReadings * 2);
-			for(auto& read: buf){
-				fifoSamples.post(read);
+
+			auto xlConv = [](int16_t raw){ return (double) lsm6ds3tr_c_from_fs16g_to_mg(raw) / 1000.0; };
+			auto gyConv = [](int16_t raw){ return ((double) lsm6ds3tr_c_from_fs2000dps_to_mdps(raw) * M_PI / 180.0) / 1000.0; };
+
+			for(auto& read : buf){
+				Sample sample = {
+					gyConv(read.gX),
+					gyConv(read.gY),
+					gyConv(read.gZ),
+					xlConv(read.aX),
+					xlConv(read.aY),
+					xlConv(read.aZ)
+				};
+
+				fifoSamples.post(sample);
 			}
 
 			Event evt = { .action = Event::FIFO };
