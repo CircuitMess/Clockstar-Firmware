@@ -7,6 +7,8 @@ choice CM_BUILD_EXAMPLE
 
     config CM_BUILD_FIRMWARE
         bool "Clockstar firmware"
+    config CM_EXAMPLE_IMU
+        bool "IMU and sensor fusion example"
     config CM_EXAMPLE_ANCS
         bool "ANCS example"
     config CM_EXAMPLE_BANGLE
