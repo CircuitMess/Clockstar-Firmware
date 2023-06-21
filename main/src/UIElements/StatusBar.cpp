@@ -1,6 +1,7 @@
 #include "StatusBar.h"
 
 StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent){
+	lv_obj_add_flag(*this, LV_OBJ_FLAG_FLOATING);
 	lv_obj_set_size(*this, Width, Height);
 	lv_obj_set_style_pad_ver(*this, 1, 0);
 	lv_obj_set_style_pad_right(*this, 3, 0);
@@ -8,11 +9,6 @@ StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent){
 
 	lv_style_set_text_font(textStyle, &lv_font_unscii_8);
 	lv_style_set_text_color(textStyle, textColor);
-
-	lv_style_set_border_width(debugStyle, 1);
-	lv_style_set_border_opa(debugStyle, LV_OPA_COVER);
-	lv_style_set_border_color(debugStyle, lv_palette_main(LV_PALETTE_GREEN));
-
 
 	timeLabel = lv_label_create(*this);
 	lv_obj_add_style(timeLabel, textStyle, 0);
@@ -32,7 +28,6 @@ StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent){
 
 	phoneStatus = lv_img_create(phoneContainer);
 	setConnection(false);
-
 }
 
 void StatusBar::hideClock(){
@@ -59,8 +54,7 @@ const char* StatusBar::percentToIcon(uint8_t percent){
 }
 
 void StatusBar::setConnection(bool connected){
-	//TODO - change connection status icon
-	lv_img_set_src(phoneStatus, connected ? "S:/icons/phone.bin" : "S:/icons/phone.bin");
+	lv_img_set_src(phoneStatus, connected ? "S:/icons/phone.bin" : "S:/icons/phoneDisconnected.bin");
 	if(!connected){
 		lv_obj_add_flag(phoneBat, LV_OBJ_FLAG_HIDDEN);
 	}
