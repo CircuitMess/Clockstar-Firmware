@@ -46,6 +46,7 @@ bool IMU::init(){
 	//gyro setup
 	lsm6ds3tr_c_gy_data_rate_set(&ctx, LSM6DS3TR_C_GY_ODR_104Hz);
 	lsm6ds3tr_c_gy_full_scale_set(&ctx, LSM6DS3TR_C_2000dps);
+	lsm6ds3tr_c_gy_band_pass_set(&ctx, LSM6DS3TR_C_HP_65mHz_LP1_NORMAL);
 
 	//FIFO setup
 	lsm6ds3tr_c_fifo_watermark_set(&ctx, ReadingsWatermark);
