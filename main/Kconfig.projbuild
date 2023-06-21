@@ -12,15 +12,15 @@ choice CM_BUILD_EXAMPLE
     config CM_EXAMPLE_ANCS
         bool "ANCS example"
     config CM_EXAMPLE_BANGLE
-            bool "BangleJS protocol example"
+        bool "BangleJS protocol example"
     config CM_EXAMPLE_GATT_SERVER
-            bool "GATT server example"
+        bool "GATT server example"
     config CM_EXAMPLE_GYRO
-                bool "Gyroscope and accelerometer example"
+        bool "Gyroscope and accelerometer example"
     config CM_TEST_SLEEP
         bool "Light sleep with BT test"
     config CM_TEST_SLEEP_WAKE
-            bool "Light sleep with wake on GPIO"
+        bool "Light sleep with wake on GPIO"
     config CM_TEST_SLEEP_WAKE_INT
-            bool "Light sleep with GPIO interrupt and wake on same pin"
+        bool "Light sleep with GPIO interrupt and wake on same pin"
 endchoice
