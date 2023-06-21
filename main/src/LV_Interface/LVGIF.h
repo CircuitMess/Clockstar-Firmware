@@ -14,7 +14,6 @@ public:
 	~LVGIF() override;
 
 	enum class LoopType {
-		Default, // play gif as many times as is defined in the actual file
 		Single, // play only one loop
 		On // loop indefinitely
 	};
@@ -39,6 +38,7 @@ private:
 	uint32_t pathLen = 0;
 	char* imgPath;
 
+	LoopType loopType = LoopType::On;
 	std::function<void()> cb;
 };
 

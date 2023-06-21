@@ -45,15 +45,6 @@ LVGIF::LVGIF(lv_obj_t* parent, const char* path) : LVObject(parent), path(path){
 	lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, 0);
 	img = lv_img_create(obj);
 
-
-}
-
-LVGIF::~LVGIF(){
-	lv_timer_del(timer);
-	delete imgPath;
-}
-
-void LVGIF::start(){
 	sprintf(imgPath, "%s/%lu.bin", path, index);
 	lv_img_set_src(img, imgPath);
 	timer = lv_timer_create([](lv_timer_t* t){
@@ -61,9 +52,9 @@ void LVGIF::start(){
 		gif->index++;
 		if(gif->index >= gif->durations.size()){
 			if(gif->cb) gif->cb();
-			if(t->repeat_count == 1){
+			if(gif->loopType == LoopType::Single){
 				return;
-			}else if(t->repeat_count == -1){
+			}else if(gif->loopType == LoopType::On){
 				gif->index = 0;
 			}
 		}
@@ -74,6 +65,16 @@ void LVGIF::start(){
 		lv_img_set_src(gif->img, gif->imgPath);
 
 	}, durations[index], this);
+	lv_timer_pause(timer);
+}
+
+LVGIF::~LVGIF(){
+	lv_timer_del(timer);
+	delete imgPath;
+}
+
+void LVGIF::start(){
+	lv_timer_resume(timer);
 }
 
 void LVGIF::stop(){
@@ -90,15 +91,7 @@ void LVGIF::reset(){
 }
 
 void LVGIF::setLooping(LVGIF::LoopType loop){
-	switch(loop){
-		case LoopType::Default:
-		case LoopType::Single:
-			lv_timer_set_repeat_count(timer, 1);
-			break;
-		case LoopType::On:
-			lv_timer_set_repeat_count(timer, -1);
-			break;
-	}
+	loopType = loop;
 }
 
 void LVGIF::setDoneCallback(std::function<void()> cb){
