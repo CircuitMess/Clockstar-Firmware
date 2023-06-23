@@ -1,5 +1,5 @@
 #include "Mahony.h"
-#include "../lib/glm/glm/gtc/quaternion.hpp"
+#include <gtc/quaternion.hpp>
 
 Fusion::Orient Fusion::Mahony::update(IMU::Sample sample){
 	double ax = sample.accelX;
