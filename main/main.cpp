@@ -7,6 +7,7 @@
 #include "Devices/Display.h"
 #include "LV_Interface/LVGL.h"
 #include "LV_Interface/FSLVGL.h"
+#include "LV_Interface/InputLVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
 #include "Devices/IMU.h"
@@ -41,8 +42,10 @@ void init(){
 	auto client = new BLE::Client(gap);
 
 	auto disp = new Display();
-	auto lvgl = new LVGL(*disp);
+	auto input = new Input();
 
+	auto lvgl = new LVGL(*disp);
+	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
 
 	// Load start screen here
