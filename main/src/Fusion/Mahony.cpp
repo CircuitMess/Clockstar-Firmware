@@ -1,4 +1,5 @@
 #include "Mahony.h"
+#include "../lib/glm/glm/gtc/quaternion.hpp"
 
 Fusion::Orient Fusion::Mahony::update(IMU::Sample sample){
 	double ax = sample.accelX;
@@ -72,18 +73,31 @@ Fusion::Orient Fusion::Mahony::update(IMU::Sample sample){
 	q.q3 *= recipNorm;
 	q.q4 *= recipNorm;
 
+	glm::dquat qConverted = { q.q1, q.q2, q.q3, q.q4 };
+	auto euler = glm::eulerAngles(qConverted);
+	glm::vec3 derotAngles = { 0, 0, -euler.z };
+	auto derot = glm::dquat{ derotAngles };
+	qConverted = derot * qConverted;
+	qConverted = glm::normalize(qConverted);
+	q.q1 = qConverted.w;
+	q.q2 = qConverted.x;
+	q.q3 = qConverted.y;
+	q.q4 = qConverted.z;
+
 	return get();
 }
 
 Fusion::Orient Fusion::Mahony::get(){
-	// Rotate back by yaw amount around z axis
 
-	auto euler = QuatToEuler(q);
-	double yaw = euler.yaw * M_PI / 180.0;
-	auto derot = EulerToQuat(0, yaw, 0);
+	glm::dquat glmQuat = { q.q1, q.q2, q.q3, q.q4 };
+	auto final = glm::eulerAngles(glmQuat);
 
-	Quat final = QuatMul(q, derot);
-	return QuatToEuler(final);
+	auto pitch = glm::degrees(M_PI - final.x);
+	if(pitch > 180){
+		pitch -= 360;
+	}
+
+	return { pitch, glm::degrees(final.z), glm::degrees(final.y) };
 }
 
 double Fusion::Mahony::invSqrt(double x){
