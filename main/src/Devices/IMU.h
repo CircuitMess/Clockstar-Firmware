@@ -65,8 +65,10 @@ public:
 	 */
 	void enableMotionDetection(bool enable);
 
-	bool getNextSample(Sample& sample, TickType_t wait = portMAX_DELAY);
-	void enableGyroAccelero(bool enable);
+	bool pollFIFO(Sample& sample, TickType_t wait = portMAX_DELAY);
+	void enableFIFO(bool enable);
+
+	Sample getSample();
 
 private:
 	static constexpr uint8_t Addr = 0x6A;
@@ -101,6 +103,9 @@ private:
 	ThreadedClosure thread2;
 	[[noreturn]] void thread1Func();
 	[[noreturn]] void thread2Func();
+
+	static double xlConv(int16_t raw);
+	static double gyConv(int16_t raw);
 };
 
 

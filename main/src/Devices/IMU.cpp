@@ -53,7 +53,7 @@ bool IMU::init(){
 	lsm6ds3tr_c_fifo_xl_batch_set(&ctx, LSM6DS3TR_C_FIFO_XL_NO_DEC);
 	lsm6ds3tr_c_fifo_gy_batch_set(&ctx, LSM6DS3TR_C_FIFO_GY_NO_DEC);
 	lsm6ds3tr_c_fifo_data_rate_set(&ctx, LSM6DS3TR_C_FIFO_104Hz);
-	enableGyroAccelero(false);
+	enableFIFO(false);
 
 	//wrist tilt interrupt setup
 	lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 1);
@@ -113,7 +113,7 @@ int32_t IMU::platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len)
 	return imu->i2c.readReg(Addr, reg, data, len, 10);
 }
 
-bool IMU::getNextSample(IMU::Sample& sample, TickType_t wait){
+bool IMU::pollFIFO(Sample& sample, TickType_t wait){
 	return fifoSamples.get(sample, wait);
 }
 
@@ -182,17 +182,14 @@ void IRAM_ATTR IMU::isr2(void* arg){
 			struct RawSample { uint16_t gX, gY, gZ, aX, aY, aZ; } buf[numDataSets];
 			lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(buf), numReadings * 2);
 
-			auto xlConv = [](int16_t raw){ return (double) lsm6ds3tr_c_from_fs16g_to_mg(raw) / 1000.0; };
-			auto gyConv = [](int16_t raw){ return ((double) lsm6ds3tr_c_from_fs2000dps_to_mdps(raw) * M_PI / 180.0) / 1000.0; };
-
 			for(auto& read : buf){
 				Sample sample = {
-					gyConv(read.gX),
-					gyConv(read.gY),
-					gyConv(read.gZ),
-					xlConv(read.aX),
-					xlConv(read.aY),
-					xlConv(read.aZ)
+						gyConv(read.gX),
+						gyConv(read.gY),
+						gyConv(read.gZ),
+						xlConv(read.aX),
+						xlConv(read.aY),
+						xlConv(read.aZ)
 				};
 
 				fifoSamples.post(sample);
@@ -230,7 +227,7 @@ void IRAM_ATTR IMU::isr2(void* arg){
 	}
 }
 
-void IMU::enableGyroAccelero(bool enable){
+void IMU::enableFIFO(bool enable){
 	clearFifo();
 	fifoSamples.reset();
 
@@ -258,4 +255,31 @@ void IMU::setWristPosition(WatchPosition wristPosition){
 
 void IMU::enableMotionDetection(bool enable){
 	lsm6ds3tr_c_motion_sens_set(&ctx, enable);
+}
+
+IMU::Sample IMU::getSample(){
+	int16_t g[3];
+	int16_t a[3];
+
+	lsm6ds3tr_c_acceleration_raw_get(&ctx, a);
+	lsm6ds3tr_c_angular_rate_raw_get(&ctx, g);
+
+	Sample sample = {
+			gyConv(g[0]),
+			gyConv(g[1]),
+			gyConv(g[2]),
+			xlConv(a[0]),
+			xlConv(a[1]),
+			xlConv(a[2])
+	};
+
+	return sample;
+}
+
+double IMU::xlConv(int16_t raw){
+	return (double) lsm6ds3tr_c_from_fs16g_to_mg(raw) / 1000.0;
+}
+
+double IMU::gyConv(int16_t raw){
+	return ((double) lsm6ds3tr_c_from_fs2000dps_to_mdps(raw) * M_PI / 180.0) / 1000.0;
 }
