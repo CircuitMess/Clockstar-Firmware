@@ -43,9 +43,9 @@ void init(){
 
 	auto disp = new Display();
 	auto input = new Input();
+
 	auto lvgl = new LVGL(*disp);
 	auto lvglInput = new InputLVGL();
-
 	auto fs = new FSLVGL('S');
 
 	// Load start screen here
