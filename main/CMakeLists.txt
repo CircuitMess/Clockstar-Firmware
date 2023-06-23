@@ -22,7 +22,7 @@ elseif(CONFIG_CM_TEST_SLEEP_WAKE_INT)
 endif()
 
 file(GLOB_RECURSE LIBS "lib/*/src/**.cpp" "lib/*/src/**.c")
-set(LIBS_INCL "lib/mjson/src")
+set(LIBS_INCL "lib/mjson/src" "lib/glm/glm")
 
 idf_component_register(SRCS ${ENTRY} ${SOURCES} ${LIBS} INCLUDE_DIRS "src" ${LIBS_INCL})
 
