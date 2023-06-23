@@ -5,17 +5,17 @@
 #include <esp_log.h>
 #include <string>
 
-FSLVGL::FSLVGL(const char* root, char letter) : root(root){
+const char* TAG = "FSLVGL";
 
-	//init spiffs
+FSLVGL::FSLVGL(char letter){
 	esp_vfs_spiffs_conf_t conf = {
 			.base_path = "/spiffs",
-			.partition_label = nullptr,
-			.max_files = 5,
+			.partition_label = "storage",
+			.max_files = 8,
 			.format_if_mount_failed = false
 	};
+
 	auto ret = esp_vfs_spiffs_register(&conf);
-	const char* TAG = "spiffs";
 	if(ret != ESP_OK){
 		if(ret == ESP_FAIL){
 			ESP_LOGE(TAG, "Failed to mount or format filesystem");
@@ -24,6 +24,7 @@ FSLVGL::FSLVGL(const char* root, char letter) : root(root){
 		}else{
 			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
 		}
+
 		return;
 	}
 
@@ -48,6 +49,10 @@ FSLVGL::FSLVGL(const char* root, char letter) : root(root){
 	lv_fs_drv_register(&drv);                 /*Finally register the drive*/
 }
 
+FSLVGL::~FSLVGL(){
+	esp_vfs_spiffs_unregister("storage");
+}
+
 bool FSLVGL::ready_cb(struct _lv_fs_drv_t* drv){
 	return true;
 }
@@ -62,7 +67,7 @@ void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t m
 	}
 
 	auto fslvgl = (FSLVGL*) drv->user_data;
-	std::string p = std::string(fslvgl->root) + std::string(path);
+	std::string p = fslvgl->Root + std::string(path);
 
 	return (void*) fopen(p.c_str(), fsMode);
 }
@@ -119,7 +124,7 @@ lv_fs_res_t FSLVGL::tell_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t* po
 
 void* FSLVGL::dir_open_cb(struct _lv_fs_drv_t* drv, const char* path){
 	auto fslvgl = (FSLVGL*) drv->user_data;
-	std::string p = std::string(fslvgl->root) + std::string(path);
+	std::string p = fslvgl->Root + std::string(path);
 	DIR* dir = opendir(p.c_str());
 	return dir;
 
