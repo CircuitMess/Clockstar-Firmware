@@ -11,8 +11,6 @@
 #include "BLE/Client.h"
 #include "Devices/IMU.h"
 #include <lvgl/lvgl.h>
-#include <esp_sleep.h>
-#include <driver/uart.h>
 
 void init(){
 	gpio_config_t io_conf = {
@@ -36,6 +34,7 @@ void init(){
 
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto imu = new IMU(*i2c);
+	imu->init();
 
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
@@ -52,7 +51,6 @@ void init(){
 
 	// Start UI thread after initialization
 	lvgl->start();
-	imu->init();
 
 }
 
