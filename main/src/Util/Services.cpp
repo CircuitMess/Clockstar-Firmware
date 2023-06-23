@@ -7,6 +7,6 @@ void ServiceLocator::set(Service service, void* ptr){
 }
 
 void* ServiceLocator::get(Service service){
-	if(services.count(service)) return nullptr;
+	if(!services.count(service)) return nullptr;
 	return services[service];
 }
