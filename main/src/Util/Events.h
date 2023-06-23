@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-enum class Facility { Events };
+enum class Facility { Input, Motion };
 
 struct Event {
 	Facility facility;
@@ -42,6 +42,7 @@ public:
 	virtual ~EventQueue();
 
 	bool get(Event& item, TickType_t timeout);
+	void reset();
 
 private:
 	QueueHandle_t queue;

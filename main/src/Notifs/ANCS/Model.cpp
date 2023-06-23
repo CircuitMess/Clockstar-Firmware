@@ -1,5 +1,6 @@
 #include "Model.h"
 #include <unordered_map>
+#include <cstdint>
 
 namespace ANCS {
 

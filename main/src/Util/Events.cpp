@@ -12,8 +12,11 @@ void Events::post(Facility facility, const void* data, size_t size){
 	if(pair == queues.end()) return;
 
 	for(auto& queue: pair->second){
-		void* qData = malloc(size);
-		memcpy(qData, data, size);
+		void* qData = nullptr;
+		if(size != 0){
+			qData = malloc(size);
+			memcpy(qData, data, size);
+		}
 		queue->post(facility, qData);
 	}
 }
@@ -38,4 +41,8 @@ bool EventQueue::post(Facility facility, void* data){
 	};
 
 	return xQueueSend(queue, &event, 0) == pdTRUE;
+}
+
+void EventQueue::reset(){
+	xQueueReset(queue);
 }
