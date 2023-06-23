@@ -11,6 +11,7 @@
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
 #include "Devices/IMU.h"
+#include "Util/Services.h"
 #include <lvgl/lvgl.h>
 
 void init(){
@@ -47,6 +48,8 @@ void init(){
 	auto lvgl = new LVGL(*disp);
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
+
+	Services.set(Service::IMU, imu);
 
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
