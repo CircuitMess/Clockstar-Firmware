@@ -11,9 +11,9 @@
 
 /**
  * Axis orientation when the watch is on your left wrist:
- * 		X - direction of your fingers
+ * 		X - from device into the direction of your fingers
  * 		Y - towards the lower edge of the device
- * 		Z - into the screen
+ * 		Z - from the screen into the air
  */
 
 class IMU {
@@ -27,13 +27,14 @@ public:
 		enum { SignMotion, SingleTap, WristTilt, FIFO } action;
 	};
 
+	// Linear acceleration is in m/s^2, angular velocity is in rad/s
 	struct Sample {
-		uint16_t gyroX;
-		uint16_t gyroY;
-		uint16_t gyroZ;
-		uint16_t acceleroX;
-		uint16_t acceleroY;
-		uint16_t acceleroZ;
+		double gyroX;
+		double gyroY;
+		double gyroZ;
+		double accelX;
+		double accelY;
+		double accelZ;
 	};
 
 	enum class TiltDirection {
@@ -64,7 +65,7 @@ public:
 	 */
 	void enableMotionDetection(bool enable);
 
-	bool getNextSample(Sample& sample, TickType_t wait);
+	bool getNextSample(Sample& sample, TickType_t wait = portMAX_DELAY);
 	void enableGyroAccelero(bool enable);
 
 private:

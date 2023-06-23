@@ -2,14 +2,16 @@
 #define CLOCKSTAR_FIRMWARE_FSLVGL_H
 
 #include <lvgl.h>
+#include <string>
 
 class FSLVGL {
 public:
-	FSLVGL(const char* root, char letter);
+	FSLVGL(char letter);
+	virtual ~FSLVGL();
 
 private:
 	lv_fs_drv_t drv;                   /*Needs to be static or global*/
-	const char* root;
+	const std::string Root = "/spiffs";
 
 
 	static bool ready_cb(struct _lv_fs_drv_t* drv);
