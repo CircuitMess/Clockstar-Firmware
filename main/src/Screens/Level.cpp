@@ -1,10 +1,12 @@
-#include <algorithm>
 #include "Level.h"
-#include <cmath>
+#include <algorithm>
 #include <vec2.hpp>
 #include <geometric.hpp>
+#include <esp_log.h>
+#include "../Util/Services.h"
 
-Level::Level(){
+Level::Level() : reader([this](){ readerFunc(); }, "reader", 4096, 5, 1), data(QueueSize),
+				 pitchFilter(filterStrength), rollFilter(filterStrength){
 	bg = lv_obj_create(*this);
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_size(bg, 128, 128);
@@ -33,7 +35,7 @@ Level::Level(){
 	setOrientation(0, 0);
 }
 
-void Level::setOrientation(float pitch, float roll){
+void Level::setOrientation(double pitch, double roll){
 	pitch = std::clamp(pitch, -AngleConstraint, AngleConstraint);
 	roll = std::clamp(roll, -AngleConstraint, AngleConstraint);
 
@@ -51,4 +53,31 @@ void Level::setOrientation(float pitch, float roll){
 	lv_obj_set_x(bubbleHorizontal, horizontalX);
 	lv_obj_set_y(bubbleVertical, verticalY);
 
+}
+
+void Level::loop(){
+	PitchRoll sample{};
+	if(!data.get(sample, 0)){
+		return;
+	}
+
+	setOrientation(sample.pitch, sample.roll);
+}
+
+void Level::onStart(){
+	imu = (IMU*) Services.get(Service::IMU);
+	if(imu == nullptr){
+		ESP_LOGE("Level", "IMU service error\n");
+		return;
+	}
+	imu->enableFIFO(false);
+	reader.start();
+}
+
+void Level::readerFunc(){
+	IMU::Sample reading = imu->getSample();
+	PitchRoll pitchRoll = { pitchFilter.update(-reading.accelY), rollFilter.update(-reading.accelX) };
+	data.post(pitchRoll);
+
+	vTaskDelay(ReaderDelay);
 }
