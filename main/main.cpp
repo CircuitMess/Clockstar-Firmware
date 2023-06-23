@@ -6,10 +6,9 @@
 #include "Periph/Bluetooth.h"
 #include "Devices/Display.h"
 #include "LV_Interface/LVGL.h"
+#include "LV_Interface/FSLVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
-#include <esp_spiffs.h>
-#include <esp_log.h>
 #include <lvgl/lvgl.h>
 
 void init(){
@@ -41,11 +40,11 @@ void init(){
 	auto disp = new Display();
 	auto lvgl = new LVGL(*disp);
 
+	auto fs = new FSLVGL('S');
+
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
 	lv_scr_load(scr);
-
-	auto lvglSpiffs = new FSLVGL("/spiffs", 'S');
 
 	// Start UI thread after initialization
 	lvgl->start();
