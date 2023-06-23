@@ -4,6 +4,8 @@ if(CONFIG_CM_BUILD_FIRMWARE)
     set(ENTRY "main.cpp")
 elseif(CONFIG_CM_EXAMPLE_ANCS)
     set(ENTRY "../examples/ancs.cpp")
+elseif(CONFIG_CM_EXAMPLE_IMU)
+    set(ENTRY "../examples/IMU.cpp")
 elseif(CONFIG_CM_EXAMPLE_BANGLE)
     set(ENTRY "../examples/bangle.cpp")
 elseif(CONFIG_CM_EXAMPLE_GATT_SERVER)
@@ -20,7 +22,7 @@ elseif(CONFIG_CM_TEST_SLEEP_WAKE_INT)
 endif()
 
 file(GLOB_RECURSE LIBS "lib/*/src/**.cpp" "lib/*/src/**.c")
-set(LIBS_INCL "lib/mjson/src")
+set(LIBS_INCL "lib/mjson/src" "lib/glm/glm")
 
 idf_component_register(SRCS ${ENTRY} ${SOURCES} ${LIBS} INCLUDE_DIRS "src" ${LIBS_INCL})
 

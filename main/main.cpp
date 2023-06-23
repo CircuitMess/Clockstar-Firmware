@@ -6,14 +6,12 @@
 #include "Periph/Bluetooth.h"
 #include "Devices/Display.h"
 #include "LV_Interface/LVGL.h"
+#include "LV_Interface/FSLVGL.h"
+#include "LV_Interface/InputLVGL.h"
 #include "BLE/GAP.h"
 #include "BLE/Client.h"
 #include "Devices/IMU.h"
-#include <esp_spiffs.h>
-#include <esp_log.h>
 #include <lvgl/lvgl.h>
-#include <esp_sleep.h>
-#include <driver/uart.h>
 
 void init(){
 	gpio_config_t io_conf = {
@@ -37,23 +35,25 @@ void init(){
 
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto imu = new IMU(*i2c);
+	imu->init();
 
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
 	auto client = new BLE::Client(gap);
 
 	auto disp = new Display();
+	auto input = new Input();
+
 	auto lvgl = new LVGL(*disp);
+	auto lvglInput = new InputLVGL();
+	auto fs = new FSLVGL('S');
 
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
 	lv_scr_load(scr);
 
-	auto lvglSpiffs = new FSLVGL("/spiffs", 'S');
-
 	// Start UI thread after initialization
 	lvgl->start();
-	imu->init();
 
 }
 

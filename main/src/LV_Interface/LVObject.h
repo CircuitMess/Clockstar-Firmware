@@ -8,7 +8,7 @@ public:
 	LVObject(lv_obj_t* parent);
 	virtual ~LVObject();
 
-	lv_obj_t* getLvObj();
+	operator lv_obj_t*();
 
 protected:
 	lv_obj_t* obj = nullptr;
