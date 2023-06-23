@@ -11,7 +11,6 @@
 #include "BLE/Client.h"
 #include "Devices/IMU.h"
 #include <lvgl/lvgl.h>
-#include "LV_Interface/FSLVGL.h"
 
 void init(){
 	gpio_config_t io_conf = {
