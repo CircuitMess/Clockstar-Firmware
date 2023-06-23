@@ -15,7 +15,7 @@ LVScreen::LVScreen() : LVObject(nullptr){
 			// lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
 
 			for(auto del : screen->delOnStart){
-				lv_obj_del(del->getLvObj());
+				lv_obj_del((lv_obj_t*)del);
 			}
 			screen->delOnStart.clear();
 
