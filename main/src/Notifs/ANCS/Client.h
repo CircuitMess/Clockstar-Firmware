@@ -8,6 +8,8 @@
 #include <queue>
 #include <deque>
 #include <mutex>
+#include <cstdint>
+#include <vector>
 
 namespace ANCS {
 
