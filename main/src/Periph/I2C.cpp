@@ -22,6 +22,26 @@ I2C::~I2C(){
 	ESP_ERROR_CHECK(i2c_driver_delete(port));
 }
 
+void I2C::scan(TickType_t timeout){
+	printf("I2C scan:\n");
+	for(int i = 0; i < 127; i++){
+		if(probe(i, timeout) == ESP_OK){
+			printf("Found device on addr 0x%x\n", i);
+		}
+	}
+	printf("Scan done.\n");
+}
+
+esp_err_t I2C::probe(uint8_t addr, TickType_t timeout){
+	auto cmd = i2c_cmd_link_create();
+	i2c_master_start(cmd);
+	i2c_master_write_byte(cmd, (addr << 1) | I2C_MASTER_WRITE, true);
+	i2c_master_stop(cmd);
+	auto status = i2c_master_cmd_begin(port, cmd, timeout);
+	i2c_cmd_link_delete(cmd);
+	return status;
+}
+
 esp_err_t I2C::write(uint8_t addr, const uint8_t* data, size_t size, TickType_t wait){
 	return i2c_master_write_to_device(port, addr, data, size, wait);
 }

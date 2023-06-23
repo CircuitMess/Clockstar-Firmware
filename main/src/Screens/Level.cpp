@@ -1,8 +1,8 @@
 #include <algorithm>
 #include "Level.h"
 #include <cmath>
-#include <glm/glm/vec2.hpp>
-#include <glm/glm/geometric.hpp>
+#include <vec2.hpp>
+#include <geometric.hpp>
 
 Level::Level(){
 	bg = lv_obj_create(*this);

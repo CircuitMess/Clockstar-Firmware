@@ -843,14 +843,14 @@ int32_t lsm6ds3tr_c_all_sources_get(stmdev_ctx_t *ctx,
 
 	if (ret == 0)
 	{
-		ret = lsm6ds3tr_c_read_reg(ctx, LSM6DS3TR_C_FUNC_SRC2,
-								   (uint8_t *) & (val->func_src2), 1);
+		ret = lsm6ds3tr_c_read_reg(ctx, LSM6DS3TR_C_WRIST_TILT_IA,
+								   (uint8_t *) & (val->wrist_tilt_ia), 1);
 	}
 
 	if (ret == 0)
 	{
-		ret = lsm6ds3tr_c_read_reg(ctx, LSM6DS3TR_C_WRIST_TILT_IA,
-								   (uint8_t *) & (val->wrist_tilt_ia), 1);
+		ret = lsm6ds3tr_c_read_reg(ctx, LSM6DS3TR_C_FUNC_SRC2,
+								   (uint8_t *) & (val->func_src2), 1);
 	}
 
 	if (ret == 0)
@@ -1341,7 +1341,7 @@ int32_t lsm6ds3tr_c_mag_calibrated_raw_get(stmdev_ctx_t *ctx,
   */
 int32_t lsm6ds3tr_c_fifo_raw_data_get(stmdev_ctx_t *ctx,
 									  uint8_t *buffer,
-									  uint8_t len)
+									  uint16_t len)
 {
 	int32_t ret;
 
@@ -6541,7 +6541,7 @@ int32_t lsm6ds3tr_c_tilt_src_set(stmdev_ctx_t *ctx,
 
 	if (ret == 0)
 	{
-		ret = lsm6ds3tr_c_read_reg(ctx, LSM6DS3TR_C_A_WRIST_TILT_MASK,
+		ret = lsm6ds3tr_c_write_reg(ctx, LSM6DS3TR_C_A_WRIST_TILT_MASK,
 								   (uint8_t *) val, 1);
 
 		if (ret == 0)

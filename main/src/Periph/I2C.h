@@ -12,6 +12,9 @@ public:
 	I2C(i2c_port_t port, gpio_num_t sda, gpio_num_t scl);
 	virtual ~I2C();
 
+	void scan(TickType_t timeout = 5);
+	esp_err_t probe(uint8_t addr, TickType_t timeout = 5);
+
 	esp_err_t write(uint8_t addr, const uint8_t* data, size_t size, TickType_t wait = portMAX_DELAY);
 	esp_err_t write(uint8_t addr, uint8_t data, TickType_t wait = portMAX_DELAY);
 	esp_err_t write(uint8_t addr, std::initializer_list<uint8_t> data, TickType_t wait = portMAX_DELAY);
