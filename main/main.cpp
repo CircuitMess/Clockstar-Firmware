@@ -17,6 +17,7 @@
 #include "Util/Services.h"
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
+#include "Screens/Lock/LockScreen.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -63,8 +64,8 @@ void init(){
 	auto fs = new FSLVGL('S');
 
 	// Load start screen here
-	auto scr = lv_obj_create(nullptr);
-	lv_scr_load(scr);
+	auto scr = new LockScreen();
+	scr->start();
 
 	// Start UI thread after initialization
 	lvgl->start();
