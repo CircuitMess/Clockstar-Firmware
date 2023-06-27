@@ -15,6 +15,7 @@
 #include "LV_Interface/FSLVGL.h"
 #include "LV_Interface/InputLVGL.h"
 #include "Util/Services.h"
+#include "Services/Time.h"
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
 #include "Screens/Lock/LockScreen.h"
@@ -40,7 +41,11 @@ void init(){
 	bl->on();
 
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto rtc = new RTC(*i2c);
 	auto imu = new IMU(*i2c);
+
+	auto time = new Time(*rtc);
+	Services.set(Service::Time, time); // Time service is required as soon as Phone is up
 
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
