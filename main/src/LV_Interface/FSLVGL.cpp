@@ -4,8 +4,10 @@
 #include <esp_spiffs.h>
 #include <esp_log.h>
 #include <string>
+#include <algorithm>
 
 const char* TAG = "FSLVGL";
+std::unordered_set<FSLVGL::RamFile*> FSLVGL::cache;
 
 FSLVGL::FSLVGL(char letter){
 	esp_vfs_spiffs_conf_t conf = {
@@ -53,11 +55,58 @@ FSLVGL::~FSLVGL(){
 	esp_vfs_spiffs_unregister("storage");
 }
 
+void FSLVGL::addToCache(const char* path){
+	auto file = fopen(path, "rb");
+	if(file == nullptr) return;
+
+	fseek(file, 0L, SEEK_END);
+	size_t size = ftell(file);
+	rewind(file);
+
+	auto* ram = new RamFile;
+	ram->data = (uint8_t*) malloc(size);
+	if(ram->data == nullptr){
+		ESP_LOGE(TAG, "Couldn't allocate memory for cache\n");
+	}
+	fread(ram->data, 1, size, file);
+	fclose(file);
+
+	ram->path = path;
+	ram->size = size;
+	cache.insert(ram);
+
+
+}
+
+void FSLVGL::removeFromCache(const char* path){
+	auto it = std::find_if(cache.begin(), cache.end(), [path](RamFile* ramFile){
+		return ramFile->path == path;
+	});
+	if(it == cache.end()) return;
+
+
+	auto ramFile = *it;
+	free(ramFile->data);
+	cache.erase(it);
+	delete ramFile;
+}
+
 bool FSLVGL::ready_cb(struct _lv_fs_drv_t* drv){
 	return true;
 }
 
 void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t mode){
+	auto fslvgl = (FSLVGL*) drv->user_data;
+	std::string p = fslvgl->Root + std::string(path);
+
+	auto it = std::find_if(cache.begin(), cache.end(), [path, &p](RamFile* ramFile){
+		return ramFile->path == p;
+	});
+	if(it != cache.end()){
+		(*it)->seekHead = 0;
+		return *it;
+	}
+
 	const char* fsMode;
 
 	if(mode == LV_FS_MODE_WR){
@@ -66,24 +115,44 @@ void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t m
 		fsMode = "r";
 	}
 
-	auto fslvgl = (FSLVGL*) drv->user_data;
-	std::string p = fslvgl->Root + std::string(path);
-
 	return (void*) fopen(p.c_str(), fsMode);
 }
 
 lv_fs_res_t FSLVGL::close_cb(struct _lv_fs_drv_t* drv, void* file_p){
+	auto ramFile = (RamFile*) file_p;
+	if(cache.count(ramFile)){
+		return 0;
+	}
+
 	fclose((FILE*) file_p);
 	return 0;
 }
 
 lv_fs_res_t FSLVGL::read_cb(struct _lv_fs_drv_t* drv, void* file_p, void* buf, uint32_t btr, uint32_t* br){
+	auto ramFile = (RamFile*) file_p;
+	if(cache.count(ramFile)){
+		size_t bytesRead = std::min(btr, (uint32_t) (ramFile->size - ramFile->seekHead));
+		memcpy(buf, ramFile->data + ramFile->seekHead, bytesRead);
+		ramFile->seekHead += bytesRead;
+		*br = bytesRead;
+		return 0;
+	}
+
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 	*br = fread(buf, 1, btr, (FILE*) file_p);
 	return 0;
 }
 
 lv_fs_res_t FSLVGL::write_cb(struct _lv_fs_drv_t* drv, void* file_p, const void* buf, uint32_t btw, uint32_t* bw){
+	auto ramFile = (RamFile*) file_p;
+	if(cache.count(ramFile)){
+		size_t bytesWritten = std::min(btw, (uint32_t) (ramFile->size - ramFile->seekHead));
+		memcpy(ramFile->data + ramFile->seekHead, buf, bytesWritten);
+		ramFile->seekHead += bytesWritten;
+		*bw = bytesWritten;
+		return 0;
+	}
+
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 
 	*bw = fwrite((uint8_t*) buf, 1, btw, (FILE*) file_p);
@@ -91,7 +160,33 @@ lv_fs_res_t FSLVGL::write_cb(struct _lv_fs_drv_t* drv, void* file_p, const void*
 }
 
 lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos, lv_fs_whence_t whence){
-	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
+	auto ramFile = (RamFile*) file_p;
+	if(cache.count(ramFile)){
+		size_t head;
+		switch(whence){
+			case LV_FS_SEEK_SET:
+				head = pos;
+				break;
+			case LV_FS_SEEK_CUR:
+				head = pos + ramFile->seekHead;
+				break;
+			case LV_FS_SEEK_END:
+				head = ramFile->size - pos;
+				break;
+			default:
+				head = pos;
+		}
+		if(head >= ramFile->size){
+			return LV_FS_RES_INV_PARAM;
+		}
+		ramFile->seekHead = head;
+		return 0;
+	}
+
+
+	if(ferror((FILE*) file_p)){
+		return LV_FS_RES_NOT_EX;
+	}
 
 	int mode;
 	switch(whence){
@@ -107,7 +202,7 @@ lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos
 		default:
 			mode = SEEK_SET;
 	}
-	if(!fseek((FILE*) file_p, pos, mode)){
+	if(fseek((FILE*) file_p, pos, mode) != 0){
 		return LV_FS_RES_INV_PARAM;
 	}
 	return 0;
@@ -115,6 +210,12 @@ lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos
 }
 
 lv_fs_res_t FSLVGL::tell_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t* pos_p){
+	auto ramFile = (RamFile*) file_p;
+	if(cache.count(ramFile)){
+		*pos_p = ramFile->seekHead;
+		return 0;
+	}
+
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 	auto val = ftell((FILE*) file_p);
 	if(val == -1) return LV_FS_RES_UNKNOWN;

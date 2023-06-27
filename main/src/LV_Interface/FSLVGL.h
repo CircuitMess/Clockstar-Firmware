@@ -3,15 +3,30 @@
 
 #include <lvgl.h>
 #include <string>
+#include <unordered_set>
 
 class FSLVGL {
 public:
 	FSLVGL(char letter);
 	virtual ~FSLVGL();
 
+	/**
+	 * Allocates memory and stores a file in memory.
+	 * @param path Global filesystem path (e.g. /spiffs/file.bin)
+	 */
+	static void addToCache(const char* path);
+	static void removeFromCache(const char* path);
+
 private:
 	lv_fs_drv_t drv;                   /*Needs to be static or global*/
 	const std::string Root = "/spiffs";
+	struct RamFile {
+		uint8_t* data = nullptr;
+		size_t seekHead = 0;
+		const char* path;
+		size_t size;
+	};
+	static std::unordered_set<RamFile*> cache;
 
 
 	static bool ready_cb(struct _lv_fs_drv_t* drv);
