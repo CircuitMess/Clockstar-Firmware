@@ -61,7 +61,7 @@ void Phone::onAdd(Notif notif){
 		notifs.reserve(notifs.capacity() * 2);
 	}
 
-	notifs.push_back(notif);
+	notifs.push_back(notif); // TODO: send whole notification, otherwise (by using a mutex) all newly unlocked tasks will rush after getNotif, and promptly get locked again by the mutex
 	Events::post(Facility::Phone, Event { .action = Event::Added, .data = { .addChgRem = { .id = notif.uid } } });
 }
 

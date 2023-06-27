@@ -38,7 +38,7 @@ private:
 	void onModify(Notif notif);
 	void onRemove(uint32_t id);
 
-	std::vector<Notif> notifs;
+	std::vector<Notif> notifs; // TODO: mutex
 
 	auto findNotif(uint32_t id);
 
