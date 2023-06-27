@@ -17,7 +17,7 @@ T map(T val, decltype(val) fromLow, decltype(val) fromHigh, decltype(val) toLow,
 	return (val - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
 }
 
-uint32_t millis();
-uint32_t micros();
+uint64_t millis();
+uint64_t micros();
 
 #endif //CLOCKSTAR_FIRMWARE_STDAFX_H

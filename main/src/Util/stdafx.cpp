@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include <esp_timer.h>
 
-uint32_t millis(){
+uint64_t millis(){
 	return micros() / 1000;
 }
 
-uint32_t micros(){
+uint64_t micros(){
 	return esp_timer_get_time();
 }
