@@ -5,12 +5,15 @@
 #include "Periph/PinOut.h"
 #include "Periph/Bluetooth.h"
 #include "Devices/Display.h"
+#include "Devices/Input.h"
+#include "Devices/IMU.h"
+#include "BLE/GAP.h"
+#include "BLE/Client.h"
+#include "BLE/Server.h"
+#include "Notifs/Phone.h"
 #include "LV_Interface/LVGL.h"
 #include "LV_Interface/FSLVGL.h"
 #include "LV_Interface/InputLVGL.h"
-#include "BLE/GAP.h"
-#include "BLE/Client.h"
-#include "Devices/IMU.h"
 #include "Util/Services.h"
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
@@ -42,6 +45,12 @@ void init(){
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
 	auto client = new BLE::Client(gap);
+	auto server = new BLE::Server(gap);
+	auto phone = new Phone(server, client);
+	server->start();
+
+	Services.set(Service::IMU, imu);
+	Services.set(Service::Phone, phone);
 
 	auto disp = new Display();
 	auto input = new Input();
@@ -52,8 +61,6 @@ void init(){
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
-
-	Services.set(Service::IMU, imu);
 
 	// Load start screen here
 	auto scr = lv_obj_create(nullptr);
