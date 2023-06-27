@@ -11,6 +11,8 @@ public:
 	LVGL(Display& display);
 	virtual ~LVGL();
 
+	lv_disp_t* disp() const;
+
 private:
 	Display& display;
 

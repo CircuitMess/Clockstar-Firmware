@@ -44,3 +44,7 @@ void LVGL::loop(){
 	if(ttn <= 0 || ttn > LV_DISP_DEF_REFR_PERIOD) ttn = 1;
 	vTaskDelay(ttn);
 }
+
+lv_disp_t* LVGL::disp() const{
+	return lvDisplay;
+}
