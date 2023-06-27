@@ -1,8 +1,8 @@
 #ifndef CLOCKSTAR_LIBRARY_PINS_HPP
 #define CLOCKSTAR_LIBRARY_PINS_HPP
 
-#define BTN_DOWN 15
-#define BTN_UP 14
+#define BTN_DOWN 14
+#define BTN_UP 15
 #define BTN_SELECT 27
 #define BTN_ALT 39
 
