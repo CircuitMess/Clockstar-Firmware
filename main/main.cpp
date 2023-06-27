@@ -13,6 +13,7 @@
 #include "Devices/IMU.h"
 #include "Util/Services.h"
 #include <lvgl/lvgl.h>
+#include "Theme/theme.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -46,6 +47,9 @@ void init(){
 	auto input = new Input();
 
 	auto lvgl = new LVGL(*disp);
+	auto theme = theme_init(lvgl->disp());
+	lv_disp_set_theme(lvgl->disp(), theme);
+
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
 
