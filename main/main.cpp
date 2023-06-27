@@ -41,7 +41,6 @@ void init(){
 
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto imu = new IMU(*i2c);
-	imu->init();
 
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
