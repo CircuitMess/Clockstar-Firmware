@@ -7,6 +7,7 @@
 class Time : private Threaded {
 public:
 	Time(RTC& rtc);
+	~Time();
 
 	struct Event {
 		enum { Updated } action;

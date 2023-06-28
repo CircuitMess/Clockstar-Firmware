@@ -6,6 +6,12 @@ Time::Time(RTC& rtc) : Threaded("Time", 4 * 1024, 6, 0), rtc(rtc){
 	updateTime = millis();
 	tm time_tm = rtc.getTime();
 	time = mktime(&time_tm);
+
+	start();
+}
+
+Time::~Time(){
+	stop();
 }
 
 std::tm Time::getTime() const{
