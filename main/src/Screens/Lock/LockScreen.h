@@ -2,9 +2,10 @@
 #define CLOCKSTAR_FIRMWARE_LOCKSCREEN_H
 
 #include "LV_Interface/LVScreen.h"
+#include "Item.h"
 #include "Util/Events.h"
 #include "Notifs/Phone.h"
-#include "Item.h"
+#include "Services/Time.h"
 
 class LockScreen : public LVScreen {
 public:
@@ -45,6 +46,7 @@ private:
 
 	lv_obj_t* rest;
 
+	Time& ts;
 	Phone& phone;
 	EventQueue queue;
 
@@ -54,7 +56,6 @@ private:
 		std::unique_ptr<Item> item;
 	};
 	std::unordered_map<uint32_t, NotifEl> notifs;
-	lv_obj_t* moreIcon;
 
 	void notifAdd(const Notif& notif);
 	void notifRem(uint32_t id);

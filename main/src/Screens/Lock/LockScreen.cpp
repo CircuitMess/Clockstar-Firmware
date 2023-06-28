@@ -4,7 +4,7 @@
 #include "Services/Time.h"
 #include "Util/stdafx.h"
 
-LockScreen::LockScreen() : phone(*((Phone*) Services.get(Service::Phone))), queue(12){
+LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
 	Events::listen(Facility::Phone, &queue);
 	Events::listen(Facility::Time, &queue);
@@ -15,14 +15,12 @@ void LockScreen::onStarting(){
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
 
-	auto ts = static_cast<Time*>(Services.get(Service::Time));
-	updateTime(ts->getTime());
+	updateTime(ts.getTime());
 }
 
 void LockScreen::loop(){
 	if(millis() - lastTimeUpdate > TimeUpdateInterval){
-		auto ts = static_cast<Time*>(Services.get(Service::Time));
-		updateTime(ts->getTime());
+		updateTime(ts.getTime());
 	}
 
 	Event evt;
