@@ -63,6 +63,10 @@ private:
 	void loop() override;
 	void processEvt(const Phone::Event& evt);
 
+	void updateTime(const tm& time);
+	static constexpr uint32_t TimeUpdateInterval = 200;
+	uint64_t lastTimeUpdate = 0;
+
 	void buildUI();
 
 };

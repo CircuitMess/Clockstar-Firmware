@@ -1,24 +1,40 @@
 #include "LockScreen.h"
 #include "Util/Services.h"
 #include "Theme/theme.h"
+#include "Services/Time.h"
+#include "Util/stdafx.h"
 
 LockScreen::LockScreen() : phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
 	Events::listen(Facility::Phone, &queue);
+	Events::listen(Facility::Time, &queue);
 }
 
 void LockScreen::onStarting(){
 	lv_obj_scroll_to(rest, 0, 0, LV_ANIM_OFF);
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
+
+	auto ts = static_cast<Time*>(Services.get(Service::Time));
+	updateTime(ts->getTime());
 }
 
 void LockScreen::loop(){
+	if(millis() - lastTimeUpdate > TimeUpdateInterval){
+		auto ts = static_cast<Time*>(Services.get(Service::Time));
+		updateTime(ts->getTime());
+	}
+
 	Event evt;
 	if(queue.get(evt, 0)){
 		if(evt.facility == Facility::Phone){
 			auto data = (Phone::Event*) evt.data;
 			processEvt(*data);
+		}else if(evt.facility == Facility::Time){
+			auto data = (Time::Event*) evt.data;
+			if(data->action == Time::Event::Updated){
+				updateTime(data->updated.time);
+			}
 		}
 		free(evt.data);
 	}
@@ -76,6 +92,28 @@ void LockScreen::notifsClear(){
 	lv_obj_clean(icons);
 }
 
+void LockScreen::updateTime(const tm& time){
+	lastTimeUpdate = millis();
+
+	char clockText[128];
+	char dateText[128];
+
+	static const char* Months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+	const int dayLd = time.tm_mday - (time.tm_mday / 10) * 10;
+	const char* daySuff;
+	if(time.tm_mday == 11 || time.tm_mday == 12) daySuff = "th";
+	else if(dayLd == 1) daySuff = "st";
+	else if(dayLd == 2) daySuff = "nd";
+	else if(dayLd == 3) daySuff = "rd";
+	else daySuff = "th";
+
+	snprintf(clockText, sizeof(clockText), "%02d%c%02d", time.tm_hour, time.tm_sec % 2 ? ':' : ' ', time.tm_min);
+	snprintf(dateText, sizeof(dateText), "%s %d%s, %d", Months[time.tm_mon % 12], time.tm_mday, daySuff, 1900 + time.tm_year);
+
+	lv_label_set_text(clock, clockText);
+	lv_label_set_text(date, dateText);
+}
+
 void LockScreen::buildUI(){
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
 
@@ -107,14 +145,12 @@ void LockScreen::buildUI(){
 	lv_obj_set_size(mainBot, 128, 8);
 
 	clock = lv_label_create(mainMid);
-	lv_label_set_text(clock, "10:28");
 	lv_obj_set_style_text_align(clock, LV_TEXT_ALIGN_CENTER, 0);
 	lv_obj_set_style_text_font(clock, &clockfont, 0);
 	lv_obj_set_style_text_color(clock, lv_color_make(244, 126, 27), 0);
 
 	date = lv_label_create(mainMid);
 	lv_obj_set_size(date, 128, 10);
-	lv_label_set_text(date, "May 17th, 2023");
 	lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
 	lv_obj_set_style_text_color(date, lv_color_make(207, 198, 184), 0);
 
