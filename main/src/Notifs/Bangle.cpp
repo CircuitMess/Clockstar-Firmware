@@ -1,4 +1,6 @@
 #include "Bangle.h"
+#include "Util/Services.h"
+#include "Services/Time.h"
 #include <mjson.h>
 #include <esp_log.h>
 #include <cmath>
@@ -69,17 +71,26 @@ void Bangle::loop(){
 
 	auto time = findArg("setTime");
 	if(!time.empty()){
-		auto unix = std::stoll(time);
-		ESP_LOGI(TAG, "Got UNIX time: %lld", unix);
-		// TODO: set time
+		timeUnix = std::stoll(time);
+		ESP_LOGI(TAG, "Got UNIX time: %lld", timeUnix);
+		setTime();
 	}
 
 	auto timeZone = findArg("setTimeZone");
 	if(!timeZone.empty()){
-		auto offset = std::stod(timeZone);
-		ESP_LOGI(TAG, "Got timezone: %f", offset);
-		// TODO: set time zone
+		timeOffset = std::stod(timeZone);
+		ESP_LOGI(TAG, "Got timezone: %f", timeOffset);
+		setTime();
 	}
+}
+
+void Bangle::setTime(){
+	if(timeUnix == 0) return;
+
+	auto time = timeUnix + timeOffset * 60 * 60;
+
+	auto ts = static_cast<Time*>(Services.get(Service::Time));
+	ts->setTime((time_t) time);
 }
 
 void Bangle::handleCommand(const std::string& line){
