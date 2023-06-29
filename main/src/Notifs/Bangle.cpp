@@ -25,7 +25,7 @@ void Bangle::actionPos(uint32_t uid){
 
 void Bangle::actionNeg(uint32_t uid){
 	// TODO: pos & neg for call
-	uart.printf("{ t: \"notify\", id: %d, n: \"DISMISS\" }\n");
+	uart.printf("{t:\"notify\",id:%d,n:\"DISMISS\"} \n", uid);
 }
 
 void Bangle::loop(){
@@ -139,7 +139,7 @@ void Bangle::handleCommand(const std::string& line){
 }
 
 void Bangle::handle_isGpsActive(){
-	uart.printf("{ t: \"gps_power\", status: false }\n");
+	uart.printf("{t:\"gps_power\",status:false} \n");
 }
 
 void Bangle::handle_find(bool on){
@@ -156,7 +156,7 @@ void Bangle::handle_notify(const std::string& line){
 			ESP_LOGD(TAG, "Missing prop in notif: %s", prop.c_str() + 2);
 			return std::string();
 		}
-		return std::string(val, val + len);
+		return std::string(val + 1, val + len - 1);
 	};
 
 	double id;
