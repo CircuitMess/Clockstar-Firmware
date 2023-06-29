@@ -6,6 +6,7 @@
 #include "Util/Events.h"
 #include "Notifs/Phone.h"
 #include "Services/Time.h"
+#include "UIElements/StatusBar.h"
 
 class LockScreen : public LVScreen {
 public:
@@ -44,6 +45,8 @@ private:
 	lv_obj_t* lock;
 
 	lv_obj_t* rest;
+
+	StatusBar* status;
 
 	Time& ts;
 	Phone& phone;

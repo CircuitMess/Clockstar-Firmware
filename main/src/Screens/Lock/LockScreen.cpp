@@ -19,6 +19,8 @@ void LockScreen::onStarting(){
 }
 
 void LockScreen::loop(){
+	status->loop();
+
 	if(millis() - lastTimeUpdate > TimeUpdateInterval){
 		updateTime(ts.getTime());
 	}
@@ -133,8 +135,7 @@ void LockScreen::buildUI(){
 	lv_obj_set_flex_flow(main, LV_FLEX_FLOW_COLUMN);
 	lv_obj_set_flex_align(main, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	mainTop = lv_obj_create(main);
-	lv_obj_set_size(mainTop, 128, 8);
+	status = new StatusBar(main, false);
 
 	mainMid = lv_obj_create(main);
 	lv_obj_set_size(mainMid, 128, LV_SIZE_CONTENT);
