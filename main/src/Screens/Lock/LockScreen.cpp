@@ -37,12 +37,8 @@ void LockScreen::loop(){
 		stop();
 		delete this;
 
-		ramReport();
-
 		auto scr = new MainMenu();
 		scr->start();
-
-		ramReport();
 
 		return;
 	}
