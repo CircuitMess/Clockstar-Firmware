@@ -66,6 +66,7 @@ void init(){
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
+	fs->addToCache("/bg.bin");
 
 	// Load start screen here
 	auto scr = new LockScreen();
