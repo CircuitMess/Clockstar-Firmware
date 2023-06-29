@@ -7,10 +7,13 @@
 #include "Notifs/Phone.h"
 #include "Services/Time.h"
 #include "UIElements/StatusBar.h"
+#include "Slider.h"
+#include "Devices/Input.h"
 
 class LockScreen : public LVScreen {
 public:
 	LockScreen();
+	virtual ~LockScreen();
 
 private:
 	lv_obj_t* bg;
@@ -40,7 +43,7 @@ private:
 	lv_obj_t* date;
 	lv_obj_t* icons;
 
-	lv_obj_t* mainBot;
+	Slider* locker;
 	lv_obj_t* playing;
 	lv_obj_t* lock;
 
@@ -67,6 +70,7 @@ private:
 
 	void loop() override;
 	void processEvt(const Phone::Event& evt);
+	void processInput(const Input::Data& evt);
 
 	void updateTime(const tm& time);
 	static constexpr uint32_t TimeUpdateInterval = 200;

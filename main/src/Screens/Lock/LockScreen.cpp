@@ -3,11 +3,22 @@
 #include "Theme/theme.h"
 #include "Services/Time.h"
 #include "Util/stdafx.h"
+#include "Screens/MainMenu/MainMenu.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
 	Events::listen(Facility::Phone, &queue);
 	Events::listen(Facility::Time, &queue);
+	Events::listen(Facility::Input, &queue);
+
+	lv_obj_add_event_cb(main, [](lv_event_t* evt){
+		auto scr = static_cast<LockScreen*>(evt->user_data);
+		scr->locker->stop();
+	}, LV_EVENT_DEFOCUSED, this);
+}
+
+LockScreen::~LockScreen(){
+	Events::unlisten(&queue);
 }
 
 void LockScreen::onStarting(){
@@ -19,6 +30,23 @@ void LockScreen::onStarting(){
 }
 
 void LockScreen::loop(){
+	locker->loop();
+	if(locker->t() >= 1){
+		locker->loop();
+
+		stop();
+		delete this;
+
+		ramReport();
+
+		auto scr = new MainMenu();
+		scr->start();
+
+		ramReport();
+
+		return;
+	}
+
 	status->loop();
 
 	if(millis() - lastTimeUpdate > TimeUpdateInterval){
@@ -35,8 +63,23 @@ void LockScreen::loop(){
 			if(data->action == Time::Event::Updated){
 				updateTime(data->updated.time);
 			}
+		}else if(evt.facility == Facility::Input){
+			auto data = (Input::Data*) evt.data;
+			processInput(*data);
 		}
 		free(evt.data);
+	}
+}
+
+void LockScreen::processInput(const Input::Data& evt){
+	if(lv_group_get_focused(inputGroup) != main) return;
+
+	if(evt.btn == Input::Alt){
+		if(evt.action == Input::Data::Press){
+			locker->start();
+		}else if(evt.action == Input::Data::Release){
+			locker->stop();
+		}
 	}
 }
 
@@ -143,8 +186,7 @@ void LockScreen::buildUI(){
 	lv_obj_set_flex_align(mainMid, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 	lv_obj_set_style_pad_gap(mainMid, 2, 0);
 
-	mainBot = lv_obj_create(main);
-	lv_obj_set_size(mainBot, 128, 8);
+	locker = new Slider(main);
 
 	clock = lv_label_create(mainMid);
 	lv_obj_set_style_text_align(clock, LV_TEXT_ALIGN_CENTER, 0);
