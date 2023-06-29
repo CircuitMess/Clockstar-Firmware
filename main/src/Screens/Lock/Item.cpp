@@ -101,5 +101,7 @@ void Item::update(const Notif& notif){
 
 	lv_label_set_text(label, notif.title.c_str());
 
+	// TODO: replace line breaks (two characters: \ and n when coming from Bangle, needs checking from ANCS) with two space characters
+	// if ANCS has proper line breaks, adjust Bangle so it has proper line breaks too
 	lv_label_set_text(body, notif.message.c_str());
 }
