@@ -3,33 +3,40 @@
 
 
 #include "LV_Interface/LVObject.h"
-#include "LV_Interface/LVStyle.h"
+#include "ClockLabel.h"
+#include "Services/Time.h"
+#include "Notifs/Phone.h"
+#include "Util/Events.h"
 
 class StatusBar : public LVObject {
 public:
 	explicit StatusBar(lv_obj_t* parent);
 
-	void hideClock();
-	void setTime(uint8_t h, uint8_t m);
-	void setConnection(bool connected);
-	void setDeviceBattery(uint8_t percent);
-	void setPhoneBattery(uint8_t percent);
+	void showClock(bool show);
+
+	void loop();
 
 private:
-	bool connection = false;
+	Phone& phone;
 
-	static constexpr uint8_t Width = 128;
-	static constexpr uint8_t Height = 15;
+	EventQueue queue;
 
-	lv_obj_t* timeLabel;
-	lv_obj_t* deviceBat, * phoneBat, * phoneStatus;
-	lv_obj_t* phoneContainer;
+	bool clockShown = true;
 
-	static constexpr uint8_t PhoneContainerWidth = 25;
-	static constexpr uint8_t PhoneContainerHeight = 13;
+	bool connected = false;
+	uint8_t perBatPhone = 0;
+	uint8_t perBatDevice = 0;
 
-	LVStyle textStyle;
-	const lv_color_t textColor = lv_color_make(207, 198, 184);
+	lv_obj_t* left;
+	lv_obj_t* batPhone;
+	lv_obj_t* phoneIcon;
+	ClockLabel* clock;
+	lv_obj_t* batDevice;
+
+	void setPhoneConnected();
+	void setPhoneBattery();
+	void setDeviceBattery();
+
 	static const char* percentToIcon(uint8_t percent);
 };
 

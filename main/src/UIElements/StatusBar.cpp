@@ -1,61 +1,92 @@
 #include "StatusBar.h"
+#include "Util/Services.h"
 
-StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent){
+StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_FLOATING);
-	lv_obj_set_size(*this, Width, Height);
-	lv_obj_set_style_pad_ver(*this, 1, 0);
-	lv_obj_set_style_pad_right(*this, 3, 0);
-	lv_obj_set_style_pad_left(*this, 3, 0);
+	lv_obj_set_size(*this, 128, 15);
+	lv_obj_set_style_pad_ver(*this, 2, 0);
+	lv_obj_set_style_pad_hor(*this, 3, 0);
 
-	lv_style_set_text_font(textStyle, &lv_font_unscii_8);
-	lv_style_set_text_color(textStyle, textColor);
+	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_ROW);
+	lv_obj_set_flex_align(*this, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	timeLabel = lv_label_create(*this);
-	lv_obj_add_style(timeLabel, textStyle, 0);
-	lv_obj_center(timeLabel);
+	left = lv_obj_create(*this);
+	lv_obj_set_size(left, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+	lv_obj_set_style_pad_gap(left, 2, 0);
+	lv_obj_set_flex_flow(left, LV_FLEX_FLOW_ROW);
+	lv_obj_set_flex_align(left, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	deviceBat = lv_img_create(*this);
-	setDeviceBattery(100);
-	lv_obj_align(deviceBat, LV_ALIGN_RIGHT_MID, 0, 0);
+	batPhone = lv_img_create(left);
+	phoneIcon = lv_img_create(left);
 
-	phoneContainer = lv_obj_create(*this);
-	lv_obj_set_size(phoneContainer, PhoneContainerWidth, PhoneContainerHeight);
-	lv_obj_set_flex_flow(phoneContainer, LV_FLEX_FLOW_ROW);
-	lv_obj_set_flex_align(phoneContainer, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+	clock = new ClockLabel(*this);
+	lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
+	lv_obj_center(*clock);
 
-	phoneBat = lv_img_create(phoneContainer);
-	setPhoneBattery(100);
+	batDevice = lv_img_create(*this);
 
-	phoneStatus = lv_img_create(phoneContainer);
-	setConnection(false);
+	Events::listen(Facility::Phone, &queue);
+
+	setPhoneConnected();
+	setPhoneBattery();
+	setDeviceBattery();
+
+	// TODO: blink battery icon when below 5% battery
+	// TODO: play "charging" animation when charging - all level icons looped with ~500ms between them
 }
 
-void StatusBar::hideClock(){
-	lv_obj_add_flag(timeLabel, LV_OBJ_FLAG_HIDDEN);
+void StatusBar::loop(){
+	clock->loop();
+
+	if(connected ^ phone.isConnected()){
+		setPhoneConnected();
+	}
+
+	if(perBatPhone != 0 /*phone.battery*/){
+		setPhoneBattery();
+	}
+
+	// TODO: hysteresis
+	if(perBatDevice != 0 /*battery.perc*/){
+		setDeviceBattery();
+	}
 }
 
-void StatusBar::setTime(uint8_t h, uint8_t m){
-	lv_label_set_text_fmt(timeLabel, "%02d:%02d", h, m);
+void StatusBar::showClock(bool show){
+	clockShown = show;
+	if(show){
+		lv_obj_clear_flag(*clock, LV_OBJ_FLAG_HIDDEN);
+	}else{
+		lv_obj_clear_flag(*clock, LV_OBJ_FLAG_HIDDEN);
+	}
 }
 
-void StatusBar::setDeviceBattery(uint8_t percent){
-	lv_img_set_src(deviceBat, percentToIcon(percent));
+void StatusBar::setPhoneConnected(){
+	connected = phone.isConnected();
+
+	if(connected){
+		lv_img_set_src(phoneIcon, "S:/icons/phone.bin");
+		lv_obj_clear_flag(batPhone, LV_OBJ_FLAG_HIDDEN);
+	}else{
+		lv_img_set_src(phoneIcon, "S:/icons/phoneDisconnected.bin");
+		lv_obj_add_flag(batPhone, LV_OBJ_FLAG_HIDDEN);
+	}
+
+	lv_obj_refr_size(left);
 }
 
+void StatusBar::setPhoneBattery(){
+	perBatPhone = 0; // phone.battery
+	lv_img_set_src(batPhone, percentToIcon(perBatPhone));
+}
 
-void StatusBar::setPhoneBattery(uint8_t percent){
-	lv_img_set_src(phoneBat, percentToIcon(percent));
+void StatusBar::setDeviceBattery(){
+	perBatDevice = 0; // phone.battery
+	lv_img_set_src(batDevice, percentToIcon(perBatDevice));
 }
 
 const char* StatusBar::percentToIcon(uint8_t percent){
 	if(percent >= 75) return "S:/icons/batteryFull.bin";
 	else if(percent >= 25) return "S:/icons/batteryMid.bin";
 	else return "S:/icons/batteryLow.bin";
-}
-
-void StatusBar::setConnection(bool connected){
-	lv_img_set_src(phoneStatus, connected ? "S:/icons/phone.bin" : "S:/icons/phoneDisconnected.bin");
-	if(!connected){
-		lv_obj_add_flag(phoneBat, LV_OBJ_FLAG_HIDDEN);
-	}
 }
