@@ -55,7 +55,11 @@ void LockScreen::notifAdd(const Notif& notif){
 	if(notifs.count(notif.uid) == 0){
 		lv_obj_t* icon = lv_img_create(icons);
 
-		auto item = std::make_unique<Item>(rest);
+		auto uid = notif.uid;
+		auto item = std::make_unique<Item>(rest, [this, uid](){
+			notifRem(uid);
+			phone.doNeg(uid);
+		});
 		lv_group_add_obj(inputGroup, *item);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_CHAIN_VER);

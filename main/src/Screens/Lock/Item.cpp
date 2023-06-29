@@ -1,6 +1,6 @@
 #include "Item.h"
 
-Item::Item(lv_obj_t* parent) : LVSelectable(parent){
+Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(parent), onDismiss(dismiss){
 	lv_obj_set_size(*this, lv_pct(100), LV_SIZE_CONTENT);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
 
@@ -86,6 +86,9 @@ Item::Item(lv_obj_t* parent) : LVSelectable(parent){
 	lv_obj_add_event_cb(*del, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);
 		item->deselect();
+
+		auto dismiss = item->onDismiss;
+		dismiss();
 	}, LV_EVENT_CLICKED, this);
 
 	lv_group_add_obj(inputGroup, *del);
