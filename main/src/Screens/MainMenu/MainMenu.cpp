@@ -42,7 +42,8 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	}
 
 	statusBar = new StatusBar(*this);
-	lv_obj_add_flag(*this, LV_OBJ_FLAG_FLOATING);
+	lv_obj_add_flag(*statusBar, LV_OBJ_FLAG_FLOATING);
+	lv_obj_set_pos(*statusBar, 0, 0);
 
 	// Scrolling
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLL_ONE);
