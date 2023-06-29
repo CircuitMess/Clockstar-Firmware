@@ -2,7 +2,7 @@
 #include "Util/stdafx.h"
 #include "Util/Events.h"
 
-Time::Time(RTC& rtc) : Threaded("Time", 4 * 1024, 6, 0), rtc(rtc){
+Time::Time(RTC& rtc) : Threaded("Time", 2 * 1024, 6, 0), rtc(rtc){
 	updateTime = millis();
 	tm time_tm = rtc.getTime();
 	time = mktime(&time_tm);

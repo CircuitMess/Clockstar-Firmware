@@ -5,7 +5,7 @@
 #include <cmath>
 #include <driver/gpio.h>
 
-Battery::Battery() : Threaded("Battery", 4 * 1024, 4), adc((gpio_num_t) PIN_BATT, 0.05){
+Battery::Battery() : Threaded("Battery", 1024, 4), adc((gpio_num_t) PIN_BATT, 0.05){
 	gpio_config_t cfg_gpio = {};
 	cfg_gpio.mode = GPIO_MODE_INPUT;
 	cfg_gpio.pull_down_en = GPIO_PULLDOWN_ENABLE;
