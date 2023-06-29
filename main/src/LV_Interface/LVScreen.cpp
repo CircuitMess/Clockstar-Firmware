@@ -7,8 +7,6 @@ LVScreen* LVScreen::current = nullptr;
 LVScreen::LVScreen() : LVObject(nullptr){
 	delOnStart.reserve(4);
 
-	lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
-
 	lv_obj_add_event_cb(obj, [](lv_event_t* event){
 		auto screen = static_cast<LVScreen*>(event->user_data);
 

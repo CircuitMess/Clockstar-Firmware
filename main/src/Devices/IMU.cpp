@@ -12,6 +12,8 @@ IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(MaxReads), thread1([this](){ thread1F
 
 	thread1.start();
 	thread2.start();
+
+	init();
 }
 
 IMU::~IMU(){

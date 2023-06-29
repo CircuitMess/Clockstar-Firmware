@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-enum class Facility { Input, Motion };
+enum class Facility { Input, Motion, Phone, Time };
 
 struct Event {
 	Facility facility;
