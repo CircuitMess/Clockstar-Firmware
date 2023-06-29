@@ -46,7 +46,6 @@ void StatusBar::loop(){
 		setPhoneBattery();
 	}
 
-	// TODO: hysteresis
 	if(perBatDevice != 0 /*battery.perc*/){
 		setDeviceBattery();
 	}

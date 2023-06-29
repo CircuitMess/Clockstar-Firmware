@@ -37,6 +37,8 @@ bool Battery::isCharging() const{
 void Battery::loop(){
 	vTaskDelay(MeasureInverval);
 
+	// TODO: send evt on chrg
+	// TODO: level hysteresis
 	if(isCharging()){
 		wasCharging = true;
 		return;
