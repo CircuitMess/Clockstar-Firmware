@@ -4,6 +4,8 @@
 #include <lvgl.h>
 #include <string>
 #include <unordered_set>
+#include <memory>
+#include "Util/RamFile.h"
 
 class FSLVGL {
 public:
@@ -20,14 +22,10 @@ public:
 private:
 	lv_fs_drv_t drv;                   /*Needs to be static or global*/
 	const std::string Root = "/spiffs";
-	struct RamFile {
-		uint8_t* data = nullptr;
-		size_t seekHead = 0;
-		const char* path;
-		size_t size;
-	};
 	static std::unordered_set<RamFile*> cache;
 
+	static auto findCache(std::string path);
+	static auto findCache(void* ptr);
 
 	static bool ready_cb(struct _lv_fs_drv_t* drv);
 	static void* open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t mode);
