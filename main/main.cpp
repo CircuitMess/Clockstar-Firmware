@@ -5,13 +5,20 @@
 #include "Periph/PinOut.h"
 #include "Periph/Bluetooth.h"
 #include "Devices/Display.h"
+#include "Devices/Input.h"
+#include "Devices/IMU.h"
+#include "BLE/GAP.h"
+#include "BLE/Client.h"
+#include "BLE/Server.h"
+#include "Notifs/Phone.h"
 #include "LV_Interface/LVGL.h"
 #include "LV_Interface/FSLVGL.h"
 #include "LV_Interface/InputLVGL.h"
-#include "BLE/GAP.h"
-#include "BLE/Client.h"
-#include "Devices/IMU.h"
+#include "Util/Services.h"
+#include "Services/Time.h"
 #include <lvgl/lvgl.h>
+#include "Theme/theme.h"
+#include "Screens/Lock/LockScreen.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -34,23 +41,36 @@ void init(){
 	bl->on();
 
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto rtc = new RTC(*i2c);
 	auto imu = new IMU(*i2c);
-	imu->init();
+
+	auto time = new Time(*rtc);
+	Services.set(Service::Time, time); // Time service is required as soon as Phone is up
 
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
 	auto client = new BLE::Client(gap);
+	auto server = new BLE::Server(gap);
+	auto phone = new Phone(server, client);
+	server->start();
+
+	Services.set(Service::IMU, imu);
+	Services.set(Service::Phone, phone);
 
 	auto disp = new Display();
 	auto input = new Input();
 
 	auto lvgl = new LVGL(*disp);
+	auto theme = theme_init(lvgl->disp());
+	lv_disp_set_theme(lvgl->disp(), theme);
+
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
+	fs->addToCache("/bg.bin");
 
 	// Load start screen here
-	auto scr = lv_obj_create(nullptr);
-	lv_scr_load(scr);
+	auto scr = new LockScreen();
+	scr->start();
 
 	// Start UI thread after initialization
 	lvgl->start();

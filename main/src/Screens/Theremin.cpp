@@ -4,7 +4,6 @@
 Theremin::Theremin(){
 
 	lv_style_set_text_color(textStyle, lv_color_white());
-	lv_style_set_text_font(textStyle, &lv_font_montserrat_10);
 
 
 	bg = lv_obj_create(*this);

@@ -6,12 +6,14 @@
 
 static const char* TAG = "IMU";
 
-IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(MaxReads), thread1([this](){ thread1Func(); }, "IMU1"), thread2([this](){ thread2Func(); }, "IMU2"){
+IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(MaxReads), thread1([this](){ thread1Func(); }, "IMU1", 4 * 1024), thread2([this](){ thread2Func(); }, "IMU2", 4 * 1024){
 	sem1 = xSemaphoreCreateBinary();
 	sem2 = xSemaphoreCreateBinary();
 
 	thread1.start();
 	thread2.start();
+
+	init();
 }
 
 IMU::~IMU(){

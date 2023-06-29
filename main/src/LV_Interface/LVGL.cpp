@@ -2,7 +2,7 @@
 #include <lvgl.h>
 #include "LVScreen.h"
 
-LVGL::LVGL(Display& display) : Threaded("LVGL", 8 * 1024, 5, 0), display(display){
+LVGL::LVGL(Display& display) : Threaded("LVGL", 8 * 1024, 6, 1), display(display){
 	lv_init();
 	lv_disp_draw_buf_init(&lvDrawBuf, drawBuffer, nullptr, sizeof(drawBuffer) / 2);
 
@@ -43,4 +43,8 @@ void LVGL::loop(){
 	auto ttn = lv_timer_handler();
 	if(ttn <= 0 || ttn > LV_DISP_DEF_REFR_PERIOD) ttn = 1;
 	vTaskDelay(ttn);
+}
+
+lv_disp_t* LVGL::disp() const{
+	return lvDisplay;
 }
