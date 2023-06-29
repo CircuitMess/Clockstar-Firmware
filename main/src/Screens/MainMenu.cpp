@@ -18,6 +18,7 @@ MainMenu::MainMenu() : statusBar(*this){
 	lv_style_set_text_color(subtextStyle, SubtextColor);
 	lv_style_set_text_align(subtextStyle, LV_TEXT_ALIGN_CENTER);
 	lv_style_set_text_font(subtextStyle, &devin);
+	lv_style_set_text_color(subtextStyle, lv_color_make(207, 198, 184));
 	lv_style_set_text_line_space(subtextStyle, 2);
 
 	lv_style_set_border_width(debugStyle, 1);
