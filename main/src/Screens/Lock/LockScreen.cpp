@@ -96,6 +96,7 @@ void LockScreen::processEvt(const Phone::Event& evt){
 
 void LockScreen::notifAdd(const Notif& notif){
 	// TODO: check more icons than fit in single row
+	// TODO: dynamically load needed icons into cache
 
 	if(notifs.count(notif.uid) == 0){
 		lv_obj_t* icon = lv_img_create(icons);

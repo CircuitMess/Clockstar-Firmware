@@ -26,7 +26,7 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 
 	batDevice = lv_img_create(*this);
 
-	Events::listen(Facility::Phone, &queue);
+	// Events::listen(Facility::Phone, &queue); TODO: uncomment once evnet processing is actually hapening
 
 	setPhoneConnected();
 	setPhoneBattery();
