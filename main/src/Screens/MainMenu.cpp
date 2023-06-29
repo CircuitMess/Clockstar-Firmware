@@ -113,6 +113,7 @@ MainMenu::MainMenu() : statusBar(*this){
 	}
 
 
+	lv_group_set_wrap(inputGroup, false);
 	lv_group_focus_obj(itemContainers[0].container);
 
 	if(/*not connected to android phone*/ false){
