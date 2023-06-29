@@ -118,6 +118,7 @@ void LockScreen::updateTime(const tm& time){
 
 void LockScreen::buildUI(){
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
 
 	bg = lv_obj_create(*this);
 	lv_obj_add_flag(bg, LV_OBJ_FLAG_IGNORE_LAYOUT);
@@ -126,8 +127,6 @@ void LockScreen::buildUI(){
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
 	lv_obj_set_style_bg_img_src(bg, "S:/bg.bin", 0);
-
-	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
 
 	main = lv_obj_create(*this);
 	lv_obj_set_size(main, 128, 128);

@@ -10,7 +10,6 @@
 class LockScreen : public LVScreen {
 public:
 	LockScreen();
-	void onStarting() override;
 
 private:
 	lv_obj_t* bg;
@@ -56,6 +55,8 @@ private:
 		std::unique_ptr<Item> item;
 	};
 	std::unordered_map<uint32_t, NotifEl> notifs;
+
+	void onStarting() override;
 
 	void notifAdd(const Notif& notif);
 	void notifRem(uint32_t id);
