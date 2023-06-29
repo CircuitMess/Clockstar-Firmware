@@ -156,7 +156,7 @@ void LockScreen::buildUI(){
 	lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
 
 	icons = lv_obj_create(mainMid);
-	lv_obj_set_size(icons, 128, LV_SIZE_CONTENT);
+	lv_obj_set_size(icons, 128, 11);
 	lv_obj_set_style_min_height(icons, 1, 0);
 	lv_obj_set_flex_flow(icons, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(icons, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
