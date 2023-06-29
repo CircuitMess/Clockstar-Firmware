@@ -1,8 +1,11 @@
 #include "MainMenu.h"
 #include "Util/Services.h"
 #include "MenuItemAlt.h"
+#include "Devices/Input.h"
+#include "Util/stdafx.h"
+#include "Screens/Lock/LockScreen.h"
 
-MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))){
+MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
@@ -46,7 +49,13 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))){
 	lv_obj_set_scroll_snap_y(*this, LV_SCROLL_SNAP_START);
 	lv_group_set_wrap(inputGroup, false);
 
+	Events::listen(Facility::Input, &queue);
+
 	// TODO: hide "find phone" if disconnected or not connected to android phone
+}
+
+MainMenu::~MainMenu(){
+	Events::unlisten(&queue);
 }
 
 void MainMenu::onStarting(){
@@ -56,6 +65,25 @@ void MainMenu::onStarting(){
 
 void MainMenu::loop(){
 	statusBar->loop();
+
+	Event evt;
+	if(queue.get(evt, 0)){
+		if(evt.facility == Facility::Input){
+			auto data = (Input::Data*) evt.data;
+			if(data->btn == Input::Alt && data->action == Input::Data::Press){
+				delete data;
+
+				stop();
+				delete this;
+
+				auto scr = new LockScreen();
+				scr->start();
+
+				return;
+			}
+		}
+		delete evt.data;
+	}
 }
 
 void MainMenu::onClick(){

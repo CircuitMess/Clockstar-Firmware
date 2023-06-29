@@ -11,6 +11,7 @@
 class MainMenu : public LVScreen {
 public:
 	MainMenu();
+	virtual ~MainMenu();
 
 private:
 	struct ItemInfo {
@@ -41,6 +42,7 @@ private:
 
 	void onStarting() override;
 	void loop() override;
+	EventQueue queue;
 
 	void onClick();
 
