@@ -1,7 +1,7 @@
 #include "StatusBar.h"
 #include "Util/Services.h"
 
-StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
+StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_FLOATING);
 	lv_obj_set_size(*this, 128, 15);
 	lv_obj_set_style_pad_ver(*this, 2, 0);
@@ -19,9 +19,11 @@ StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent), phone(*((Phone*) Serv
 	batPhone = lv_img_create(left);
 	phoneIcon = lv_img_create(left);
 
-	clock = new ClockLabel(*this);
-	lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
-	lv_obj_center(*clock);
+	if(showClock){
+		clock = new ClockLabel(*this);
+		lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
+		lv_obj_center(*clock);
+	}
 
 	batDevice = lv_img_create(*this);
 
@@ -36,7 +38,9 @@ StatusBar::StatusBar(lv_obj_t* parent) : LVObject(parent), phone(*((Phone*) Serv
 }
 
 void StatusBar::loop(){
-	clock->loop();
+	if(clock){
+		clock->loop();
+	}
 
 	if(connected ^ phone.isConnected()){
 		setPhoneConnected();
@@ -48,15 +52,6 @@ void StatusBar::loop(){
 
 	if(perBatDevice != 0 /*battery.perc*/){
 		setDeviceBattery();
-	}
-}
-
-void StatusBar::showClock(bool show){
-	clockShown = show;
-	if(show){
-		lv_obj_clear_flag(*clock, LV_OBJ_FLAG_HIDDEN);
-	}else{
-		lv_obj_clear_flag(*clock, LV_OBJ_FLAG_HIDDEN);
 	}
 }
 
