@@ -14,7 +14,7 @@ public:
 
 	/**
 	 * Allocates memory and stores a file in memory.
-	 * @param path Global filesystem path (e.g. /spiffs/file.bin)
+	 * @param path Relative to /spiffs (e.g. /bg.bin)
 	 */
 	static void addToCache(const char* path);
 	static void removeFromCache(const char* path);
