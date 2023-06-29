@@ -20,4 +20,6 @@ T map(T val, decltype(val) fromLow, decltype(val) fromHigh, decltype(val) toLow,
 uint64_t millis();
 uint64_t micros();
 
+void ramReport();
+
 #endif //CLOCKSTAR_FIRMWARE_STDAFX_H
