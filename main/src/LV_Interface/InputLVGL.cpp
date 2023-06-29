@@ -4,8 +4,7 @@
 InputLVGL* InputLVGL::instance = nullptr;
 const std::map<Input::Button, lv_key_t> InputLVGL::keyMap = {{ Input::Button::Up,     LV_KEY_LEFT },
 															 { Input::Button::Down,   LV_KEY_RIGHT },
-															 { Input::Button::Select, LV_KEY_ENTER },
-															 { Input::Button::Alt,    LV_KEY_ESC }};
+															 { Input::Button::Select, LV_KEY_ENTER }};
 
 InputLVGL::InputLVGL() : Threaded("InputLVGL", 1024), queue(QueueSize){
 	instance = this;
@@ -24,6 +23,7 @@ InputLVGL::InputLVGL() : Threaded("InputLVGL", 1024), queue(QueueSize){
 }
 
 void InputLVGL::read(lv_indev_drv_t* drv, lv_indev_data_t* data){
+	if(keyMap.count(lastKey) == 0) return;
 	data->key = keyMap.at(lastKey);
 	data->state = (action == Input::Data::Action::Press) ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
 }
