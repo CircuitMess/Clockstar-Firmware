@@ -34,6 +34,16 @@ std::vector<Notif> Phone::getNotifs(){
 	return notifs;
 }
 
+void Phone::doPos(uint32_t id){
+	if(current == nullptr || findNotif(id) == notifs.end()) return;
+	current->actionPos(id);
+}
+
+void Phone::doNeg(uint32_t id){
+	if(current == nullptr || findNotif(id) == notifs.end()) return;
+	current->actionNeg(id);
+}
+
 void Phone::onConnect(NotifSource* src){
 	current = src;
 	Events::post(Facility::Phone, Event { .action = Event::Connected });
