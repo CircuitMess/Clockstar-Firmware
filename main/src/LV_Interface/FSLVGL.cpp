@@ -101,9 +101,6 @@ bool FSLVGL::ready_cb(struct _lv_fs_drv_t* drv){
 }
 
 void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t mode){
-	auto fslvgl = (FSLVGL*) drv->user_data;
-	std::string p = fslvgl->Root + std::string(path);
-
 	auto cached = findCache(path);
 	if(cached != cache.end()){
 		(*cached)->seek(0);
@@ -117,6 +114,9 @@ void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t m
 	}else{
 		fsMode = "r";
 	}
+
+	auto fslvgl = (FSLVGL*) drv->user_data;
+	std::string p = fslvgl->Root + std::string(path);
 
 	return (void*) fopen(p.c_str(), fsMode);
 }
