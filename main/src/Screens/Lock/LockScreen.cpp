@@ -154,7 +154,6 @@ void LockScreen::buildUI(){
 	date = lv_label_create(mainMid);
 	lv_obj_set_size(date, 128, 10);
 	lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
-	lv_obj_set_style_text_color(date, lv_color_make(207, 198, 184), 0);
 
 	icons = lv_obj_create(mainMid);
 	lv_obj_set_size(icons, 128, LV_SIZE_CONTENT);

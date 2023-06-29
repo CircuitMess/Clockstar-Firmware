@@ -36,7 +36,6 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 
 	label = lv_label_create(top);
 	lv_obj_set_style_pad_left(label, 4, 0);
-	lv_obj_set_style_text_color(label, lv_color_make(244, 126, 27), 0);
 	lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
 
 	bot = lv_obj_create(*this);
@@ -46,8 +45,6 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	lv_obj_set_size(body, lv_pct(100), 8);
 	lv_obj_set_style_max_height(body, 34, 0);
 	lv_obj_set_style_pad_hor(body, 2, 0);
-	lv_obj_set_style_text_color(body, lv_color_make(207, 198, 184), 0);
-	lv_obj_set_style_text_line_space(body, 2, 0);
 
 	lv_label_set_long_mode(body, LV_LABEL_LONG_DOT);
 

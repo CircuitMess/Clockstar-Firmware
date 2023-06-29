@@ -16,6 +16,8 @@ static void theme_apply(lv_theme_t* th, lv_obj_t* obj){
 lv_theme_t* theme_init(lv_disp_t* disp){
 	lv_style_init(&styles.label);
 	lv_style_set_text_font(&styles.label, &devin);
+	lv_style_set_text_color(&styles.label, lv_color_make(207, 198, 184));
+	lv_style_set_text_line_space(&styles.label, 2);
 
 	memset(&theme, 0, sizeof(lv_theme_t));
 	theme.apply_cb = theme_apply;
