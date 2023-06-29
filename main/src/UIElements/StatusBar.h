@@ -1,0 +1,44 @@
+#ifndef CLOCKSTAR_FIRMWARE_STATUSBAR_H
+#define CLOCKSTAR_FIRMWARE_STATUSBAR_H
+
+
+#include "LV_Interface/LVObject.h"
+#include "ClockLabel.h"
+#include "Services/Time.h"
+#include "Notifs/Phone.h"
+#include "Util/Events.h"
+
+class StatusBar : public LVObject {
+public:
+	explicit StatusBar(lv_obj_t* parent);
+
+	void showClock(bool show);
+
+	void loop();
+
+private:
+	Phone& phone;
+
+	EventQueue queue;
+
+	bool clockShown = true;
+
+	bool connected = false;
+	uint8_t perBatPhone = 0;
+	uint8_t perBatDevice = 0;
+
+	lv_obj_t* left;
+	lv_obj_t* batPhone;
+	lv_obj_t* phoneIcon;
+	ClockLabel* clock;
+	lv_obj_t* batDevice;
+
+	void setPhoneConnected();
+	void setPhoneBattery();
+	void setDeviceBattery();
+
+	static const char* percentToIcon(uint8_t percent);
+};
+
+
+#endif //CLOCKSTAR_FIRMWARE_STATUSBAR_H
