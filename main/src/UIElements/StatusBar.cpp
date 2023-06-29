@@ -2,7 +2,6 @@
 #include "Util/Services.h"
 
 StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
-	lv_obj_add_flag(*this, LV_OBJ_FLAG_FLOATING);
 	lv_obj_set_size(*this, 128, 15);
 	lv_obj_set_style_pad_ver(*this, 2, 0);
 	lv_obj_set_style_pad_hor(*this, 3, 0);
