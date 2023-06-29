@@ -1,6 +1,7 @@
 #include <string>
 #include "MainMenu.h"
 #include "Level.h"
+#include "Theme/theme.h"
 
 //TODO - fill launchMap with other screens
 const std::map<uint8_t, LVScreen* (*)()> MainMenu::launchMap = {
@@ -12,12 +13,12 @@ const std::map<uint8_t, LVScreen* (*)()> MainMenu::launchMap = {
 
 MainMenu::MainMenu() : statusBar(*this){
 
-	lv_style_set_text_font(textStyle, &lv_font_montserrat_8);
 	lv_style_set_text_color(textStyle, TextColor);
 
-	lv_style_set_text_font(subtextStyle, &lv_font_montserrat_10);
 	lv_style_set_text_color(subtextStyle, SubtextColor);
 	lv_style_set_text_align(subtextStyle, LV_TEXT_ALIGN_CENTER);
+	lv_style_set_text_font(subtextStyle, &devin);
+	lv_style_set_text_line_space(subtextStyle, 2);
 
 	lv_style_set_border_width(debugStyle, 1);
 	lv_style_set_border_opa(debugStyle, LV_OPA_COVER);
