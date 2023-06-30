@@ -17,6 +17,7 @@
 #include "Util/Services.h"
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
+#include "Devices/ChirpSystem.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -49,6 +50,10 @@ void init(){
 	auto phone = new Phone(server, client);
 	server->start();
 
+	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
+	auto audio = new ChirpSystem(*pwm);
+
+	Services.set(Service::Audio, audio);
 	Services.set(Service::IMU, imu);
 	Services.set(Service::Phone, phone);
 
