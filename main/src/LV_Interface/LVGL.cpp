@@ -2,7 +2,7 @@
 #include <lvgl.h>
 #include "LVScreen.h"
 
-LVGL::LVGL(Display& display) : Threaded("LVGL", 12 * 1024, 6, 1), display(display){
+LVGL::LVGL(Display& display) : Threaded("LVGL", 8 * 1024, 6, 1), display(display){
 	lv_init();
 	lv_disp_draw_buf_init(&lvDrawBuf, drawBuffer, nullptr, sizeof(drawBuffer) / 2);
 

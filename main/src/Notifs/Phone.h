@@ -25,6 +25,9 @@ public:
 	Notif getNotif(uint32_t uid);
 	std::vector<Notif> getNotifs();
 
+	void doPos(uint32_t id);
+	void doNeg(uint32_t id);
+
 private:
 	ANCS::Client ancs;
 	Bangle bangle;
@@ -38,7 +41,7 @@ private:
 	void onModify(Notif notif);
 	void onRemove(uint32_t id);
 
-	std::vector<Notif> notifs;
+	std::vector<Notif> notifs; // TODO: mutex
 
 	auto findNotif(uint32_t id);
 

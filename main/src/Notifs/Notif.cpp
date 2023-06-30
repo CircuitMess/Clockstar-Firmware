@@ -3,6 +3,7 @@
 
 static const std::unordered_map<std::string, const char*> appMap = {
 		{ "Messenger", "S:/icon/app_mess.bin" },
+		{ "WhatsApp", "S:/icon/app_wapp.bin" },
 		// TODO
 };
 

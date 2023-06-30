@@ -34,6 +34,16 @@ std::vector<Notif> Phone::getNotifs(){
 	return notifs;
 }
 
+void Phone::doPos(uint32_t id){
+	if(current == nullptr || findNotif(id) == notifs.end()) return;
+	current->actionPos(id);
+}
+
+void Phone::doNeg(uint32_t id){
+	if(current == nullptr || findNotif(id) == notifs.end()) return;
+	current->actionNeg(id);
+}
+
 void Phone::onConnect(NotifSource* src){
 	current = src;
 	Events::post(Facility::Phone, Event { .action = Event::Connected });
@@ -61,7 +71,7 @@ void Phone::onAdd(Notif notif){
 		notifs.reserve(notifs.capacity() * 2);
 	}
 
-	notifs.push_back(notif);
+	notifs.push_back(notif); // TODO: send whole notification, otherwise (by using a mutex) all newly unlocked tasks will rush after getNotif, and promptly get locked again by the mutex
 	Events::post(Facility::Phone, Event { .action = Event::Added, .data = { .addChgRem = { .id = notif.uid } } });
 }
 
