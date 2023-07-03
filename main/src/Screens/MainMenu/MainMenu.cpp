@@ -95,7 +95,6 @@ void MainMenu::loop(){
 				lv_obj_add_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
 				if(index == 2){
 					lv_obj_scroll_to_view(*items[index - 2], LV_ANIM_OFF);
-//					lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 					lv_group_focus_obj(*items[index - 2]);
 				}else if(index > 2){
 					lv_obj_scroll_to_view(*items[index - 1], LV_ANIM_OFF);
@@ -105,8 +104,6 @@ void MainMenu::loop(){
 				lv_obj_clear_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
 				if(index >= 2){
 					lv_obj_scroll_by(*this, 0, -128, LV_ANIM_OFF);
-//					lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
-//					lv_group_focus_obj(*items[index - 2]);
 				}
 			}
 			delete data;
