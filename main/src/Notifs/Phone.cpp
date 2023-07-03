@@ -20,6 +20,12 @@ bool Phone::isConnected(){
 	return current != nullptr;
 }
 
+Phone::PhoneType Phone::getPhoneType(){
+	if(current == &ancs) return PhoneType::IPhone;
+	else if(current == &bangle) return PhoneType::Android;
+	else return PhoneType::None;
+}
+
 auto Phone::findNotif(uint32_t id){
 	return std::find_if(notifs.begin(), notifs.end(), [id](const auto& notif){ return notif.uid == id; });
 }
@@ -46,22 +52,22 @@ void Phone::doNeg(uint32_t id){
 
 void Phone::onConnect(NotifSource* src){
 	current = src;
-	Events::post(Facility::Phone, Event { .action = Event::Connected });
+	Events::post(Facility::Phone, Event { .action = Event::Connected, .phoneType = getPhoneType() });
 
 	if(!notifs.empty()){
 		notifs.clear();
-		Events::post(Facility::Phone, Event { .action = Event::Cleared });
+		Events::post(Facility::Phone, Event { .action = Event::Cleared, .phoneType = getPhoneType() });
 	}
 }
 
 void Phone::onDisconnect(NotifSource* src){
 	if(current != src) return;
 	current = nullptr;
-	Events::post(Facility::Phone, Event { .action = Event::Disconnected });
+	Events::post(Facility::Phone, Event { .action = Event::Disconnected, .phoneType = getPhoneType() });
 
 	if(!notifs.empty()){
 		notifs.clear();
-		Events::post(Facility::Phone, Event { .action = Event::Cleared });
+		Events::post(Facility::Phone, Event { .action = Event::Cleared, .phoneType = getPhoneType() });
 	}
 }
 
@@ -72,7 +78,7 @@ void Phone::onAdd(Notif notif){
 	}
 
 	notifs.push_back(notif); // TODO: send whole notification, otherwise (by using a mutex) all newly unlocked tasks will rush after getNotif, and promptly get locked again by the mutex
-	Events::post(Facility::Phone, Event { .action = Event::Added, .data = { .addChgRem = { .id = notif.uid } } });
+	Events::post(Facility::Phone, Event { .action = Event::Added, .phoneType = getPhoneType(), .data = { .addChgRem = { .id = notif.uid } } });
 }
 
 void Phone::onModify(Notif notif){
@@ -83,7 +89,7 @@ void Phone::onModify(Notif notif){
 	}
 
 	*saved = notif;
-	Events::post(Facility::Phone, Event { .action = Event::Changed, .data = { .addChgRem = { .id = notif.uid } } });
+	Events::post(Facility::Phone, Event { .action = Event::Changed, .phoneType = getPhoneType(), .data = { .addChgRem = { .id = notif.uid } } });
 }
 
 void Phone::onRemove(uint32_t id){
@@ -91,5 +97,5 @@ void Phone::onRemove(uint32_t id){
 	if(notif == notifs.end()) return;
 
 	notifs.erase(notif);
-	Events::post(Facility::Phone, Event { .action = Event::Removed, .data = { .addChgRem = { .id = id } } });
+	Events::post(Facility::Phone, Event { .action = Event::Removed, .phoneType = getPhoneType(), .data = { .addChgRem = { .id = id } } });
 }

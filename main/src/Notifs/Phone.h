@@ -10,9 +10,13 @@
 class Phone {
 public:
 
+	enum class PhoneType {
+		None, Android, IPhone
+	};
+
 	struct Event {
 		enum { Connected, Disconnected, Added, Changed, Removed, Cleared } action;
-
+		PhoneType phoneType;
 		union {
 			struct { uint32_t id; } addChgRem;
 		} data;
@@ -21,6 +25,7 @@ public:
 	Phone(BLE::Server* server, BLE::Client* client);
 
 	bool isConnected();
+	PhoneType getPhoneType();
 
 	Notif getNotif(uint32_t uid);
 	std::vector<Notif> getNotifs();
