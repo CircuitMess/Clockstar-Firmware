@@ -92,7 +92,7 @@ void StatusBar::loop(){
 		return;
 	}
 
-	if(battery.getPercentage() != 0){
+	if(perBatDevice != battery.getPercentage()){
 		setDeviceBattery();
 	}
 }
