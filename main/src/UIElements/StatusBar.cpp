@@ -1,7 +1,9 @@
 #include "StatusBar.h"
 #include "Util/Services.h"
+#include "Util/stdafx.h"
 
-StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
+StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))),
+														 battery(*((Battery*) Services.get(Service::Battery))), queue(12){
 	lv_obj_set_size(*this, 128, 15);
 	lv_obj_set_style_pad_ver(*this, 2, 0);
 	lv_obj_set_style_pad_hor(*this, 3, 0);
@@ -24,16 +26,22 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 		lv_obj_center(*clock);
 	}
 
-	batDevice = lv_img_create(*this);
+	right = lv_obj_create(*this);
+	lv_obj_set_size(right, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+	batDevice = lv_img_create(right);
 
 	// Events::listen(Facility::Phone, &queue); TODO: uncomment once evnet processing is actually hapening
+	Events::listen(Facility::Battery, &queue);
 
 	setPhoneConnected();
 	setPhoneBattery();
-	setDeviceBattery();
-
-	// TODO: blink battery icon when below 5% battery
-	// TODO: play "charging" animation when charging - all level icons looped with ~500ms between them
+	if(battery.isCharging()){
+		chargingEvent(true);
+	}else if(battery.getPercentage() < 5){
+		lowBatteryEvent();
+	}else{
+		setDeviceBattery();
+	}
 }
 
 void StatusBar::loop(){
@@ -49,7 +57,42 @@ void StatusBar::loop(){
 		setPhoneBattery();
 	}
 
-	if(perBatDevice != 0 /*battery.perc*/){
+
+	Event event{};
+	if(queue.get(event, 0)){
+		if(event.facility == Facility::Battery){
+			auto data = (Battery::Event*) event.data;
+			if(data->action == Battery::Event::BatteryLow){
+				lowBatteryEvent();
+			}else if(data->action == Battery::Event::Charging){
+				chargingEvent(data->chargeStatus);
+			}
+		}
+	}
+
+	if(chargingAnimation){
+		if(millis() - chargingMillis > ChargingAnimTime){
+			chargingIndex = (chargingIndex + 1) % BatteryLevels;
+			chargingMillis = millis();
+			lv_img_set_src(batDevice, BatteryIcons[chargingIndex]);
+		}
+		return;
+	}
+
+	if(lowBatteryAnimation){
+		if(millis() - lowBatMillis > LowBatteryAnimTime){
+			lowBatMillis = millis();
+			if(lowBatteryAnimToggle){
+				lv_obj_clear_flag(batDevice, LV_OBJ_FLAG_HIDDEN);
+			}else{
+				lv_obj_add_flag(batDevice, LV_OBJ_FLAG_HIDDEN);
+			}
+			lowBatteryAnimToggle = !lowBatteryAnimToggle;
+		}
+		return;
+	}
+
+	if(battery.getPercentage() != 0){
 		setDeviceBattery();
 	}
 }
@@ -74,7 +117,7 @@ void StatusBar::setPhoneBattery(){
 }
 
 void StatusBar::setDeviceBattery(){
-	perBatDevice = 0; // phone.battery
+	perBatDevice = battery.getPercentage();
 	lv_img_set_src(batDevice, percentToIcon(perBatDevice));
 }
 
@@ -82,4 +125,25 @@ const char* StatusBar::percentToIcon(uint8_t percent){
 	if(percent >= 75) return "S:/icons/batteryFull.bin";
 	else if(percent >= 25) return "S:/icons/batteryMid.bin";
 	else return "S:/icons/batteryLow.bin";
+}
+
+void StatusBar::chargingEvent(bool chargeStatus){
+	chargingAnimation = chargeStatus;
+	if(!chargeStatus){
+		lowBatteryAnimToggle = true;
+		lowBatMillis = millis();
+		setDeviceBattery();
+	}else{
+		chargingMillis = millis();
+		chargingIndex = 0;
+		lv_obj_clear_flag(batDevice, LV_OBJ_FLAG_HIDDEN);
+		lv_img_set_src(batDevice, "S:/icons/batteryLow.bin");
+	}
+}
+
+void StatusBar::lowBatteryEvent(){
+	lowBatteryAnimation = true;
+	lowBatteryAnimToggle = true;
+	lowBatMillis = millis();
+	lv_img_set_src(batDevice, "S:/icons/batteryLow.bin");
 }
