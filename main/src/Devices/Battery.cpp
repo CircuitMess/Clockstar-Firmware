@@ -1,5 +1,6 @@
 #include "Battery.h"
 #include "../Pins.hpp"
+#include "Util/Events.h"
 #include <soc/efuse_reg.h>
 #include <Util/stdafx.h>
 #include <cmath>
@@ -27,7 +28,7 @@ void Battery::quickSample(){
 	for(int i = 0; i < MeasureCount; i++){
 		sum += adc.sample();
 	}
-	voltage = mapReading(sum/MeasureCount);
+	voltage = mapReading(sum / MeasureCount);
 }
 
 bool Battery::isCharging() const{
@@ -40,9 +41,15 @@ void Battery::loop(){
 	// TODO: send evt on chrg
 	// TODO: level hysteresis
 	if(isCharging()){
+		if(!wasCharging){
+			Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = true });
+			batteryLowAlert = false;
+		}
 		wasCharging = true;
 		return;
 	}else if(wasCharging){
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = false });
+
 		wasCharging = false;
 		adc.resetEma();
 		quickSample();
@@ -58,6 +65,11 @@ void Battery::loop(){
 	voltage = mapReading(measureSum / MeasureCount);
 	measureSum = 0;
 	measureCount = 0;
+	if(getPercentage() < LowThresholdPercentage && !batteryLowAlert){
+		batteryLowAlert = true;
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow });
+
+	}
 }
 
 uint16_t Battery::mapReading(uint16_t reading){

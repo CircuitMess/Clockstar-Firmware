@@ -19,6 +19,7 @@
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
 #include "Screens/Lock/LockScreen.h"
+#include "Devices/Battery.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -54,6 +55,9 @@ void init(){
 	auto phone = new Phone(server, client);
 	server->start();
 
+	auto battery = new Battery();
+
+	Services.set(Service::Battery, battery);
 	Services.set(Service::IMU, imu);
 	Services.set(Service::Phone, phone);
 

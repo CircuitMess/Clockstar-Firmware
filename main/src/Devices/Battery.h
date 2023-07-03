@@ -15,6 +15,15 @@ public:
 	uint16_t getVoltage() const;
 	bool isCharging() const;
 
+	struct Event {
+		enum {
+			Charging, BatteryLow
+		} action;
+		union {
+			bool chargeStatus;
+		};
+	};
+
 	static int16_t getVoltOffset();
 	static uint16_t mapReading(uint16_t reading);
 
@@ -29,6 +38,9 @@ private:
 
 	uint16_t voltage = 0;
 	bool wasCharging = false;
+
+	bool batteryLowAlert = false;
+	static constexpr uint8_t LowThresholdPercentage = 5;
 
 	void loop() override;
 
