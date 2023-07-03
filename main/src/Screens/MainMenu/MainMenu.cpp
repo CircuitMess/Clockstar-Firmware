@@ -92,16 +92,17 @@ void MainMenu::loop(){
 			auto index = lv_obj_get_index(focused);
 			if((data->action == Phone::Event::Disconnected && data->phoneType == Phone::PhoneType::Android)
 			   || data->phoneType != Phone::PhoneType::Android){
-				printf("focused index on disconnect: %lu\n", index);
 				lv_obj_add_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
 				if(index == 2){
 					lv_obj_scroll_to_view(*items[index - 2], LV_ANIM_OFF);
 //					lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 					lv_group_focus_obj(*items[index - 2]);
+				}else if(index > 2){
+					lv_obj_scroll_to_view(*items[index - 1], LV_ANIM_OFF);
+					lv_group_focus_obj(*items[index - 1]);
 				}
 			}else if(data->action == Phone::Event::Connected && data->phoneType == Phone::PhoneType::Android){
 				lv_obj_clear_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
-				printf("focused index on connect: %lu\n", index);
 				if(index >= 2){
 					lv_obj_scroll_by(*this, 0, -128, LV_ANIM_OFF);
 //					lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
