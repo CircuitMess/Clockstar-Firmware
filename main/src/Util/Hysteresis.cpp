@@ -1,6 +1,6 @@
 #include "Hysteresis.h"
 
-Hysteresis::Hysteresis(std::initializer_list<threshold> thresholds) : thresholds(thresholds){
+Hysteresis::Hysteresis(std::initializer_list<Threshold> thresholds) : thresholds(thresholds){
 
 }
 
