@@ -51,8 +51,11 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	lv_group_set_wrap(inputGroup, false);
 
 	Events::listen(Facility::Input, &queue);
+	Events::listen(Facility::Phone, &queue);
 
-	// TODO: hide "find phone" if disconnected or not connected to android phone
+	if(!phone.isConnected() || phone.getPhoneType() != Phone::PhoneType::Android){
+		lv_obj_add_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
+	}
 }
 
 MainMenu::~MainMenu(){
@@ -82,8 +85,31 @@ void MainMenu::loop(){
 
 				return;
 			}
+			delete data;
+		}else if(evt.facility == Facility::Phone){
+			auto data = (Phone::Event*) evt.data;
+			auto focused = lv_group_get_focused(inputGroup);
+			auto index = lv_obj_get_index(focused);
+			if((data->action == Phone::Event::Disconnected && data->phoneType == Phone::PhoneType::Android)
+			   || data->phoneType != Phone::PhoneType::Android){
+				printf("focused index on disconnect: %lu\n", index);
+				lv_obj_add_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
+				if(index == 2){
+					lv_obj_scroll_to_view(*items[index - 2], LV_ANIM_OFF);
+//					lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
+					lv_group_focus_obj(*items[index - 2]);
+				}
+			}else if(data->action == Phone::Event::Connected && data->phoneType == Phone::PhoneType::Android){
+				lv_obj_clear_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
+				printf("focused index on connect: %lu\n", index);
+				if(index >= 2){
+					lv_obj_scroll_by(*this, 0, -128, LV_ANIM_OFF);
+//					lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
+//					lv_group_focus_obj(*items[index - 2]);
+				}
+			}
+			delete data;
 		}
-		delete evt.data;
 	}
 }
 
