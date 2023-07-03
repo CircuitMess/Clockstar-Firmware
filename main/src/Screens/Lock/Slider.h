@@ -15,12 +15,17 @@ public:
 	bool started();
 	float t();
 
+	void activity();
+
 private:
 	lv_obj_t* icon;
 
 	static constexpr uint32_t Duration = 500; // [ms]
 	uint64_t startTime = 0;
 
+	static constexpr uint32_t InactivityTimeout = 2000; // [ms]
+	uint32_t timeout = -1;
+	bool hidden = false;
 };
 
 
