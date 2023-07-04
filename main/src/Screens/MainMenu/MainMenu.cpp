@@ -73,13 +73,7 @@ void MainMenu::loop(){
 			auto data = (Input::Data*) evt.data;
 			if(data->btn == Input::Alt && data->action == Input::Data::Press){
 				delete data;
-
-				stop();
-				delete this;
-
-				auto scr = new LockScreen();
-				scr->start();
-
+				transition([](){ return std::make_unique<LockScreen>(); });
 				return;
 			}
 		}
