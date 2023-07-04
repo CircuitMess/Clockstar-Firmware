@@ -19,7 +19,7 @@
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
 #include "Screens/Lock/LockScreen.h"
-#include "Devices/ChirpSystem.h"
+#include "Services/ChirpSystem.h"
 
 void init(){
 	gpio_config_t io_conf = {
