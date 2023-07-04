@@ -4,6 +4,7 @@
 #include "Services/Time.h"
 #include "Util/stdafx.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "LV_Interface/FSLVGL.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
@@ -141,6 +142,7 @@ void LockScreen::addNotifIcon(const Notif& notif){
 				lv_obj_t* icon = lv_img_create(icons);
 				NotifIcon notifIcon = { 1, icon };
 				notifIcons.insert({ EtcIconPath, notifIcon });
+				FSLVGL::addToCache(EtcIconPath, false);
 				lv_img_set_src(icon, EtcIconPath);
 			}
 
@@ -150,6 +152,7 @@ void LockScreen::addNotifIcon(const Notif& notif){
 			lv_obj_t* icon = lv_img_create(icons);
 			NotifIcon notifIcon = { 1, icon };
 			notifIcons.insert({ iconPath(notif), notifIcon });
+			FSLVGL::addToCache(iconPath(notif), false);
 			lv_img_set_src(icon, iconPath(notif));
 		}
 	}else{
@@ -164,12 +167,14 @@ void LockScreen::removeNotifIcon(const Notif& notif){
 	if(--notifIcon.count <= 0){
 		if(notifIcon.icon != nullptr){
 			lv_obj_del(notifIcon.icon);
+			FSLVGL::removeFromCache(iconPath(notif));
 		}
 		notifIcons.erase(iconPath(notif));
 		if(notifIcons.count(EtcIconPath)){
 			for(auto& [path, icon] : notifIcons){
 				if(icon.icon == nullptr){
 					icon.icon = lv_img_create(icons);
+					FSLVGL::addToCache(path, false);
 					lv_img_set_src(icon.icon, path);
 					break;
 				}
@@ -178,6 +183,7 @@ void LockScreen::removeNotifIcon(const Notif& notif){
 				auto& etcIcon = notifIcons[EtcIconPath];
 				lv_obj_del(etcIcon.icon);
 				notifIcons.erase(EtcIconPath);
+				FSLVGL::removeFromCache(EtcIconPath);
 			}else{
 				lv_obj_move_to_index(notifIcons[EtcIconPath].icon, -1);
 			}
