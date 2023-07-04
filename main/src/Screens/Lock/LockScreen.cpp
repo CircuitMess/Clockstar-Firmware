@@ -129,6 +129,9 @@ void LockScreen::notifRem(uint32_t id){
 void LockScreen::notifsClear(){
 	notifs.clear(); // This has to precede rest clearing
 	lv_obj_clean(rest);
+	for(auto& [path, icon] : notifIcons){
+		FSLVGL::removeFromCache(path);
+	}
 	notifIcons.clear();
 	lv_obj_clean(icons);
 }
@@ -166,8 +169,8 @@ void LockScreen::removeNotifIcon(const Notif& notif){
 	auto& notifIcon = notifIcons[iconPath(notif)];
 	if(--notifIcon.count <= 0){
 		if(notifIcon.icon != nullptr){
-			lv_obj_del(notifIcon.icon);
 			FSLVGL::removeFromCache(iconPath(notif));
+			lv_obj_del(notifIcon.icon);
 		}
 		notifIcons.erase(iconPath(notif));
 		if(notifIcons.count(EtcIconPath)){
@@ -181,9 +184,9 @@ void LockScreen::removeNotifIcon(const Notif& notif){
 			}
 			if(notifIcons.size() - 1 <= MaxIconsCount){
 				auto& etcIcon = notifIcons[EtcIconPath];
+				FSLVGL::removeFromCache(EtcIconPath);
 				lv_obj_del(etcIcon.icon);
 				notifIcons.erase(EtcIconPath);
-				FSLVGL::removeFromCache(EtcIconPath);
 			}else{
 				lv_obj_move_to_index(notifIcons[EtcIconPath].icon, -1);
 			}
