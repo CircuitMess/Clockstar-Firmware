@@ -120,6 +120,7 @@ void LockScreen::notifRem(uint32_t id){
 	if(it == notifs.end()) return;
 	auto& el = it->second;
 
+	lv_group_focus_next(inputGroup);
 	lv_obj_del(el.icon);
 	notifs.erase(it);
 }
