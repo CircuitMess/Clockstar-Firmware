@@ -15,16 +15,19 @@ public:
 	/**
 	 * Allocates memory and stores a file in memory.
 	 * @param path Relative to /spiffs (e.g. /bg.bin)
+	 * @param use32bAligned Choose to use ESP32's IRAM or not. Defaults to False.
+	 * 						Useful if caching 4-byte palette sprites for example, but will throw LoadStoreError if data isn't accesed in 32-bit chunks.
 	 */
-	static void addToCache(const char* path);
+	static void addToCache(const char* path, bool use32bAligned);
 	static void removeFromCache(const char* path);
 
 private:
 	lv_fs_drv_t drv;                   /*Needs to be static or global*/
 	const std::string Root = "/spiffs";
+	static constexpr const char DriveSeparator = ':';
 	static std::unordered_set<RamFile*> cache;
 
-	static auto findCache(std::string path);
+	static auto findCache(const std::string& path);
 	static auto findCache(void* ptr);
 
 	static bool ready_cb(struct _lv_fs_drv_t* drv);

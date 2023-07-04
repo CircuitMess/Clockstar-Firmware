@@ -58,7 +58,7 @@ FSLVGL::~FSLVGL(){
 	esp_vfs_spiffs_unregister("storage");
 }
 
-auto FSLVGL::findCache(const std::string lvPath){
+auto FSLVGL::findCache(const std::string& lvPath){
 	std::string path("/spiffs");
 	path.append(lvPath);
 
@@ -73,13 +73,19 @@ auto FSLVGL::findCache(void* ptr){
 	});
 }
 
-void FSLVGL::addToCache(const char* path){
-	if(findCache(path) != cache.end()) return;
+void FSLVGL::addToCache(const char* path, bool use32bAligned){
+	std::string p;
+	if(strchr(path, DriveSeparator) != nullptr){
+		p = std::string(path + 2);
+	}else{
+		p = path;
+	}
+	if(findCache(p) != cache.end()) return;
 
 	std::string spath("/spiffs");
-	spath.append(path);
+	spath.append(p);
 
-	auto ram = new RamFile(spath.c_str());
+	auto ram = new RamFile(spath.c_str(), use32bAligned);
 	if(ram->size() == 0){
 		delete ram;
 		return;
