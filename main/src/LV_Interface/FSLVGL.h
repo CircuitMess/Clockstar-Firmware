@@ -25,7 +25,21 @@ private:
 	lv_fs_drv_t drv;                   /*Needs to be static or global*/
 	const std::string Root = "/spiffs";
 	static constexpr const char DriveSeparator = ':';
-	static std::unordered_set<RamFile*> cache;
+
+	struct FileResource {
+		RamFile* ramFile;
+		mutable bool deleteFlag;
+
+		bool operator==(const FileResource& other) const{
+			return other.ramFile == ramFile;
+		}
+
+		operator RamFile*() const{
+			return ramFile;
+		}
+	};
+
+	static std::unordered_set<FileResource, std::hash<RamFile*>> cache;
 
 	static auto findCache(const std::string& path);
 	static auto findCache(void* ptr);
