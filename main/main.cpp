@@ -72,6 +72,8 @@ void init(){
 	auto fs = new FSLVGL('S');
 	fs->addToCache("/bg.bin");
 
+	//TODO - apply settings
+
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
 
