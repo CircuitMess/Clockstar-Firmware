@@ -1,3 +1,4 @@
+#include <regex>
 #include "Item.h"
 
 Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(parent), onDismiss(dismiss){
@@ -103,5 +104,8 @@ void Item::update(const Notif& notif){
 
 	// TODO: replace line breaks (two characters: \ and n when coming from Bangle, needs checking from ANCS) with two space characters
 	// if ANCS has proper line breaks, adjust Bangle so it has proper line breaks too
-	lv_label_set_text(body, notif.message.c_str());
+	auto copy = notif.message;
+	copy = std::regex_replace(copy, std::regex("\\\n"), "  ");
+
+	lv_label_set_text(body, copy.c_str());
 }
