@@ -1,5 +1,5 @@
-#include <regex>
 #include "Item.h"
+#include <regex>
 
 Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(parent), onDismiss(dismiss){
 	lv_obj_set_size(*this, lv_pct(100), LV_SIZE_CONTENT);
@@ -103,8 +103,6 @@ void Item::update(const Notif& notif){
 
 	lv_label_set_text(label, notif.title.c_str());
 
-	// TODO: replace line breaks (two characters: \ and n when coming from Bangle, needs checking from ANCS) with two space characters
-	// if ANCS has proper line breaks, adjust Bangle so it has proper line breaks too
 	auto copy = notif.message;
 	copy = std::regex_replace(copy, std::regex("\\\n"), "  ");
 
