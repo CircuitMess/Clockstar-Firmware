@@ -4,13 +4,11 @@
 #include "Screens/MainMenu/MainMenu.h"
 #include "BoolElement.h"
 #include "SliderElement.h"
+#include "LabelElement.h"
 
-SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), queue(4){
+SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)){
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
 
-	statusBar = new StatusBar(*this);
-	lv_obj_add_flag(*statusBar, LV_OBJ_FLAG_FLOATING);
-	lv_obj_set_pos(*statusBar, 0, 0);
 
 	bg = lv_obj_create(*this);
 	lv_obj_add_flag(bg, LV_OBJ_FLAG_FLOATING);
@@ -28,6 +26,9 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_obj_set_style_pad_top(container, 20, 0);
 	lv_obj_set_style_pad_gap(container, 5, 0);
 
+	statusBar = new StatusBar(*this);
+	lv_obj_add_flag(*statusBar, LV_OBJ_FLAG_FLOATING);
+	lv_obj_set_pos(*statusBar, 0, 0);
 
 	auto startingSettings = settings.get();
 
@@ -45,23 +46,14 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.screenBrightness);
 	lv_group_add_obj(inputGroup, *brightness);
 
-	Events::listen(Facility::Input, &queue);
+	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
+		transition([](){ return std::make_unique<MainMenu>(); });
+	});
+	lv_group_add_obj(inputGroup, *saveAndExit);
 }
 
 void SettingsScreen::loop(){
 	statusBar->loop();
-
-	Event evt;
-	if(queue.get(evt, 0)){
-		if(evt.facility == Facility::Input){
-			auto data = (Input::Data*) evt.data;
-			if(data->btn == Input::Alt && data->action == Input::Data::Press){
-				delete data;
-				transition([](){ return std::make_unique<MainMenu>(); });
-				return;
-			}
-		}
-	}
 }
 
 void SettingsScreen::onStop(){

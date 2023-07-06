@@ -22,7 +22,7 @@ SliderElement::SliderElement(lv_obj_t* parent, const char* name, std::function<v
 	lv_style_set_radius(sliderMainStyle, LV_RADIUS_CIRCLE);
 
 
-	lv_obj_set_height(*this, LV_SIZE_CONTENT);
+	lv_obj_set_height(*this, Height);
 	lv_obj_set_width(*this, lv_pct(100));
 
 	lv_obj_add_style(*this, focusedStyle, selFocus);

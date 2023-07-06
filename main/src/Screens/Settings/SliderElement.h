@@ -31,6 +31,8 @@ private:
 	static constexpr uint8_t SliderWidth = 56;
 	static constexpr uint8_t SliderHeight = 12;
 	static constexpr uint8_t SliderRange = 51;
+	static constexpr uint8_t Height = 23;
+
 };
 
 

@@ -3,7 +3,7 @@
 
 
 #include <functional>
-#include "LV_Interface/LVSelectable.h"
+#include "LV_Interface/LVObject.h"
 #include "LV_Interface/LVStyle.h"
 
 class BoolElement : public LVObject {
@@ -41,6 +41,7 @@ private:
 
 	static constexpr uint8_t SwitchWidth = 25;
 	static constexpr uint8_t SwitchHeight = 15;
+	static constexpr uint8_t Height = 23;
 };
 
 #endif //CLOCKSTAR_FIRMWARE_BOOLELEMENT_H

@@ -10,6 +10,8 @@ class BoolElement;
 
 class SliderElement;
 
+class LabelElement;
+
 class SettingsScreen : public LVScreen {
 public:
 	SettingsScreen();
@@ -19,13 +21,13 @@ private:
 	void loop() override;
 
 	Settings& settings;
-	EventQueue queue;
 
 	lv_obj_t* bg;
 	lv_obj_t* container;
 	BoolElement* audio;
 	SliderElement* brightness;
 	StatusBar* statusBar;
+	LabelElement* saveAndExit;
 
 };
 
