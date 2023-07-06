@@ -19,7 +19,7 @@ const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 		{ Alt,    "Alt" },
 };
 
-Input::Input() : Threaded("Input", 4 * 1024, 6, 1){
+Input::Input() : Threaded("Input", 1024, 6, 0){
 	for(const auto& pair : PinMap){
 		const auto port = pair.first;
 		const auto pin = pair.second;
@@ -40,7 +40,7 @@ Input::~Input(){
 
 void Input::loop(){
 	scan();
-	vTaskDelay(100);
+	vTaskDelay(SleepTime);
 }
 
 void Input::scan(){

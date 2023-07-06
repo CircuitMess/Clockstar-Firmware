@@ -4,10 +4,15 @@
 #include <esp_spiffs.h>
 #include <esp_log.h>
 #include <string>
+#include <algorithm>
+#include <unordered_map>
 
 const char* TAG = "FSLVGL";
+std::unordered_set<RamFile*> FSLVGL::cache;
 
 FSLVGL::FSLVGL(char letter){
+	cache.reserve(32);
+
 	esp_vfs_spiffs_conf_t conf = {
 			.base_path = "/spiffs",
 			.partition_label = "storage",
@@ -53,11 +58,55 @@ FSLVGL::~FSLVGL(){
 	esp_vfs_spiffs_unregister("storage");
 }
 
+auto FSLVGL::findCache(const std::string lvPath){
+	std::string path("/spiffs");
+	path.append(lvPath);
+
+	return std::find_if(cache.cbegin(), cache.cend(), [&path](auto ramFile){
+		return ramFile->path() == path;
+	});
+}
+
+auto FSLVGL::findCache(void* ptr){
+	return std::find_if(cache.cbegin(), cache.cend(), [ptr](auto ramFile){
+		return ramFile == ptr;
+	});
+}
+
+void FSLVGL::addToCache(const char* path){
+	if(findCache(path) != cache.end()) return;
+
+	std::string spath("/spiffs");
+	spath.append(path);
+
+	auto ram = new RamFile(spath.c_str());
+	if(ram->size() == 0){
+		delete ram;
+		return;
+	}
+
+	cache.insert(ram);
+}
+
+void FSLVGL::removeFromCache(const char* path){
+	auto it = findCache(path);
+	if(it == cache.end()) return;
+
+	delete *it;
+	cache.erase(it);
+}
+
 bool FSLVGL::ready_cb(struct _lv_fs_drv_t* drv){
 	return true;
 }
 
 void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t mode){
+	auto cached = findCache(path);
+	if(cached != cache.end()){
+		(*cached)->seek(0);
+		return *cached;
+	}
+
 	const char* fsMode;
 
 	if(mode == LV_FS_MODE_WR){
@@ -73,17 +122,33 @@ void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t m
 }
 
 lv_fs_res_t FSLVGL::close_cb(struct _lv_fs_drv_t* drv, void* file_p){
+	if(findCache(file_p) != cache.end()){
+		return 0;
+	}
+
 	fclose((FILE*) file_p);
 	return 0;
 }
 
 lv_fs_res_t FSLVGL::read_cb(struct _lv_fs_drv_t* drv, void* file_p, void* buf, uint32_t btr, uint32_t* br){
+	auto cached = findCache(file_p);
+	if(cached != cache.end()){
+		*br = (*cached)->read(buf, btr);
+		return 0;
+	}
+
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 	*br = fread(buf, 1, btr, (FILE*) file_p);
 	return 0;
 }
 
 lv_fs_res_t FSLVGL::write_cb(struct _lv_fs_drv_t* drv, void* file_p, const void* buf, uint32_t btw, uint32_t* bw){
+	auto cached = findCache(file_p);
+	if(cached != cache.end()){
+		*bw = 0;
+		return 0;
+	}
+
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 
 	*bw = fwrite((uint8_t*) buf, 1, btw, (FILE*) file_p);
@@ -91,7 +156,20 @@ lv_fs_res_t FSLVGL::write_cb(struct _lv_fs_drv_t* drv, void* file_p, const void*
 }
 
 lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos, lv_fs_whence_t whence){
-	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
+	auto cached = findCache(file_p);
+	if(cached != cache.end()){
+		static const std::unordered_map<lv_fs_whence_t, int> SeekMap = {
+				{ LV_FS_SEEK_SET, SEEK_SET },
+				{ LV_FS_SEEK_CUR, SEEK_CUR },
+				{ LV_FS_SEEK_END, SEEK_END },
+		};
+		(*cached)->seek(pos, SeekMap.at(whence));
+		return 0;
+	}
+
+	if(ferror((FILE*) file_p)){
+		return LV_FS_RES_NOT_EX;
+	}
 
 	int mode;
 	switch(whence){
@@ -107,7 +185,7 @@ lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos
 		default:
 			mode = SEEK_SET;
 	}
-	if(!fseek((FILE*) file_p, pos, mode)){
+	if(fseek((FILE*) file_p, pos, mode) != 0){
 		return LV_FS_RES_INV_PARAM;
 	}
 	return 0;
@@ -115,6 +193,12 @@ lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos
 }
 
 lv_fs_res_t FSLVGL::tell_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t* pos_p){
+	auto cached = findCache(file_p);
+	if(cached != cache.end()){
+		*pos_p = (*cached)->pos();
+		return 0;
+	}
+
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 	auto val = ftell((FILE*) file_p);
 	if(val == -1) return LV_FS_RES_UNKNOWN;

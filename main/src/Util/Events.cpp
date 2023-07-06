@@ -7,6 +7,12 @@ void Events::listen(Facility facility, EventQueue* queue){
 	queues[facility].insert(queue);
 }
 
+void Events::unlisten(EventQueue* queue){
+	for(auto& pair : queues){
+		pair.second.erase(queue);
+	}
+}
+
 void Events::post(Facility facility, const void* data, size_t size){
 	auto pair = queues.find(facility);
 	if(pair == queues.end()) return;

@@ -27,6 +27,11 @@ private:
 	void handle_notify(const std::string& prop);
 	void handle_notifyDel(uint32_t id);
 
+	float timeOffset = 0;
+	uint64_t timeUnix = 0;
+
+	void setTime();
+
 };
 
 

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-enum class Facility { Input, Motion };
+enum class Facility { Input, Motion, Phone, Time };
 
 struct Event {
 	Facility facility;
@@ -18,6 +18,7 @@ class EventQueue;
 class Events {
 public:
 	static void listen(Facility facility, EventQueue* queue);
+	static void unlisten(EventQueue* queue);
 
 	static void post(Facility facility, const void* data, size_t size);
 

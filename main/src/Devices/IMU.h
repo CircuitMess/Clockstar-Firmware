@@ -21,8 +21,6 @@ public:
 	IMU(I2C& i2c);
 	virtual ~IMU();
 
-	bool init();
-
 	struct Event {
 		enum { SignMotion, SingleTap, WristTilt, FIFO } action;
 	};
@@ -73,6 +71,8 @@ public:
 private:
 	static constexpr uint8_t Addr = 0x6A;
 	I2C& i2c;
+
+	bool init();
 
 	static int32_t platform_write(void* hndl, uint8_t reg, const uint8_t* data, uint16_t len);
 	static int32_t platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len);

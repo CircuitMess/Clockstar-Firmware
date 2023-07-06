@@ -1,8 +1,9 @@
 #include "LVGL.h"
 #include <lvgl.h>
 #include "LVScreen.h"
+#include "InputLVGL.h"
 
-LVGL::LVGL(Display& display) : Threaded("LVGL", 8 * 1024, 5, 0), display(display){
+LVGL::LVGL(Display& display) : Threaded("LVGL", 8 * 1024, 6, 1), display(display){
 	lv_init();
 	lv_disp_draw_buf_init(&lvDrawBuf, drawBuffer, nullptr, sizeof(drawBuffer) / 2);
 
@@ -35,12 +36,29 @@ void LVGL::flush(lv_disp_drv_t* dispDrv, const lv_area_t* area, lv_color_t* pixe
 }
 
 void LVGL::loop(){
-	auto scr = LVScreen::getCurrent();
-	if(scr != nullptr){
-		scr->loop();
+	if(currentScreen){
+		currentScreen->loop();
 	}
 
 	auto ttn = lv_timer_handler();
 	if(ttn <= 0 || ttn > LV_DISP_DEF_REFR_PERIOD) ttn = 1;
 	vTaskDelay(ttn);
+}
+
+void LVGL::startScreen(std::function<std::unique_ptr<LVScreen>()> create){
+	if(currentScreen){
+		currentScreen->stop();
+		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), nullptr);
+	}
+
+	lv_obj_t* tmp = lv_obj_create(nullptr);
+	lv_scr_load_anim(tmp, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+
+	currentScreen = create();
+	currentScreen->start(this);
+	lv_scr_load_anim(*currentScreen, LV_SCR_LOAD_ANIM_NONE, 0, 0, true);
+}
+
+lv_disp_t* LVGL::disp() const{
+	return lvDisplay;
 }

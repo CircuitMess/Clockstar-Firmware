@@ -3,6 +3,7 @@
 
 
 #include "Devices/Display.h"
+#include "LVScreen.h"
 #include "Util/Threaded.h"
 #include <hal/lv_hal_disp.h>
 
@@ -10,6 +11,10 @@ class LVGL : public Threaded {
 public:
 	LVGL(Display& display);
 	virtual ~LVGL();
+
+	lv_disp_t* disp() const;
+
+	void startScreen(std::function<std::unique_ptr<LVScreen>()> create);
 
 private:
 	Display& display;
@@ -24,6 +29,8 @@ private:
 	static void flush(lv_disp_drv_t* dispDrv, const lv_area_t* area, lv_color_t* pixels);
 
 	void loop() override;
+
+	std::unique_ptr<LVScreen> currentScreen;
 
 };
 
