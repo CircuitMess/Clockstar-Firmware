@@ -20,27 +20,24 @@ float Slider::t(){
 }
 
 void Slider::loop(){
-	if(timeout == -1){
-		timeout = millis();
+	if(startTime == 0 && activityTime == 0) return;
+
+	if(startTime != 0){
+		lv_obj_set_pos(icon, 6 + std::round(128.0f * t()), 0);
+		return;
 	}
 
-	if(millis() - timeout >= InactivityTimeout && !hidden){
+	if(millis() - activityTime >= InactivityTimeout){
 		lv_obj_add_flag(icon, LV_OBJ_FLAG_HIDDEN);
-		hidden = true;
+		activityTime = 0;
 	}
-
-	if(startTime == 0) return;
-	lv_obj_set_pos(icon, 6 + std::round(128.0f * t()), 0);
 }
 
 void Slider::start(){
 	if(startTime != 0) return;
 
-	if(hidden){
-		activity();
-	}
-
 	startTime = millis();
+	lv_obj_clear_flag(icon, LV_OBJ_FLAG_HIDDEN);
 	lv_img_set_src(icon, "S:/icon/lock_open.bin");
 }
 
@@ -50,12 +47,11 @@ void Slider::stop(){
 	startTime = 0;
 	lv_img_set_src(icon, "S:/icon/lock_closed.bin");
 	lv_obj_set_pos(icon, 6, 0);
+
+	activity();
 }
 
 void Slider::activity(){
-	timeout = millis();
-	if(hidden){
-		lv_obj_clear_flag(icon, LV_OBJ_FLAG_HIDDEN);
-		hidden = false;
-	}
+	activityTime = millis();
+	lv_obj_clear_flag(icon, LV_OBJ_FLAG_HIDDEN);
 }

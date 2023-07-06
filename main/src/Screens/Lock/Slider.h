@@ -24,8 +24,8 @@ private:
 	uint64_t startTime = 0;
 
 	static constexpr uint32_t InactivityTimeout = 2000; // [ms]
-	uint32_t timeout = -1;
-	bool hidden = false;
+	uint32_t activityTime = 0;
+
 };
 
 
