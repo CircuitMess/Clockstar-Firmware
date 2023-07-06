@@ -15,6 +15,11 @@ LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((
 		auto scr = static_cast<LockScreen*>(evt->user_data);
 		scr->locker->stop();
 	}, LV_EVENT_DEFOCUSED, this);
+
+	lv_obj_add_event_cb(main, [](lv_event_t* evt){
+		auto scr = static_cast<LockScreen*>(evt->user_data);
+		scr->locker->activity();
+	}, LV_EVENT_FOCUSED, this);
 }
 
 LockScreen::~LockScreen(){
