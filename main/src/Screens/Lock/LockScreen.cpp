@@ -27,7 +27,9 @@ void LockScreen::onStarting(){
 	lv_group_focus_obj(main);
 
 	for(const auto& notif : phone.getNotifs()){
-		notifAdd(notif);
+		if(notifs.count(notif.uid) != 0){
+			notifAdd(notif);
+		}
 	}
 
 	updateTime(ts.getTime());
@@ -104,10 +106,10 @@ void LockScreen::notifAdd(const Notif& notif){
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
 
-		notifs.insert(std::make_pair(notif.uid, NotifEl {
-			.notif = notif,
-			.icon = icon,
-			.item = std::move(item)
+		notifs.insert(std::make_pair(notif.uid, NotifEl{
+				.notif = notif,
+				.icon = icon,
+				.item = std::move(item)
 		}));
 	}else{
 		notifs[notif.uid].notif = notif;
