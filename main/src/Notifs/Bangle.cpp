@@ -176,7 +176,8 @@ void Bangle::handle_notify(const std::string& line){
 			.title = get("title"),
 			.subtitle = get("subject"),
 			.message = get("body"),
-			.appID = get("src")
+			.appID = get("src"),
+			.category = Notif::Category::Other,
 	};
 
 	ESP_LOGI(TAG, "New notif ID %ld", notif.uid);

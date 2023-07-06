@@ -156,6 +156,10 @@ void ANCS::Client::processData(bool sendIncomplete){
 				.category = (Notif::Category) nd.category // TODO: Currently, Notif categories map 1:1 to ANCS categories. In the future, mapping will be needed
 		};
 
+		if(AppIDMap.count(notif.appID)){
+			notif.appID = AppIDMap.at(notif.appID);
+		}
+
 		ESP_LOGI(TAG, "Sending notif 0x%lx. Modify: %d\n", nd.uid, nd.modify);
 		if(nd.modify){
 			notifModify(notif);
