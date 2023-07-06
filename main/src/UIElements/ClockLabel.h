@@ -7,22 +7,23 @@
 
 class ClockLabel : public LVObject {
 public:
-	ClockLabel(lv_obj_t* parent);
+	explicit ClockLabel(lv_obj_t* parent);
+	~ClockLabel() override;
 
 	void loop();
 
-	lv_obj_t* label();
+protected:
+	void updateTime(const tm& time);
+
+	Time& ts;
 
 private:
-	Time& ts;
+	virtual void updateUI(const char* clockText) = 0;
+
 	EventQueue queue;
 
-	lv_obj_t* clock;
-
-	void updateTime(const tm& time);
 	static constexpr uint32_t TimeUpdateInterval = 200;
 	uint64_t lastTimeUpdate = 0;
-
 };
 
 
