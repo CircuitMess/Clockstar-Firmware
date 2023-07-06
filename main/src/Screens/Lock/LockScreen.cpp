@@ -123,6 +123,7 @@ void LockScreen::notifRem(uint32_t id){
 	auto& el = it->second;
 
 	removeNotifIcon(el.notif);
+	lv_group_focus_next(inputGroup);
 	notifs.erase(it);
 }
 
