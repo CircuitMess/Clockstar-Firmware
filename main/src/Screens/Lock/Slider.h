@@ -23,7 +23,7 @@ private:
 	static constexpr uint32_t Duration = 500; // [ms]
 	uint64_t startTime = 0;
 
-	static constexpr uint32_t InactivityTimeout = 2000; // [ms]
+	static constexpr uint32_t InactivityTimeout = 1000; // [ms]
 	uint32_t activityTime = 0;
 
 };
