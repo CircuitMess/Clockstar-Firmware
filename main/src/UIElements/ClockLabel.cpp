@@ -1,10 +1,12 @@
 #include "ClockLabel.h"
 #include "Util/Services.h"
 #include "Util/stdafx.h"
+#include "Theme/theme.h"
 
 ClockLabel::ClockLabel(lv_obj_t* parent) : LVObject(parent), ts(*((Time*) Services.get(Service::Time))), queue(2){
 	lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 	clock = lv_label_create(obj);
+	lv_obj_set_style_text_font(clock, &devin2, 0);
 
 	Events::listen(Facility::Time, &queue);
 

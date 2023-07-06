@@ -38,13 +38,7 @@ void LockScreen::loop(){
 	locker->loop();
 	if(locker->t() >= 1){
 		locker->loop();
-
-		stop();
-		delete this;
-
-		auto scr = new MainMenu();
-		scr->start();
-
+		transition([](){ return std::make_unique<MainMenu>(); });
 		return;
 	}
 
@@ -131,6 +125,7 @@ void LockScreen::notifRem(uint32_t id){
 	if(it == notifs.end()) return;
 	auto& el = it->second;
 
+	lv_group_focus_next(inputGroup);
 	lv_obj_del(el.icon);
 	notifs.erase(it);
 }
