@@ -1,4 +1,5 @@
 #include "ClockLabelBig.h"
+#include "LV_Interface/FSLVGL.h"
 
 ClockLabelBig::ClockLabelBig(lv_obj_t* parent) : ClockLabel(parent){
 	lv_obj_set_size(obj, LV_SIZE_CONTENT, Height);
@@ -26,5 +27,17 @@ constexpr const char* ClockLabelBig::getPath(char c){
 		return IconPaths[10];
 	}else{
 		return IconPaths[11];
+	}
+}
+
+void ClockLabelBig::loadCache(){
+	for(auto& path : IconPaths){
+		FSLVGL::addToCache(path);
+	}
+}
+
+void ClockLabelBig::unloadCache(){
+	for(auto& path : IconPaths){
+		FSLVGL::removeFromCache(path);
 	}
 }

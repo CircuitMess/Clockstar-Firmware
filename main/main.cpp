@@ -19,6 +19,7 @@
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
 #include "Screens/Lock/LockScreen.h"
+#include "UIElements/ClockLabelBig.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -67,6 +68,8 @@ void init(){
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
 	fs->addToCache("/bg.bin");
+
+	ClockLabelBig::loadCache();
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
