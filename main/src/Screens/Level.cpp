@@ -31,8 +31,6 @@ Level::Level() : imu((IMU*) Services.get(Service::IMU)), reader([this](){ reader
 	markingsVertical = lv_img_create(bg);
 	lv_img_set_src(markingsVertical, "S:/level/markingsVertical.bin");
 	lv_obj_set_pos(markingsVertical, 99, 34);
-
-	setOrientation(0, 0);
 }
 
 void Level::setOrientation(double pitch, double roll){
@@ -70,14 +68,15 @@ void Level::onStart(){
 		return;
 	}
 	imu->enableFIFO(false);
+	reader.start();
+}
 
+void Level::onStarting(){
 	const IMU::Sample reading = imu->getSample();
 	const PitchRoll pitchRoll = { -reading.accelY, -reading.accelX };
 	pitchFilter.reset(pitchRoll.pitch);
 	rollFilter.reset(pitchRoll.roll);
 	setOrientation(pitchRoll.pitch, pitchRoll.roll);
-
-	reader.start();
 }
 
 void Level::readerFunc(){

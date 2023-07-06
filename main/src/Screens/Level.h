@@ -9,8 +9,8 @@
 class Level : public LVScreen {
 public:
 	Level();
+
 	void setOrientation(double pitch, double roll);
-	void onStart() override;
 
 private:
 	lv_obj_t* bg;
@@ -24,16 +24,21 @@ private:
 
 	IMU* imu;
 	void loop() override;
+	void onStart() override;
+	void onStarting() override;
 
 	ThreadedClosure reader;
 	void readerFunc();
+
 	static constexpr TickType_t ReaderDelay = 40 / portTICK_PERIOD_MS;
+
 	struct PitchRoll {
 		double pitch;
 		double roll;
 	};
 	Queue<PitchRoll> data;
 	static constexpr int QueueSize = 10;
+
 	EMA pitchFilter;
 	EMA rollFilter;
 	static constexpr float filterStrength = 0.2;
