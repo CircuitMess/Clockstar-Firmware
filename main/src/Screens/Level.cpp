@@ -5,7 +5,7 @@
 #include <esp_log.h>
 #include "../Util/Services.h"
 
-Level::Level() : reader([this](){ readerFunc(); }, "reader", 4096, 5, 1), data(QueueSize),
+Level::Level() : imu((IMU*) Services.get(Service::IMU)), reader([this](){ readerFunc(); }, "reader", 2048, 5, 1), data(QueueSize),
 				 pitchFilter(filterStrength), rollFilter(filterStrength){
 	bg = lv_obj_create(*this);
 	lv_obj_set_pos(bg, 0, 0);
@@ -65,17 +65,23 @@ void Level::loop(){
 }
 
 void Level::onStart(){
-	imu = (IMU*) Services.get(Service::IMU);
 	if(imu == nullptr){
 		ESP_LOGE("Level", "IMU service error\n");
 		return;
 	}
 	imu->enableFIFO(false);
+
+	const IMU::Sample reading = imu->getSample();
+	const PitchRoll pitchRoll = { -reading.accelY, -reading.accelX };
+	pitchFilter.reset(pitchRoll.pitch);
+	rollFilter.reset(pitchRoll.roll);
+	setOrientation(pitchRoll.pitch, pitchRoll.roll);
+
 	reader.start();
 }
 
 void Level::readerFunc(){
-	IMU::Sample reading = imu->getSample();
+	const IMU::Sample reading = imu->getSample();
 	PitchRoll pitchRoll = { pitchFilter.update(-reading.accelY), rollFilter.update(-reading.accelX) };
 	data.post(pitchRoll);
 
