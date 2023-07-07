@@ -35,6 +35,8 @@ public:
 	void setFreq(uint16_t freq);
 	void stop();
 
+	static constexpr bool checkFrequency(uint16_t freq);
+
 private:
 	void attach();
 	void detach();
@@ -47,6 +49,7 @@ private:
 
 	static constexpr ledc_mode_t getSpeedMode(ledc_channel_t channel);
 	static constexpr ledc_timer_t getTimer(ledc_channel_t channel);
+	static constexpr uint32_t src_clk_freq = 80000000; //80 MHz
 };
 
 #endif //CIRCUITOS_PIEZO_H

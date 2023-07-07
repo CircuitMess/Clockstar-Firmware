@@ -28,13 +28,7 @@ void PWM::setFreq(uint16_t freq){
 
 	attach();
 
-	uint64_t divParam;
-	uint32_t precision = (0x1 << DutyResDefault); // 2**depth
-	uint32_t src_clk_freq;
-	esp_clk_tree_src_get_freq_hz((soc_module_clk_t) LEDC_SLOW_CLK_APB, ESP_CLK_TREE_SRC_FREQ_PRECISION_CACHED, &src_clk_freq);
-	divParam = (((uint64_t) src_clk_freq << 8) + ((freq * precision) / 2)) / (freq * precision);
-
-	if(!(divParam > 256 && divParam < (0x3FFFF))){
+	if(!checkFrequency(freq)){
 		ESP_LOGW(TAG, "couldnt write frequency %d because of clock divisor limitations, divParam: %lld\n", freq, divParam);
 		return;
 	}
@@ -45,6 +39,19 @@ void PWM::setFreq(uint16_t freq){
 	ledc_set_freq(group, timer, freq);
 	ledc_set_duty(group, channel, FullDuty);
 	ledc_update_duty(group, channel);
+}
+
+
+constexpr bool PWM::checkFrequency(uint16_t freq){
+	uint64_t divParam = 0;
+	uint32_t precision = (0x1 << DutyResDefault); // 2**depth
+
+	divParam = (((uint64_t) src_clk_freq << 8) + ((freq * precision) / 2)) / (freq * precision);
+
+	if(!(divParam > 256 && divParam < (0x3FFFF))){
+		return false;
+	}
+	return true;
 }
 
 void PWM::stop(){
@@ -81,3 +88,4 @@ constexpr ledc_mode_t PWM::getSpeedMode(ledc_channel_t channel){
 constexpr ledc_timer_t PWM::getTimer(ledc_channel_t channel){
 	return static_cast<ledc_timer_t>(((channel / 2) % 4));
 }
+
