@@ -29,7 +29,7 @@ void PWM::setFreq(uint16_t freq){
 	attach();
 
 	if(!checkFrequency(freq)){
-		ESP_LOGW(TAG, "couldnt write frequency %d because of clock divisor limitations, divParam: %lld\n", freq, divParam);
+		ESP_LOGW(TAG, "couldnt write frequency %d because of clock divisor limitations\n", freq);
 		return;
 	}
 
@@ -39,19 +39,6 @@ void PWM::setFreq(uint16_t freq){
 	ledc_set_freq(group, timer, freq);
 	ledc_set_duty(group, channel, FullDuty);
 	ledc_update_duty(group, channel);
-}
-
-
-constexpr bool PWM::checkFrequency(uint16_t freq){
-	uint64_t divParam = 0;
-	uint32_t precision = (0x1 << DutyResDefault); // 2**depth
-
-	divParam = (((uint64_t) src_clk_freq << 8) + ((freq * precision) / 2)) / (freq * precision);
-
-	if(!(divParam > 256 && divParam < (0x3FFFF))){
-		return false;
-	}
-	return true;
 }
 
 void PWM::stop(){

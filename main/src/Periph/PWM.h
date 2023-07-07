@@ -35,7 +35,17 @@ public:
 	void setFreq(uint16_t freq);
 	void stop();
 
-	static constexpr bool checkFrequency(uint16_t freq);
+	static constexpr bool checkFrequency(uint16_t freq){
+		uint64_t divParam = 0;
+		uint32_t precision = (0x1 << DutyResDefault); // 2**depth
+
+		divParam = (((uint64_t) src_clk_freq << 8) + ((freq * precision) / 2)) / (freq * precision);
+
+		if(!(divParam > 256 && divParam < (0x3FFFF))){
+			return false;
+		}
+		return true;
+	}
 
 private:
 	void attach();
