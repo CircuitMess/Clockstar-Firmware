@@ -22,6 +22,7 @@ public:
 	void start();
 	void stop();
 	void reset();
+	void setPeriod(uint32_t period);
 
 private:
 	static bool interrupt(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx);

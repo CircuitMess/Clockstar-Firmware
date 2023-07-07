@@ -11,13 +11,7 @@ Timer::Timer(uint32_t period, std::function<void(void*)> ISR, void* dataPtr) : I
 	};
 	ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, this));
 	ESP_ERROR_CHECK(gptimer_enable(gptimer));
-	gptimer_alarm_config_t alarm_config = {
-			.alarm_count = period * 1000, // period in us
-			.reload_count = 0
-	};
-	alarm_config.flags.auto_reload_on_alarm = 1;
-
-	ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &alarm_config));
+	setPeriod(period);
 }
 
 Timer::~Timer(){
@@ -45,4 +39,12 @@ void Timer::stop(){
 
 void Timer::reset(){
 	ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0));
+}
+
+void Timer::setPeriod(uint32_t period){
+	gptimer_alarm_config_t alarm_config = {
+			.alarm_count = period * 1000, // period in us
+	};
+	alarm_config.flags.auto_reload_on_alarm = 1;
+	gptimer_set_alarm_action(gptimer, &alarm_config);
 }
