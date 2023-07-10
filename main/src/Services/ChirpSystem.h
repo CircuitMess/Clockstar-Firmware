@@ -4,9 +4,12 @@
 #include "../Util/Threaded.h"
 #include <mutex>
 #include "../Periph/PWM.h"
+#include "Periph/Timer.h"
+#include <array>
 
 /**
  * A chirp is a waveform that “sweeps” from a starting frequency to an ending frequency, during the specified duration of time.
+ * Using PWM this is simulated by playing discrete frequencies in sequence.
  */
 struct Chirp {
 	uint16_t startFreq; //[Hz]
@@ -21,8 +24,8 @@ typedef std::vector<Chirp> Sound;
  */
 class ChirpSystem {
 public:
-	ChirpSystem(PWM& pwm);
-
+	explicit ChirpSystem(PWM& pwm);
+	virtual ~ChirpSystem();
 	/**
 	 * Plays the specified sound, interrupts the currently playing sound.
 	 */
@@ -38,16 +41,19 @@ public:
 private:
 	PWM& pwm;
 	bool mute = false;
-	volatile uint8_t volume = 5;
-	Sound queued;
-	Sound current;
-	std::mutex mut;
-	ThreadedClosure task;
+	Timer timer;
 
-	void playbackFunc();
-	volatile uint32_t startMillis = 0;
-	volatile uint32_t currentMillis = 0;
-	volatile uint32_t chirpID = 0;
+	static void isr(void* arg);
+
+	static constexpr long freqMap(long val, long fromLow, long fromHigh, long toLow, long toHigh);
+	static constexpr uint32_t MaxLength = 10000; //10s
+	static constexpr uint32_t MinimumLength = 5; //5ms
+	struct Tone {
+		uint32_t freq; //Hz
+		uint32_t length; //ms
+	};
+	std::array<Tone, MaxLength / MinimumLength> tones{};
+	volatile uint32_t toneIndex = 0;
 };
 
 #endif //CIRCUITMESS_AUDIO_AUDIOSYSTEM_H
