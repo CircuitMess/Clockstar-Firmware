@@ -74,6 +74,7 @@ void StatusBar::setPhoneBattery(){
 }
 
 void StatusBar::setDeviceBattery(){
+	//TODO - use battery.getLevel() instead of getPercent()
 	perBatDevice = 0; // phone.battery
 	lv_img_set_src(batDevice, percentToIcon(perBatDevice));
 }
