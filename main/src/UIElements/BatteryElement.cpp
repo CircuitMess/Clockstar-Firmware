@@ -17,6 +17,9 @@ void BatteryElement::set(BatteryElement::Level level){
 		chargingIndex = 0;
 		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
 		lv_img_set_src(img, "S:/icons/batteryLow.bin");
+	}else{
+		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
+		lv_img_set_src(img, BatteryIcons[level - 1]);
 	}
 }
 

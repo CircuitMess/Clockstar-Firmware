@@ -74,7 +74,7 @@ void StatusBar::loop(){
 	batDevice->loop();
 	batPhone->loop();
 
-	if(batDevice->getLevel() == BatteryElement::Charging || batDevice->getLevel() == BatteryElement::Empty) return;
+	if(batDevice->getLevel() == BatteryElement::Charging) return;
 
 	if(batDevice->getLevel() != getLevel(battery.getLevel())){
 		setDeviceBattery();
@@ -104,12 +104,8 @@ void StatusBar::setDeviceBattery(){
 }
 
 BatteryElement::Level StatusBar::getLevel(uint8_t level){
-	if(level >= 2) return BatteryElement::Full;
-	else if(level >= 1) return BatteryElement::Mid;
-	else return BatteryElement::Low;
-}
-
-StatusBar::~StatusBar(){
-	delete batDevice;
-	delete batPhone;
+	if(level >= 3) return BatteryElement::Full;
+	else if(level >= 2) return BatteryElement::Mid;
+	else if(level >= 1) return BatteryElement::Low;
+	else return BatteryElement::Empty;
 }

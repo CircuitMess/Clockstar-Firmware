@@ -13,7 +13,6 @@
 class StatusBar : public LVObject {
 public:
 	explicit StatusBar(lv_obj_t* parent, bool showClock = true);
-	~StatusBar() override;
 	void loop();
 
 private:
