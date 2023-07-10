@@ -1,6 +1,5 @@
 #include "Timer.h"
 #include <soc/rtc.h>
-
 #include <utility>
 
 Timer::Timer(uint32_t period, std::function<void(void*)> ISR, void* dataPtr) : ISR(std::move(ISR)), dataPtr(dataPtr){
@@ -21,19 +20,17 @@ Timer::~Timer(){
 }
 
 
-bool Timer::interrupt(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx){
-	auto timerObject = (Timer*) user_ctx;
-	auto cb = timerObject->ISR;
-	if(cb) cb(timerObject->dataPtr);
-
-	return TaskPriority;
-}
-
 void Timer::start(){
+	if(state == Running) return;
+
+	state = Running;
 	ESP_ERROR_CHECK(gptimer_start(gptimer));
 }
 
 void Timer::stop(){
+	if(state == Stopped) return;
+
+	state = Stopped;
 	ESP_ERROR_CHECK(gptimer_stop(gptimer));
 }
 
@@ -44,7 +41,16 @@ void Timer::reset(){
 void Timer::setPeriod(uint32_t period){
 	gptimer_alarm_config_t alarm_config = {
 			.alarm_count = period * 1000, // period in us
+			.reload_count = 0,
+			.flags = { .auto_reload_on_alarm = 1 }
 	};
-	alarm_config.flags.auto_reload_on_alarm = 1;
 	gptimer_set_alarm_action(gptimer, &alarm_config);
+}
+
+bool IRAM_ATTR Timer::interrupt(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx){
+	auto timerObject = (Timer*) user_ctx;
+	auto cb = timerObject->ISR;
+	if(cb) cb(timerObject->dataPtr);
+
+	return TaskPriority;
 }

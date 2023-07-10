@@ -3,6 +3,7 @@
 
 #include <driver/gptimer.h>
 #include <functional>
+#include <esp_attr.h>
 
 /**
  * ESP Timer HAL takes care of HW allocation when Timers are created. (No need to specify timerID and timerGroup)
@@ -25,18 +26,24 @@ public:
 	void setPeriod(uint32_t period);
 
 private:
-	static bool interrupt(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx);
+	static bool IRAM_ATTR interrupt(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx);
+
+	static constexpr bool TaskPriority = false;
+	enum {
+		Stopped, Running
+	} state = Stopped;
+
 	gptimer_handle_t gptimer = nullptr;
 
 	gptimer_config_t timer_config = {
 			.clk_src = GPTIMER_CLK_SRC_DEFAULT,
 			.direction = GPTIMER_COUNT_UP,
 			.resolution_hz = 1000000, // 1MHz, 1 tick=1us
+			.flags = { .intr_shared = 0 }
 	};
 
 	std::function<void(void*)> ISR;
 	void* dataPtr;
-	static constexpr bool TaskPriority = false;
 };
 
 
