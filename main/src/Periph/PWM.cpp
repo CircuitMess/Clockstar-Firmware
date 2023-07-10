@@ -17,6 +17,7 @@ PWM::PWM(uint8_t pin, ledc_channel_t channel) : pin(pin), channel(channel){
 		ESP_LOGE(TAG, "timer config failed!");
 		return;
 	}
+	attach();
 }
 
 PWM::~PWM(){
@@ -26,7 +27,6 @@ PWM::~PWM(){
 void PWM::setFreq(uint16_t freq){
 	if(pin == (uint8_t) -1) return;
 
-	attach();
 
 	if(!checkFrequency(freq)){
 		ESP_LOGW(TAG, "couldnt write frequency %d because of clock divisor limitations\n", freq);
