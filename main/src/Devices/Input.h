@@ -7,7 +7,7 @@
 #include <freertos/queue.h>
 #include <hal/gpio_types.h>
 
-class Input : private Threaded {
+class Input : public SleepyThreaded {
 public:
 	Input();
 	virtual ~Input();
@@ -19,9 +19,6 @@ public:
 		Button btn;
 		enum Action { Release, Press } action;
 	};
-
-protected:
-	void loop() override;
 
 private:
 	void scan();
@@ -36,6 +33,12 @@ private:
 	std::unordered_map<Button, uint64_t> dbTime;
 	static constexpr uint64_t SleepTime = 20; // [ms]
 	static constexpr uint64_t DebounceTime = 5; // [ms]
+
+	void sleepyLoop() override;
+
+	// Hide public functions
+	using Threaded::start;
+	using Threaded::stop;
 
 };
 

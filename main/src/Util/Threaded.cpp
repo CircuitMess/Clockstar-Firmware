@@ -1,4 +1,5 @@
 #include "Threaded.h"
+#include "stdafx.h"
 #include <esp_log.h>
 
 Threaded::Threaded(const char* name, size_t stackSize, uint8_t priority, int8_t core) : name(name), stackSize(stackSize), priority(priority), core(core){
@@ -76,4 +77,43 @@ ThreadedClosure::ThreadedClosure(Lambda loopFn, const char* name, size_t stackSi
 
 void ThreadedClosure::loop(){
 	fn();
+}
+
+SleepyThreaded::SleepyThreaded(TickType_t loopInterval, const char* name, size_t stackSize, uint8_t priority, int8_t core) : Threaded(name, stackSize, priority, core), SleepTime(loopInterval){
+	pauseSem = xSemaphoreCreateBinary();
+}
+
+SleepyThreaded::~SleepyThreaded(){
+	vSemaphoreDelete(pauseSem);
+}
+
+void SleepyThreaded::pause(){
+	if(paused) return;
+	xSemaphoreGive(pauseSem);
+	while(!paused){
+		vTaskDelay(1);
+	}
+}
+
+void SleepyThreaded::resume(){
+	paused = false;
+	start();
+}
+
+void SleepyThreaded::resetTime(){
+	lastLoop = millis();
+}
+
+void SleepyThreaded::loop(){
+	if(millis() - lastLoop < SleepTime){
+		if(xSemaphoreTake(pauseSem, millis() - lastLoop + 1) == pdTRUE){
+			stop(0);
+			paused = true;
+			return;
+		}
+		return;
+	}
+
+	resetTime();
+	sleepyLoop();
 }

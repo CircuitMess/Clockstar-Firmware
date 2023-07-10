@@ -19,7 +19,8 @@ const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 		{ Alt,    "Alt" },
 };
 
-Input::Input() : Threaded("Input", 1024, 6, 0){
+Input::Input() : SleepyThreaded(SleepTime, "Input", 1024, 6, 0){
+	auto mask = 0ULL;
 	for(const auto& pair : PinMap){
 		const auto port = pair.first;
 		const auto pin = pair.second;
@@ -27,9 +28,17 @@ Input::Input() : Threaded("Input", 1024, 6, 0){
 		btnState[port] = false;
 		dbTime[port] = 0;
 
-		gpio_set_direction(pin, GPIO_MODE_INPUT);
-		gpio_set_pull_mode(pin, GPIO_PULLDOWN_ONLY);
+		mask |= (1ULL << pin);
 	}
+
+	gpio_config_t io_conf = {
+			.pin_bit_mask = mask,
+			.mode = GPIO_MODE_INPUT,
+			.pull_up_en = GPIO_PULLUP_DISABLE,
+			.pull_down_en = GPIO_PULLDOWN_ENABLE,
+			.intr_type = GPIO_INTR_DISABLE
+	};
+	gpio_config(&io_conf);
 
 	start();
 }
@@ -38,9 +47,8 @@ Input::~Input(){
 	stop();
 }
 
-void Input::loop(){
+void Input::sleepyLoop(){
 	scan();
-	vTaskDelay(SleepTime);
 }
 
 void Input::scan(){
