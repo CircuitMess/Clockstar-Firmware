@@ -26,6 +26,10 @@ void LockScreen::onStarting(){
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
 
+	for(const auto& notif : notifs){
+		notifRem(notif.first);
+	}
+
 	for(const auto& notif : phone.getNotifs()){
 		if(notifs.count(notif.uid) != 0){
 			notifAdd(notif);
