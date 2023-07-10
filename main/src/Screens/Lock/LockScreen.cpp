@@ -15,6 +15,11 @@ LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((
 		auto scr = static_cast<LockScreen*>(evt->user_data);
 		scr->locker->stop();
 	}, LV_EVENT_DEFOCUSED, this);
+
+	lv_obj_add_event_cb(main, [](lv_event_t* evt){
+		auto scr = static_cast<LockScreen*>(evt->user_data);
+		scr->locker->activity();
+	}, LV_EVENT_FOCUSED, this);
 }
 
 LockScreen::~LockScreen(){
@@ -33,13 +38,7 @@ void LockScreen::loop(){
 	locker->loop();
 	if(locker->t() >= 1){
 		locker->loop();
-
-		stop();
-		delete this;
-
-		auto scr = new MainMenu();
-		scr->start();
-
+		transition([](){ return std::make_unique<MainMenu>(); });
 		return;
 	}
 
@@ -126,6 +125,7 @@ void LockScreen::notifRem(uint32_t id){
 	if(it == notifs.end()) return;
 	auto& el = it->second;
 
+	lv_group_focus_next(inputGroup);
 	lv_obj_del(el.icon);
 	notifs.erase(it);
 }
