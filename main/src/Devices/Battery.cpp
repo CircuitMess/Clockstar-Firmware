@@ -35,6 +35,10 @@ bool Battery::isCharging() const{
 	return gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
 }
 
+bool Battery::isCritical() const{
+	return getLevel() == 0;
+}
+
 void Battery::loop(){
 	vTaskDelay(MeasureInverval);
 
@@ -67,10 +71,11 @@ void Battery::loop(){
 	measureCount = 0;
 	level = hysteresis.update(getPercentage());
 
-	if(getPercentage() < LowThresholdPercentage && !batteryLowAlert){
+	if(isCritical() && !batteryLowAlert){
 		batteryLowAlert = true;
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow });
-
+	}else if(!isCritical() && batteryLowAlert){
+		batteryLowAlert = false;
 	}
 }
 
