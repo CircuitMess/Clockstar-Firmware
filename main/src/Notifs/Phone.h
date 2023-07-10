@@ -16,9 +16,9 @@ public:
 
 	struct Event {
 		enum { Connected, Disconnected, Added, Changed, Removed, Cleared } action;
-		PhoneType phoneType;
 		union {
 			struct { uint32_t id; } addChgRem;
+			PhoneType phoneType;
 		} data;
 	};
 
