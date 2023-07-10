@@ -73,8 +73,7 @@ void init(){
 	fs->addToCache("/bg.bin");
 
 	// Load start screen here
-	auto scr = new LockScreen();
-	scr->start();
+	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
 
 	// Start UI thread after initialization
 	lvgl->start();

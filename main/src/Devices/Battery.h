@@ -4,6 +4,7 @@
 #include <hal/gpio_types.h>
 #include "Util/Threaded.h"
 #include "Periph/ADC.h"
+#include "Util/Hysteresis.h"
 
 class Battery : private Threaded {
 public:
@@ -32,6 +33,12 @@ private:
 	static constexpr uint8_t MeasureCount = 10;
 
 	ADC adc;
+
+	Hysteresis hysteresis;
+	//Battery levels will be 0, 1, 2
+	static constexpr std::initializer_list<Hysteresis::Threshold> HysteresisThresholds = {{ 15, 25, 1 },
+																						  { 65, 75, 2 }};
+	uint8_t level = 0;
 
 	uint32_t measureSum = 0;
 	uint8_t measureCount = 0;

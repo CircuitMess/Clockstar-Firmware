@@ -6,7 +6,7 @@
 #include <cmath>
 #include <driver/gpio.h>
 
-Battery::Battery() : Threaded("Battery", 1024, 4), adc((gpio_num_t) PIN_BATT, 0.05){
+Battery::Battery() : Threaded("Battery", 1024, 4), adc((gpio_num_t) PIN_BATT, 0.05), hysteresis(HysteresisThresholds){
 	gpio_config_t cfg_gpio = {};
 	cfg_gpio.mode = GPIO_MODE_INPUT;
 	cfg_gpio.pull_down_en = GPIO_PULLDOWN_ENABLE;
@@ -15,7 +15,7 @@ Battery::Battery() : Threaded("Battery", 1024, 4), adc((gpio_num_t) PIN_BATT, 0.
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
 	quickSample();
-
+	level = hysteresis.update(getPercentage());
 	start();
 }
 
@@ -39,7 +39,6 @@ void Battery::loop(){
 	vTaskDelay(MeasureInverval);
 
 	// TODO: send evt on chrg
-	// TODO: level hysteresis
 	if(isCharging()){
 		if(!wasCharging){
 			Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = true });
@@ -53,6 +52,7 @@ void Battery::loop(){
 		wasCharging = false;
 		adc.resetEma();
 		quickSample();
+		hysteresis.reset(getPercentage());
 		measureSum = 0;
 		measureCount = 0;
 	}
@@ -65,6 +65,8 @@ void Battery::loop(){
 	voltage = mapReading(measureSum / MeasureCount);
 	measureSum = 0;
 	measureCount = 0;
+	level = hysteresis.update(getPercentage());
+
 	if(getPercentage() < LowThresholdPercentage && !batteryLowAlert){
 		batteryLowAlert = true;
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow });
@@ -81,23 +83,7 @@ uint16_t Battery::mapReading(uint16_t reading){
 }
 
 uint8_t Battery::getLevel() const{
-	uint8_t percentage = getPercentage();
-
-	if(percentage > 80){
-		return 5;
-	}else if(percentage > 60){
-		return 4;
-	}else if(percentage > 40){
-		return 3;
-	}else if(percentage > 20){
-		return 2;
-	}else if(percentage >= 5){
-		return 1;
-	}else if(percentage < 5){
-		return 0;
-	}
-
-	return 0;
+	return level;
 }
 
 uint8_t Battery::getPercentage() const{
