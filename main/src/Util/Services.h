@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-enum class Service { IMU, Phone, Time };
+enum class Service { IMU, Phone, Time, Audio };
 
 class ServiceLocator {
 public:
