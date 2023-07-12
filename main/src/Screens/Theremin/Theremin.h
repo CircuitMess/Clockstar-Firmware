@@ -1,8 +1,10 @@
 #ifndef CLOCKSTAR_FIRMWARE_THEREMIN_H
 #define CLOCKSTAR_FIRMWARE_THEREMIN_H
 
-#include "../LV_Interface/LVScreen.h"
-#include "../LV_Interface/LVStyle.h"
+#include "LV_Interface/LVScreen.h"
+#include "LV_Interface/LVStyle.h"
+#include "ArpeggioSequence.h"
+#include "Services/ChirpSystem.h"
 
 class Theremin : public LVScreen {
 public:
@@ -30,6 +32,19 @@ private:
 	static constexpr uint8_t HorizontalTextX = 23;
 	static constexpr uint8_t HorizontalTextY = 75;
 	LVStyle textStyle;
+
+	void buildUI();
+	void loop() override;
+
+	ChirpSystem& audio;
+	ArpeggioSequence sequence;
+
+	static constexpr uint32_t SequenceDuration = 1000; //ms
+	static constexpr uint32_t PauseDuration = 500; //ms
+
+	//debug
+	uint32_t startMillis = 0;
+
 };
 
 

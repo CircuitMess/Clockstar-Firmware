@@ -1,8 +1,47 @@
 #include <algorithm>
 #include "Theremin.h"
+#include "Util/Services.h"
+#include "Util/stdafx.h"
 
-Theremin::Theremin(){
 
+Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)){
+	buildUI();
+	sequence.refresh();
+
+
+
+	//debug
+	lv_group_add_obj(inputGroup, sliderHorizontal);
+	lv_group_add_obj(inputGroup, sliderVertical);
+
+	lv_slider_set_value(sliderHorizontal, map(sequence.getBaseNoteIndex(), 0, ArpeggioSequence::MaxBaseNoteIndex, 0, SliderRange), LV_ANIM_OFF);
+	lv_slider_set_value(sliderVertical, map(sequence.getSize(), 1, ArpeggioSequence::MaxSequenceSize, 0, SliderRange), LV_ANIM_OFF);
+
+	lv_obj_add_event_cb(sliderHorizontal, [](lv_event_t* e){
+		auto t = (Theremin*) e->user_data;
+		auto mapped = map(lv_slider_get_value(e->target), 0, Theremin::SliderRange, 0, ArpeggioSequence::MaxBaseNoteIndex);
+		t->sequence.setBaseNoteIndex(mapped);
+	}, LV_EVENT_VALUE_CHANGED, this);
+
+	lv_obj_add_event_cb(sliderVertical, [](lv_event_t* e){
+		auto t = (Theremin*) e->user_data;
+		auto mapped = map(lv_slider_get_value(e->target), 0, Theremin::SliderRange, 1, ArpeggioSequence::MaxSequenceSize);
+		t->sequence.setSize(mapped);
+	}, LV_EVENT_VALUE_CHANGED, this);
+}
+
+void Theremin::setOrientation(float pitch, float roll){
+	pitch = std::clamp(pitch, -AngleConstraint, AngleConstraint);
+	roll = std::clamp(roll, -AngleConstraint, AngleConstraint);
+
+	const auto horizontalX = (int16_t) (((roll + AngleConstraint) / (2 * AngleConstraint)) * SliderRange);
+	const auto verticalY = (int16_t) (((pitch + AngleConstraint) / (2 * AngleConstraint)) * SliderRange);
+
+	lv_slider_set_value(sliderVertical, verticalY, LV_ANIM_OFF);
+	lv_slider_set_value(sliderHorizontal, horizontalX, LV_ANIM_OFF);
+}
+
+void Theremin::buildUI(){
 	lv_style_set_text_color(textStyle, lv_color_white());
 
 
@@ -77,15 +116,18 @@ Theremin::Theremin(){
 	lv_obj_add_style(label, textStyle, 0);
 }
 
-void Theremin::setOrientation(float pitch, float roll){
-	pitch = std::clamp(pitch, -AngleConstraint, AngleConstraint);
-	roll = std::clamp(roll, -AngleConstraint, AngleConstraint);
+void Theremin::loop(){
+	if(millis() - startMillis >= SequenceDuration + PauseDuration){
+		sequence.refresh();
+		auto& freqs = sequence.getTones();
+		const uint toneDuration = SequenceDuration / (2 * freqs.size());
+		Sound sound;
+		for(const auto& freq : freqs){
+			sound.push_back({ freq, freq, toneDuration });
+			sound.push_back({ 0, 0, toneDuration });
+		}
 
-	const auto horizontalX = (int16_t) (((roll + AngleConstraint) / (2 * AngleConstraint)) * SliderRange);
-	const auto verticalY = (int16_t) (((pitch + AngleConstraint) / (2 * AngleConstraint)) * SliderRange);
-
-	lv_slider_set_value(sliderVertical, verticalY, LV_ANIM_OFF);
-	lv_slider_set_value(sliderHorizontal, horizontalX, LV_ANIM_OFF);
-
-	//TODO - add sound actuation
+		audio.play(sound);
+		startMillis = millis();
+	}
 }
