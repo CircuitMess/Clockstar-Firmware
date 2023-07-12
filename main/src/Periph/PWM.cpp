@@ -19,6 +19,7 @@ PWM::PWM(uint8_t pin, ledc_channel_t channel) : pin(pin), channel(channel){
 		return;
 	}
 	attach();
+	ledc_stop(getSpeedMode(channel), channel, 0);
 }
 
 PWM::~PWM(){
@@ -43,7 +44,7 @@ void PWM::setFreq(uint16_t freq){
 
 void PWM::stop(){
 	if(pin == (uint8_t) -1) return;
-	detach();
+	ledc_stop(getSpeedMode(channel), channel, 0);
 }
 
 void PWM::attach(){
@@ -62,10 +63,6 @@ void PWM::attach(){
 	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 
 	ledc_set_duty(getSpeedMode(channel), channel, FullDuty);
-}
-
-void PWM::detach(){
-	ledc_stop(getSpeedMode(channel), channel, 0);
 }
 
 constexpr ledc_mode_t PWM::getSpeedMode(ledc_channel_t channel){
