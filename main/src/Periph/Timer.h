@@ -2,7 +2,6 @@
 #define CLOCKSTAR_FIRMWARE_TIMER_H
 
 #include <driver/gptimer.h>
-#include <functional>
 #include <esp_attr.h>
 
 /**
