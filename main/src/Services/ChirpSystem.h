@@ -22,7 +22,7 @@ typedef std::vector<Chirp> Sound;
 /**
  * Simple Audio system designed for short SFX played on a simple piezo buzzer.
  */
-class ChirpSystem {
+class ChirpSystem : private Threaded{
 public:
 	explicit ChirpSystem(PWM& pwm);
 	virtual ~ChirpSystem();
@@ -41,8 +41,11 @@ public:
 private:
 	PWM& pwm;
 	bool mute = false;
-	Timer timer;
 
+	void loop() override;
+	SemaphoreHandle_t sem;
+
+	Timer timer;
 	static void isr(void* arg);
 
 	static constexpr long freqMap(long val, long fromLow, long fromHigh, long toLow, long toHigh);
