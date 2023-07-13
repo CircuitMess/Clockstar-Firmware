@@ -4,11 +4,13 @@
 #include "Util/stdafx.h"
 
 
-Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)){
+Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)), sem(xSemaphoreCreateBinary()),
+					   timer(getToneDuration(sequence.getSize()), timerCB, sem),
+					   audioThread([this](){ audioThreadFunc(); }, "Theremin audio", 2048, 5, 1){
 	buildUI();
 	sequence.refresh();
 
-
+	xSemaphoreGive(sem);
 
 	//debug
 	lv_group_add_obj(inputGroup, sliderHorizontal);
@@ -27,6 +29,7 @@ Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)){
 		auto t = (Theremin*) e->user_data;
 		auto mapped = map(lv_slider_get_value(e->target), 0, Theremin::SliderRange, 1, ArpeggioSequence::MaxSequenceSize);
 		t->sequence.setSize(mapped);
+		t->timer.setPeriod(getToneDuration(t->sequence.getSize()));
 	}, LV_EVENT_VALUE_CHANGED, this);
 }
 
@@ -39,6 +42,50 @@ void Theremin::setOrientation(float pitch, float roll){
 
 	lv_slider_set_value(sliderVertical, verticalY, LV_ANIM_OFF);
 	lv_slider_set_value(sliderHorizontal, horizontalX, LV_ANIM_OFF);
+}
+
+void Theremin::onStart(){
+	audioThread.start();
+	timer.start();
+}
+
+void Theremin::onStop(){
+	timer.stop();
+	audio.stop();
+	audioThread.stop();
+}
+
+void IRAM_ATTR Theremin::timerCB(void* arg){
+	BaseType_t priority = pdFALSE;
+	xSemaphoreGiveFromISR(arg, &priority);
+}
+
+void Theremin::audioThreadFunc(){
+	while(!xSemaphoreTake(sem, portMAX_DELAY));
+
+	if(sequenceIndex == 0){
+		sequence.refresh();
+		timer.setPeriod(getToneDuration(sequence.getSize()));
+	}
+
+	if(sequenceIndex >= sequence.getSize()){
+		sequenceIndex = 0;
+		timer.setPeriod(PauseDuration);
+		return;
+	}
+
+	const auto freq = sequence.getTones()[sequenceIndex];
+	const uint16_t toneDuration = getToneDuration(sequence.getSize()) / 2;
+	const Sound sound = { { freq, freq, toneDuration },
+						  { 0,    0,    toneDuration } };
+
+	audio.play(sound);
+
+	sequenceIndex++;
+}
+
+constexpr uint32_t Theremin::getToneDuration(uint8_t sequenceSize){
+	return SequenceDuration / sequenceSize;
 }
 
 void Theremin::buildUI(){
@@ -114,20 +161,4 @@ void Theremin::buildUI(){
 	label = lv_label_create(textHorizontal);
 	lv_label_set_text(label, "the frequency");
 	lv_obj_add_style(label, textStyle, 0);
-}
-
-void Theremin::loop(){
-	if(millis() - startMillis >= SequenceDuration + PauseDuration){
-		sequence.refresh();
-		auto& freqs = sequence.getTones();
-		const uint toneDuration = SequenceDuration / (2 * freqs.size());
-		Sound sound;
-		for(const auto& freq : freqs){
-			sound.push_back({ freq, freq, toneDuration });
-			sound.push_back({ 0, 0, toneDuration });
-		}
-
-		audio.play(sound);
-		startMillis = millis();
-	}
 }
