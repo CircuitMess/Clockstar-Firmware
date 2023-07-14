@@ -6,31 +6,12 @@
 
 Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)), sem(xSemaphoreCreateBinary()),
 					   timer(getToneDuration(sequence.getSize()), timerCB, sem),
-					   audioThread([this](){ audioThreadFunc(); }, "Theremin audio", 2048, 5, 1){
+					   audioThread([this](){ audioThreadFunc(); }, "Theremin audio", 2048, 5, 1), imu((IMU*) Services.get(Service::IMU)),
+					   pitchFilter(filterStrength), rollFilter(filterStrength){
 	buildUI();
 	sequence.refresh();
 
 	xSemaphoreGive(sem);
-
-	//debug
-	lv_group_add_obj(inputGroup, sliderHorizontal);
-	lv_group_add_obj(inputGroup, sliderVertical);
-
-	lv_slider_set_value(sliderHorizontal, map(sequence.getBaseNoteIndex(), 0, ArpeggioSequence::MaxBaseNoteIndex, 0, SliderRange), LV_ANIM_OFF);
-	lv_slider_set_value(sliderVertical, map(sequence.getSize(), 1, ArpeggioSequence::MaxSequenceSize, 0, SliderRange), LV_ANIM_OFF);
-
-	lv_obj_add_event_cb(sliderHorizontal, [](lv_event_t* e){
-		auto t = (Theremin*) e->user_data;
-		auto mapped = map(lv_slider_get_value(e->target), 0, Theremin::SliderRange, 0, ArpeggioSequence::MaxBaseNoteIndex);
-		t->sequence.setBaseNoteIndex(mapped);
-	}, LV_EVENT_VALUE_CHANGED, this);
-
-	lv_obj_add_event_cb(sliderVertical, [](lv_event_t* e){
-		auto t = (Theremin*) e->user_data;
-		auto mapped = map(lv_slider_get_value(e->target), 0, Theremin::SliderRange, 1, ArpeggioSequence::MaxSequenceSize);
-		t->sequence.setSize(mapped);
-		t->timer.setPeriod(getToneDuration(t->sequence.getSize()));
-	}, LV_EVENT_VALUE_CHANGED, this);
 }
 
 void Theremin::setOrientation(float pitch, float roll){
@@ -42,17 +23,43 @@ void Theremin::setOrientation(float pitch, float roll){
 
 	lv_slider_set_value(sliderVertical, verticalY, LV_ANIM_OFF);
 	lv_slider_set_value(sliderHorizontal, horizontalX, LV_ANIM_OFF);
+
+	const auto mappedNote = (uint16_t) map(roll, -AngleConstraint, AngleConstraint, 0, ArpeggioSequence::MaxBaseNoteIndex);
+	const auto mappedSize = (uint8_t) map(pitch, -AngleConstraint, AngleConstraint, 1, ArpeggioSequence::MaxSequenceSize);
+
+	if(mappedNote != sequence.getBaseNoteIndex()){
+		sequence.setBaseNoteIndex(mappedNote);
+	}
+
+	if(mappedSize != sequence.getSize()){
+		sequence.setSize(mappedSize);
+		timer.setPeriod(getToneDuration(sequence.getSize()));
+	}
 }
 
 void Theremin::onStart(){
 	audioThread.start();
 	timer.start();
+
+	imu->enableFIFO(false);
+
+	const IMU::Sample reading = imu->getSample();
+	const PitchRoll pitchRoll = { -(float) reading.accelY, -(float) reading.accelX };
+	pitchFilter.reset(pitchRoll.pitch);
+	rollFilter.reset(pitchRoll.roll);
+	setOrientation(pitchRoll.pitch, pitchRoll.roll);
 }
 
 void Theremin::onStop(){
 	timer.stop();
 	audio.stop();
 	audioThread.stop();
+}
+
+void Theremin::loop(){
+	const IMU::Sample reading = imu->getSample();
+	const PitchRoll pitchRoll = { (float) pitchFilter.update(-reading.accelY), (float) rollFilter.update(-reading.accelX) };
+	setOrientation(pitchRoll.pitch, pitchRoll.roll);
 }
 
 void IRAM_ATTR Theremin::timerCB(void* arg){
@@ -113,7 +120,7 @@ void Theremin::buildUI(){
 	lv_obj_set_size(sliderVertical, SliderWidth, SliderLength);
 	lv_obj_set_style_bg_img_src(sliderVertical, "S:/theremin/verticalBar.bin", 0);
 	lv_obj_set_style_bg_img_src(sliderVertical, "S:/theremin/dot.bin", LV_PART_KNOB);
-	lv_obj_set_style_pad_ver(sliderVertical, 5, LV_PART_MAIN);
+	lv_obj_set_style_pad_bottom(sliderVertical, 5, LV_PART_MAIN);
 	lv_slider_set_range(sliderHorizontal, 0, SliderRange);
 
 
@@ -125,7 +132,7 @@ void Theremin::buildUI(){
 	lv_obj_set_pos(textVertical, VerticalTextX, VerticalTextY);
 	lv_obj_set_style_pad_column(textVertical, 3, 0);
 	auto label = lv_label_create(textVertical);
-	lv_label_set_text(label, "Move");
+	lv_label_set_text(label, "Tilt");
 	lv_obj_add_style(label, textStyle, 0);
 	auto arrow = lv_img_create(textVertical);
 	lv_img_set_src(arrow, "S:/theremin/up.bin");
@@ -136,7 +143,7 @@ void Theremin::buildUI(){
 	lv_label_set_text(label, "to change");
 	lv_obj_add_style(label, textStyle, 0);
 	label = lv_label_create(textVertical);
-	lv_label_set_text(label, "the volume");
+	lv_label_set_text(label, "number of tones");
 	lv_obj_add_style(label, textStyle, 0);
 
 
@@ -148,7 +155,7 @@ void Theremin::buildUI(){
 	lv_obj_set_pos(textHorizontal, HorizontalTextX, HorizontalTextY);
 	lv_obj_set_style_pad_column(textHorizontal, 3, 0);
 	label = lv_label_create(textHorizontal);
-	lv_label_set_text(label, "Move");
+	lv_label_set_text(label, "Tilt");
 	lv_obj_add_style(label, textStyle, 0);
 	arrow = lv_img_create(textHorizontal);
 	lv_img_set_src(arrow, "S:/theremin/left.bin");

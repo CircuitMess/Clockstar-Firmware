@@ -5,6 +5,9 @@
 #include "LV_Interface/LVStyle.h"
 #include "ArpeggioSequence.h"
 #include "Services/ChirpSystem.h"
+#include "Util/Queue.h"
+#include "Util/EMA.h"
+#include "Devices/IMU.h"
 
 class Theremin : public LVScreen {
 public:
@@ -14,12 +17,13 @@ public:
 private:
 	void onStart() override;
 	void onStop() override;
+	void loop() override;
 
 	lv_obj_t* bg;
 	lv_obj_t* textVertical, * textHorizontal;
 	lv_obj_t* sliderVertical, * sliderHorizontal;
 
-	static constexpr float AngleConstraint = 45.0f;
+	static constexpr float AngleConstraint = 0.5f;
 	static constexpr uint8_t SliderLength = 104;
 	static constexpr uint8_t SliderWidth = 12;
 	static constexpr uint8_t SliderRange = 95;
@@ -51,6 +55,16 @@ private:
 	ThreadedClosure audioThread;
 	void audioThreadFunc();
 	volatile uint8_t sequenceIndex = 0;
+
+
+	IMU* imu;
+	struct PitchRoll {
+		float pitch;
+		float roll;
+	};
+	EMA pitchFilter;
+	EMA rollFilter;
+	static constexpr float filterStrength = 0.12;
 
 	void buildUI();
 };
