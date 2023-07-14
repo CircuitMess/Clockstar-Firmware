@@ -20,6 +20,7 @@
 #include "Theme/theme.h"
 #include "Screens/Lock/LockScreen.h"
 #include "Services/ChirpSystem.h"
+#include "Settings/Settings.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -40,6 +41,9 @@ void init(){
 
 	auto bl = new PinOut(PIN_BL, true);
 	bl->on();
+
+	auto settings = new Settings();
+	Services.set(Service::Settings, settings);
 
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto rtc = new RTC(*i2c);
@@ -72,6 +76,8 @@ void init(){
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
 	fs->addToCache("/bg.bin");
+
+	//TODO - apply settings
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
