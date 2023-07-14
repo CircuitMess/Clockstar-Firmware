@@ -38,9 +38,6 @@ void Theremin::setOrientation(float pitch, float roll){
 }
 
 void Theremin::onStart(){
-	audioThread.start();
-	timer.start();
-
 	imu->enableFIFO(false);
 
 	const IMU::Sample reading = imu->getSample();
@@ -48,6 +45,9 @@ void Theremin::onStart(){
 	pitchFilter.reset(pitchRoll.pitch);
 	rollFilter.reset(pitchRoll.roll);
 	setOrientation(pitchRoll.pitch, pitchRoll.roll);
+
+	audioThread.start();
+	timer.start();
 }
 
 void Theremin::onStop(){
@@ -141,7 +141,10 @@ void Theremin::buildUI(){
 	lv_label_set_text(label, "to change");
 	lv_obj_add_style(label, textStyle, 0);
 	label = lv_label_create(textVertical);
-	lv_label_set_text(label, "number of tones");
+	lv_label_set_text(label, "the number");
+	lv_obj_add_style(label, textStyle, 0);
+	label = lv_label_create(textVertical);
+	lv_label_set_text(label, "of tones");
 	lv_obj_add_style(label, textStyle, 0);
 
 
@@ -164,6 +167,6 @@ void Theremin::buildUI(){
 	lv_label_set_text(label, "to change");
 	lv_obj_add_style(label, textStyle, 0);
 	label = lv_label_create(textHorizontal);
-	lv_label_set_text(label, "the frequency");
+	lv_label_set_text(label, "base frequency");
 	lv_obj_add_style(label, textStyle, 0);
 }
