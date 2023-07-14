@@ -33,6 +33,7 @@ public:
 	virtual ~PWM();
 
 	void setFreq(uint16_t freq);
+	void setDuty(uint8_t duty); //duty in percentage (0 - 100%)
 	void stop();
 
 	static constexpr bool checkFrequency(uint16_t freq){
