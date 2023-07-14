@@ -11,13 +11,15 @@
 SemaphoreHandle_t intSem;
 
 void IRAM_ATTR intISR(void* arg){
+	gpio_set_intr_type((gpio_num_t) PIN, GPIO_INTR_POSEDGE); // This makes the interrupt pos-edge after wake config makes it high-level
 	xSemaphoreGive(intSem);
 }
 
 [[noreturn]] void intHandler(void* arg){
+	static int trigs = 0;
 	for(;;){
 		xSemaphoreTake(intSem, portMAX_DELAY);
-		printf("Interrupt triggered\n");
+		printf("Interrupt triggered %d\n", trigs++);
 	}
 }
 
@@ -61,9 +63,10 @@ void init(){
 			.mode = GPIO_MODE_INPUT,
 			.pull_up_en = GPIO_PULLUP_DISABLE,
 			.pull_down_en = GPIO_PULLDOWN_DISABLE,
-			.intr_type = GPIO_INTR_HIGH_LEVEL
+			.intr_type = GPIO_INTR_POSEDGE
 	};
 	gpio_config(&io_conf);
+	printf("Configured. GPIO is %d\n", gpio_get_level((gpio_num_t) PIN));
 
 	initWake();
 	initInt();

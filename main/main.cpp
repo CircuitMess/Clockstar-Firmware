@@ -19,6 +19,7 @@
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
 #include "Screens/Lock/LockScreen.h"
+#include "Services/ChirpSystem.h"
 #include "Settings/Settings.h"
 
 void init(){
@@ -58,6 +59,10 @@ void init(){
 	auto phone = new Phone(server, client);
 	server->start();
 
+	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
+	auto audio = new ChirpSystem(*pwm);
+
+	Services.set(Service::Audio, audio);
 	Services.set(Service::IMU, imu);
 	Services.set(Service::Phone, phone);
 
