@@ -70,15 +70,13 @@ void IRAM_ATTR Theremin::timerCB(void* arg){
 void Theremin::audioThreadFunc(){
 	while(!xSemaphoreTake(sem, portMAX_DELAY));
 
+	if(sequenceIndex >= sequence.getSize()){
+		sequenceIndex = 0;
+	}
+
 	if(sequenceIndex == 0){
 		sequence.refresh();
 		timer.setPeriod(getToneDuration(sequence.getSize()));
-	}
-
-	if(sequenceIndex >= sequence.getSize()){
-		sequenceIndex = 0;
-		timer.setPeriod(PauseDuration);
-		return;
 	}
 
 	const auto freq = sequence.getTones()[sequenceIndex];

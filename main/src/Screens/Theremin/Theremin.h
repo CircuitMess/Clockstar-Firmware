@@ -44,8 +44,7 @@ private:
 	ArpeggioSequence sequence;
 
 
-	static constexpr uint32_t DRAM_ATTR SequenceDuration = 1000; //ms
-	static constexpr uint32_t DRAM_ATTR PauseDuration = 500; //ms
+	static constexpr uint32_t DRAM_ATTR SequenceDuration = 800; //ms
 	static constexpr uint32_t getToneDuration(uint8_t sequenceSize);
 
 	SemaphoreHandle_t sem;
