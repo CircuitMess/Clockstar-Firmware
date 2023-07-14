@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <utility>
 
-template<typename T>
+template<typename T> constexpr
 T map(T val, decltype(val) fromLow, decltype(val) fromHigh, decltype(val) toLow, decltype(val) toHigh){
 	if(fromLow > fromHigh){
 		std::swap(fromLow, fromHigh);
