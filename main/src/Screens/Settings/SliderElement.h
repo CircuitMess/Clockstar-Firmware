@@ -10,8 +10,8 @@ class SliderElement : public LVSelectable {
 public:
 	explicit SliderElement(lv_obj_t* parent, const char* name, std::function<void(uint8_t)> cb, uint8_t value = 0);
 
-	void setValue(uint8_t value);
-	[[nodiscard]] uint8_t getValue() const;
+	void setValue(uint8_t value); //0-100
+	[[nodiscard]] uint8_t getValue() const; //0-100
 
 private:
 	lv_obj_t* label;
@@ -25,12 +25,13 @@ private:
 	LVStyle sliderMainStyle;
 	LVStyle sliderKnobStyle;
 
-	uint8_t value;
+	uint8_t value; //0-100
 	std::function<void(uint8_t)> cb;
 
-	static constexpr uint8_t SliderWidth = 56;
+	static constexpr uint8_t SliderWidth = 55;
 	static constexpr uint8_t SliderHeight = 12;
-	static constexpr uint8_t SliderRange = 51;
+	static constexpr uint8_t SliderRange = 50;
+	static constexpr uint8_t MaxValue = 100;
 	static constexpr uint8_t Height = 23;
 
 };
