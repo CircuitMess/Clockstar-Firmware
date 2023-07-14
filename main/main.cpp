@@ -21,6 +21,8 @@
 #include "Screens/Lock/LockScreen.h"
 #include "Services/ChirpSystem.h"
 #include "Settings/Settings.h"
+#include "Services/BacklightBrightness.h"
+#include "Screens/Settings/SettingsScreen.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -39,8 +41,8 @@ void init(){
 	}
 	ESP_ERROR_CHECK(ret);
 
-	auto bl = new PinOut(PIN_BL, true);
-	bl->on();
+	auto bl = new BacklightBrightness(new PWM(PIN_BL, LEDC_CHANNEL_1));
+	Services.set(Service::Backlight, bl);
 
 	auto settings = new Settings();
 	Services.set(Service::Settings, settings);
@@ -61,6 +63,7 @@ void init(){
 
 	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
 	auto audio = new ChirpSystem(*pwm);
+	audio->setMute(!settings->get().notificationSounds);
 
 	Services.set(Service::Audio, audio);
 	Services.set(Service::IMU, imu);
@@ -77,14 +80,13 @@ void init(){
 	auto fs = new FSLVGL('S');
 	fs->addToCache("/bg.bin");
 
-	//TODO - apply settings
-
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
 
 	// Start UI thread after initialization
 	lvgl->start();
 
+	bl->fadeIn();
 }
 
 extern "C" void app_main(void){
