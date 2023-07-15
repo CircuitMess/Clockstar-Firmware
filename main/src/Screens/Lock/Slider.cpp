@@ -28,8 +28,7 @@ void Slider::loop(){
 	}
 
 	if(millis() - activityTime >= InactivityTimeout){
-		lv_obj_add_flag(icon, LV_OBJ_FLAG_HIDDEN);
-		activityTime = 0;
+		hide();
 	}
 }
 
@@ -54,4 +53,9 @@ void Slider::stop(){
 void Slider::activity(){
 	activityTime = millis();
 	lv_obj_clear_flag(icon, LV_OBJ_FLAG_HIDDEN);
+}
+
+void Slider::hide(){
+	activityTime = 0;
+	lv_obj_add_flag(icon, LV_OBJ_FLAG_HIDDEN);
 }

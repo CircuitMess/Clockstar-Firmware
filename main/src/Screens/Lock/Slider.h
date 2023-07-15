@@ -16,6 +16,7 @@ public:
 	float t();
 
 	void activity();
+	void hide();
 
 private:
 	lv_obj_t* icon;
