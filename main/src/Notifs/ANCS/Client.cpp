@@ -143,7 +143,13 @@ void ANCS::Client::processData(bool sendIncomplete){
 		auto get = [&nd](AttributeID id){
 			auto attr = nd.attrs.find(id);
 			if(attr == nd.attrs.end()) return std::string();
-			return attr->second;
+			auto s = attr->second;
+			s = std::regex_replace(s, std::regex("\\\\n"), "\n");
+			s = std::regex_replace(s, std::regex("\\\\r"), "\r");
+			s = std::regex_replace(s, std::regex("\\\\\\"), "\\");
+			s = std::regex_replace(s, std::regex("\\\\t"), "\t");
+			s.erase(std::remove(s.begin(), s.end(), '\r'), s.end());
+			return s;
 		};
 
 		Notif notif = {
@@ -161,12 +167,6 @@ void ANCS::Client::processData(bool sendIncomplete){
 			notif.appID = AppIDMap.at(notif.appID);
 		}
 
-		notif.message = std::regex_replace(notif.message, std::regex("\\\\n"), "\n");
-		notif.message = std::regex_replace(notif.message, std::regex("\\\\r"), "\r");
-		notif.message = std::regex_replace(notif.message, std::regex("\\\\\\"), "\\");
-		notif.message = std::regex_replace(notif.message, std::regex("\\\\t"), "\t");
-		notif.message.erase(std::remove(notif.message.begin(), notif.message.end(), '\r'), notif.message.end());
-		std::replace(notif.message.begin(), notif.message.end(), '\t', ' ');
 
 		ESP_LOGI(TAG, "Sending notif 0x%lx. Modify: %d\n", nd.uid, nd.modify);
 		if(nd.modify){
