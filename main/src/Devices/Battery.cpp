@@ -49,9 +49,9 @@ uint16_t Battery::mapRawReading(uint16_t reading){
 }
 
 int16_t Battery::getVoltOffset(){
-	return 0;
-	uint32_t upper = REG_GET_FIELD(EFUSE_BLK3_RDATA3_REG, EFUSE_RD_ADC1_TP_HIGH);
-	uint32_t lower = REG_GET_FIELD(EFUSE_BLK3_RDATA3_REG, EFUSE_RD_ADC1_TP_LOW);
+	uint32_t upper = 0, lower = 0;
+	esp_efuse_read_field_blob((const esp_efuse_desc_t**) efuse_adc1_low, &lower, 7);
+	esp_efuse_read_field_blob((const esp_efuse_desc_t**) efuse_adc1_high, &upper, 9);
 	return (upper << 7) | lower;
 }
 
