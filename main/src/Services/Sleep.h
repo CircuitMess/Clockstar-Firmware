@@ -9,7 +9,7 @@ class Sleep {
 public:
 	Sleep(Input& input, Time& time);
 
-	void sleep();
+	void sleep(std::function<void()> preWake = {});
 
 private:
 	Input& input;

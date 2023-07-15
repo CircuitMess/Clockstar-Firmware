@@ -14,7 +14,7 @@ Sleep::Sleep(Input& input, Time& time) : input(input), time(time){
 	wakeSem = xSemaphoreCreateBinary();
 }
 
-void Sleep::sleep(){
+void Sleep::sleep(std::function<void()> preWake){
 	ESP_LOGI(TAG, "Goint to sleep\n");
 
 	input.pause();
@@ -28,6 +28,8 @@ void Sleep::sleep(){
 	auto sleepTime = esp_timer_get_time() - sleepStartTime;
 
 	ConMan.goHiPow();
+
+	preWake();
 	gpio_set_level((gpio_num_t) PIN_BL, 0); // TODO: PWM
 
 	input.resume();
