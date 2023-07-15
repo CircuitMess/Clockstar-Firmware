@@ -2,9 +2,10 @@
 #define CLOCKSTAR_FIRMWARE_CONCONF_H
 
 #include <esp_gap_ble_api.h>
-#include <freertos/semphr.h>
 #include <unordered_set>
 #include <mutex>
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 
 class ConConf {
 public:
