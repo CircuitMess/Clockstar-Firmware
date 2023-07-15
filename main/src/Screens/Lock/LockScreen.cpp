@@ -55,6 +55,8 @@ void LockScreen::loop(){
 
 	status->loop();
 
+	clock->loop();
+
 	if(millis() - lastTimeUpdate > TimeUpdateInterval){
 		updateTime(ts.getTime());
 	}
@@ -172,7 +174,6 @@ void LockScreen::notifsClear(){
 void LockScreen::updateTime(const tm& time){
 	lastTimeUpdate = millis();
 
-	char clockText[128];
 	char dateText[128];
 
 	static const char* Months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
@@ -184,10 +185,8 @@ void LockScreen::updateTime(const tm& time){
 	else if(dayLd == 3) daySuff = "rd";
 	else daySuff = "th";
 
-	snprintf(clockText, sizeof(clockText), "%02d%c%02d", time.tm_hour, time.tm_sec % 2 ? ':' : ' ', time.tm_min);
 	snprintf(dateText, sizeof(dateText), "%s %d%s, %d", Months[time.tm_mon % 12], time.tm_mday, daySuff, 1900 + time.tm_year);
 
-	lv_label_set_text(clock, clockText);
 	lv_label_set_text(date, dateText);
 }
 
@@ -218,14 +217,12 @@ void LockScreen::buildUI(){
 
 	locker = new Slider(main);
 
-	clock = lv_label_create(mainMid);
-	lv_obj_set_style_text_align(clock, LV_TEXT_ALIGN_CENTER, 0);
-	lv_obj_set_style_text_font(clock, &clockfont, 0);
-	lv_obj_set_style_text_color(clock, lv_color_make(244, 126, 27), 0);
+	clock = new ClockLabelBig(mainMid);
 
 	date = lv_label_create(mainMid);
 	lv_obj_set_size(date, 128, 10);
 	lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
+	lv_obj_set_style_pad_top(date, 2, 0);
 
 	icons = lv_obj_create(mainMid);
 	lv_obj_set_size(icons, 128, 11);

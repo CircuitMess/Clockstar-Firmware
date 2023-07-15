@@ -22,6 +22,7 @@
 #include "Services/ChirpSystem.h"
 #include "Settings/Settings.h"
 #include "Services/Sleep.h"
+#include "UIElements/ClockLabelBig.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -81,6 +82,7 @@ void init(){
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
 	fs->addToCache("/bg.bin");
+	ClockLabelBig::loadCache();
 
 	//TODO - apply settings
 

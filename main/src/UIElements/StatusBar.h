@@ -3,7 +3,7 @@
 
 
 #include "LV_Interface/LVObject.h"
-#include "ClockLabel.h"
+#include "ClockLabelSmall.h"
 #include "Services/Time.h"
 #include "Notifs/Phone.h"
 #include "Util/Events.h"
@@ -26,7 +26,7 @@ private:
 	lv_obj_t* left;
 	lv_obj_t* batPhone;
 	lv_obj_t* phoneIcon;
-	ClockLabel* clock = nullptr;
+	ClockLabelSmall* clock = nullptr;
 	lv_obj_t* batDevice;
 
 	void setPhoneConnected();
