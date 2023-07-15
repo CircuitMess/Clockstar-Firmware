@@ -157,7 +157,16 @@ void Bangle::handle_notify(const std::string& line){
 			ESP_LOGD(TAG, "Missing prop in notif: %s", prop.c_str() + 2);
 			return std::string();
 		}
-		return std::string(val + 1, val + len - 1);
+
+		std::string s = std::string(val + 1, val + len - 1);
+		s = std::regex_replace(s, std::regex("\\\\n"), "\n");
+		s = std::regex_replace(s, std::regex("\\\\r"), "\r");
+		s = std::regex_replace(s, std::regex("\\\\\\"), "\\");
+		s = std::regex_replace(s, std::regex("\\\\t"), "\t");
+		s.erase(std::remove(s.begin(), s.end(), '\r'), s.end());
+		std::replace(s.begin(), s.end(), '\t', ' ');
+
+		return s;
 	};
 
 	double id;
@@ -180,12 +189,6 @@ void Bangle::handle_notify(const std::string& line){
 			.appID = get("src"),
 			.category = Notif::Category::Other,
 	};
-	notif.message = std::regex_replace(notif.message, std::regex("\\\\n"), "\n");
-	notif.message = std::regex_replace(notif.message, std::regex("\\\\r"), "\r");
-	notif.message = std::regex_replace(notif.message, std::regex("\\\\\\"), "\\");
-	notif.message = std::regex_replace(notif.message, std::regex("\\\\t"), "\t");
-	notif.message.erase(std::remove(notif.message.begin(), notif.message.end(), '\r'), notif.message.end());
-	std::replace(notif.message.begin(), notif.message.end(), '\t', ' ');
 
 	ESP_LOGI(TAG, "New notif ID %ld", notif.uid);
 
