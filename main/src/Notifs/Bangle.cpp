@@ -177,7 +177,8 @@ void Bangle::handle_notify(const std::string& line){
 			.title = get("title"),
 			.subtitle = get("subject"),
 			.message = get("body"),
-			.appID = get("src")
+			.appID = get("src"),
+			.category = Notif::Category::Other,
 	};
 	notif.message = std::regex_replace(notif.message, std::regex("\\\\n"), "\n");
 	notif.message = std::regex_replace(notif.message, std::regex("\\\\r"), "\r");

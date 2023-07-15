@@ -3,8 +3,11 @@
 
 static const std::unordered_map<std::string, const char*> appMap = {
 		{ "Messenger", "S:/icon/app_mess.bin" },
-		{ "WhatsApp", "S:/icon/app_wapp.bin" },
-		// TODO
+		{ "WhatsApp",  "S:/icon/app_wapp.bin" },
+		{ "Messages",  "S:/icon/app_sms.bin" },
+		{ "Instagram", "S:/icon/app_inst.bin" },
+		{ "Snapchat",  "S:/icon/app_snap.bin" },
+		{ "TikTok",    "S:/icon/app_tiktok.bin" }
 };
 
 static const std::unordered_map<Notif::Category, const char*> catMap = {
