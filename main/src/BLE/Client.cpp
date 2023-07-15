@@ -100,6 +100,8 @@ void BLE::Client::ble_GATTC_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_i
 void BLE::Client::onConnect(const esp_ble_gattc_cb_param_t::gattc_connect_evt_param* param){
 	memcpy(con.addr, param->remote_bda, 6);
 
+	// Server notifies ConMan, which in turn sets connection parameters
+
 	esp_ble_set_encryption(con.addr, ESP_BLE_SEC_ENCRYPT_MITM);
 	// ble_set_encryption initiates pairing. After the devices complete pairing,
 	// the ESP_GAP_BLE_AUTH_CMPL_EVT comes up (handled by BLE), and BLE calls onPairDone().
@@ -215,5 +217,5 @@ void BLE::Client::close(){
 	con.hndl = 0;
 	memset(con.addr, 0, 6);
 
-	gap->startAdvertising(); // TODO: remove. should be invoked by whatever will encapsulate phone interface classes
+	// Server notifies ConMan, which in turn starts advertising
 }

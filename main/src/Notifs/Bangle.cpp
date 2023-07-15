@@ -4,6 +4,7 @@
 #include <mjson.h>
 #include <esp_log.h>
 #include <cmath>
+#include <regex>
 
 static const char* TAG = "Bangle";
 
@@ -179,6 +180,12 @@ void Bangle::handle_notify(const std::string& line){
 			.appID = get("src"),
 			.category = Notif::Category::Other,
 	};
+	notif.message = std::regex_replace(notif.message, std::regex("\\\\n"), "\n");
+	notif.message = std::regex_replace(notif.message, std::regex("\\\\r"), "\r");
+	notif.message = std::regex_replace(notif.message, std::regex("\\\\\\"), "\\");
+	notif.message = std::regex_replace(notif.message, std::regex("\\\\t"), "\t");
+	notif.message.erase(std::remove(notif.message.begin(), notif.message.end(), '\r'), notif.message.end());
+	std::replace(notif.message.begin(), notif.message.end(), '\t', ' ');
 
 	ESP_LOGI(TAG, "New notif ID %ld", notif.uid);
 
