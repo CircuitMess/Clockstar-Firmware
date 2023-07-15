@@ -222,6 +222,7 @@ void LockScreen::buildUI(){
 	date = lv_label_create(mainMid);
 	lv_obj_set_size(date, 128, 10);
 	lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
+	lv_obj_set_style_pad_top(date, 2, 0);
 
 	icons = lv_obj_create(mainMid);
 	lv_obj_set_size(icons, 128, 11);
