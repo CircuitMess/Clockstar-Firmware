@@ -1,6 +1,7 @@
 #include "GAP.h"
 #include "Client.h"
 #include "Server.h"
+#include "ConMan.h"
 #include <esp_log.h>
 #include <esp_gap_ble_api.h>
 #include <esp_gatt_common_api.h>
@@ -51,6 +52,10 @@ void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* 
 	// TODO: handle ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT -> contains connection parameters (min & max interval, etc.)
 
 	switch(event){
+		case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
+			ConMan.confDone(param->update_conn_params.status == ESP_BT_STATUS_SUCCESS);
+			break;
+
 		case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
 			configDone(Config::ScanResponse);
 			break;
@@ -108,7 +113,7 @@ void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* 
 void BLE::GAP::configDone(Config config){
 	configsDone.insert(config);
 	if(configsDone.size() == (int) Config::COUNT){
-		this->startAdvertising();
+		ConMan.disconnect(); // Starts advertising
 	}
 }
 

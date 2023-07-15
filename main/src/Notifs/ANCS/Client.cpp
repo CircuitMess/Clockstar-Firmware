@@ -1,6 +1,7 @@
 #include "Client.h"
 #include <cstring>
 #include <esp_log.h>
+#include <regex>
 
 static const char* TAG = "ANCS";
 
@@ -155,6 +156,17 @@ void ANCS::Client::processData(bool sendIncomplete){
 				.label = { .pos = get(PositiveActionLabel), .neg = get(NegativeActionLabel) },
 				.category = (Notif::Category) nd.category // TODO: Currently, Notif categories map 1:1 to ANCS categories. In the future, mapping will be needed
 		};
+
+		if(AppIDMap.count(notif.appID)){
+			notif.appID = AppIDMap.at(notif.appID);
+		}
+
+		notif.message = std::regex_replace(notif.message, std::regex("\\\\n"), "\n");
+		notif.message = std::regex_replace(notif.message, std::regex("\\\\r"), "\r");
+		notif.message = std::regex_replace(notif.message, std::regex("\\\\\\"), "\\");
+		notif.message = std::regex_replace(notif.message, std::regex("\\\\t"), "\t");
+		notif.message.erase(std::remove(notif.message.begin(), notif.message.end(), '\r'), notif.message.end());
+		std::replace(notif.message.begin(), notif.message.end(), '\t', ' ');
 
 		ESP_LOGI(TAG, "Sending notif 0x%lx. Modify: %d\n", nd.uid, nd.modify);
 		if(nd.modify){

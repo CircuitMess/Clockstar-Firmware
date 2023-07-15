@@ -4,6 +4,7 @@
 #include "Services/Time.h"
 #include "Util/stdafx.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "Services/Sleep.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
@@ -15,6 +16,11 @@ LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((
 		auto scr = static_cast<LockScreen*>(evt->user_data);
 		scr->locker->stop();
 	}, LV_EVENT_DEFOCUSED, this);
+
+	lv_obj_add_event_cb(main, [](lv_event_t* evt){
+		auto scr = static_cast<LockScreen*>(evt->user_data);
+		scr->locker->activity();
+	}, LV_EVENT_FOCUSED, this);
 }
 
 LockScreen::~LockScreen(){
@@ -25,6 +31,16 @@ void LockScreen::onStarting(){
 	lv_obj_scroll_to(rest, 0, 0, LV_ANIM_OFF);
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
+
+	for(const auto& notif : notifs){
+		notifRem(notif.first);
+	}
+
+	for(const auto& notif : phone.getNotifs()){
+		if(notifs.count(notif.uid) != 0){
+			notifAdd(notif);
+		}
+	}
 
 	updateTime(ts.getTime());
 }
@@ -68,9 +84,31 @@ void LockScreen::processInput(const Input::Data& evt){
 
 	if(evt.btn == Input::Alt){
 		if(evt.action == Input::Data::Press){
+			if(millis() - wakeTime <= 200){
+				wakeTime = 0;
+				return;
+			}
+
 			locker->start();
+			altPress = millis();
 		}else if(evt.action == Input::Data::Release){
 			locker->stop();
+
+			if(altPress != 0 && millis() - altPress < 200){
+				altPress = 0;
+
+				auto sleep = (Sleep*) Services.get(Service::Sleep);
+				sleep->sleep([this](){
+					locker->hide();
+					status->loop();
+					updateTime(ts.getTime());
+					// TODO: process all (Phone) events
+					// TODO: separate queue for Phone events, so that Time and Input event queues can be reset on wake
+					// TODO: trigger a single LVGL timer tick, so the screen gets pushed to display before backlight comes on
+				});
+
+				wakeTime = millis();
+			}
 		}
 	}
 }
@@ -102,10 +140,10 @@ void LockScreen::notifAdd(const Notif& notif){
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
 
-		notifs.insert(std::make_pair(notif.uid, NotifEl {
-			.notif = notif,
-			.icon = icon,
-			.item = std::move(item)
+		notifs.insert(std::make_pair(notif.uid, NotifEl{
+				.notif = notif,
+				.icon = icon,
+				.item = std::move(item)
 		}));
 	}else{
 		notifs[notif.uid].notif = notif;

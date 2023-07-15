@@ -77,6 +77,9 @@ private:
 	static constexpr uint32_t TimeUpdateInterval = 200;
 	uint64_t lastTimeUpdate = 0;
 
+	uint32_t altPress = 0;
+	uint32_t wakeTime = 0;
+
 	void buildUI();
 
 };

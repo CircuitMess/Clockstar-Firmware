@@ -1,4 +1,5 @@
 #include "Item.h"
+#include <regex>
 
 Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(parent), onDismiss(dismiss){
 	lv_obj_set_size(*this, lv_pct(100), LV_SIZE_CONTENT);
@@ -51,7 +52,6 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 
 	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);
-		lv_label_set_long_mode(item->body, LV_LABEL_LONG_SCROLL);
 		lv_obj_set_size(item->body, lv_pct(100), LV_SIZE_CONTENT);
 		lv_obj_clear_flag(item->ctrl, LV_OBJ_FLAG_HIDDEN);
 		lv_group_focus_obj(*item->canc);
@@ -60,10 +60,20 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 
 	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);
-		lv_label_set_long_mode(item->body, LV_LABEL_LONG_DOT);
 		lv_obj_set_size(item->body, lv_pct(100), 8);
 		lv_obj_add_flag(item->ctrl, LV_OBJ_FLAG_HIDDEN);
 	}, LV_EVENT_READY, this);
+
+	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
+		auto item = static_cast<Item*>(evt->user_data);
+		lv_label_set_long_mode(item->body, LV_LABEL_LONG_SCROLL);
+	}, LV_EVENT_FOCUSED, this);
+
+	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
+		auto item = static_cast<Item*>(evt->user_data);
+		lv_label_set_long_mode(item->body, LV_LABEL_LONG_DOT);
+	}, LV_EVENT_DEFOCUSED, this);
+
 
 	ctrl = lv_obj_create(*this);
 	lv_obj_set_size(ctrl, lv_pct(100), LV_SIZE_CONTENT);
@@ -102,7 +112,8 @@ void Item::update(const Notif& notif){
 
 	lv_label_set_text(label, notif.title.c_str());
 
-	// TODO: replace line breaks (two characters: \ and n when coming from Bangle, needs checking from ANCS) with two space characters
-	// if ANCS has proper line breaks, adjust Bangle so it has proper line breaks too
-	lv_label_set_text(body, notif.message.c_str());
+	auto copy = notif.message;
+	copy = std::regex_replace(copy, std::regex("\\\n"), "  ");
+
+	lv_label_set_text(body, copy.c_str());
 }
