@@ -73,6 +73,10 @@ void Threaded::beforeStop(){ }
 
 void Threaded::afterStopSignal(){ }
 
+bool Threaded::running(){
+	return state == Running;
+}
+
 ThreadedClosure::ThreadedClosure(Lambda loopFn, const char* name, size_t stackSize, uint8_t priority, int8_t core) : Threaded(name, stackSize, priority, core), fn(std::move(loopFn)){}
 
 void ThreadedClosure::loop(){

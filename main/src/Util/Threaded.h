@@ -14,6 +14,8 @@ public:
 	void start();
 	void stop(TickType_t wait = portMAX_DELAY);
 
+	bool running();
+
 protected:
 	Threaded(const char* name, size_t stackSize = 12000, uint8_t priority = 5, int8_t core = -1);
 
