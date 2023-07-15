@@ -4,7 +4,7 @@
 
 static const char* TAG = "PMW";
 
-PWM::PWM(uint8_t pin, ledc_channel_t channel) : pin(pin), channel(channel){
+PWM::PWM(uint8_t pin, ledc_channel_t channel, bool invertDuty) : pin(pin), channel(channel), invertDuty(invertDuty){
 
 	ledc_timer_config_t ledc_timer = {
 			.speed_mode       = getSpeedMode(channel),
@@ -65,7 +65,7 @@ void PWM::attach(){
 			.timer_sel      = static_cast<ledc_timer_t>(timer),
 			.duty           = 0,
 			.hpoint         = 0,
-			.flags = { .output_invert = 1 }
+			.flags = { .output_invert = invertDuty }
 	};
 	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 }
