@@ -2,7 +2,7 @@
 #include "LV_Interface/FSLVGL.h"
 
 ClockLabelBig::ClockLabelBig(lv_obj_t* parent) : ClockLabel(parent){
-	lv_obj_set_size(obj, LV_SIZE_CONTENT, Height);
+	lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 	lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
 	lv_obj_set_style_pad_gap(obj, 3, 0);

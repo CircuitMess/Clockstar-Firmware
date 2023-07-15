@@ -17,7 +17,6 @@ private:
 	static constexpr const char* getPath(char c);
 
 	static constexpr uint8_t NumIcons = 5;
-	static constexpr uint8_t Height = 20;
 	lv_obj_t* icons[NumIcons]{};
 
 	static constexpr const char* IconPaths[12] = {
