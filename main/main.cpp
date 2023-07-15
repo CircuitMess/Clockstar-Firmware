@@ -21,6 +21,7 @@
 #include "Screens/Lock/LockScreen.h"
 #include "Services/ChirpSystem.h"
 #include "Settings/Settings.h"
+#include "Services/Sleep.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -68,6 +69,10 @@ void init(){
 
 	auto disp = new Display();
 	auto input = new Input();
+
+	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
+	auto sleep = new Sleep(*input, *time);
+	Services.set(Service::Sleep, sleep);
 
 	auto lvgl = new LVGL(*disp);
 	auto theme = theme_init(lvgl->disp());
