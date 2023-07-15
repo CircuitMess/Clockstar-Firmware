@@ -4,6 +4,7 @@
 #include "Services/Time.h"
 #include "Util/stdafx.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "Services/Sleep.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
@@ -71,9 +72,31 @@ void LockScreen::processInput(const Input::Data& evt){
 
 	if(evt.btn == Input::Alt){
 		if(evt.action == Input::Data::Press){
+			if(millis() - wakeTime <= 200){
+				wakeTime = 0;
+				return;
+			}
+
 			locker->start();
+			altPress = millis();
 		}else if(evt.action == Input::Data::Release){
 			locker->stop();
+
+			if(altPress != 0 && millis() - altPress < 200){
+				altPress = 0;
+
+				auto sleep = (Sleep*) Services.get(Service::Sleep);
+				sleep->sleep([this](){
+					locker->hide();
+					status->loop();
+					updateTime(ts.getTime());
+					// TODO: process all (Phone) events
+					// TODO: separate queue for Phone events, so that Time and Input event queues can be reset on wake
+					// TODO: trigger a single LVGL timer tick, so the screen gets pushed to display before backlight comes on
+				});
+
+				wakeTime = millis();
+			}
 		}
 	}
 }
