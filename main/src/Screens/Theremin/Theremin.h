@@ -12,6 +12,8 @@
 class Theremin : public LVScreen {
 public:
 	Theremin();
+	~Theremin() override;
+
 	void setOrientation(float pitch, float roll);
 
 private:

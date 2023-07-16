@@ -14,6 +14,11 @@ Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)), sem(
 	xSemaphoreGive(sem);
 }
 
+
+Theremin::~Theremin(){
+	vSemaphoreDelete(sem);
+}
+
 void Theremin::setOrientation(float pitch, float roll){
 	pitch = std::clamp(pitch, -AngleConstraint, AngleConstraint);
 	roll = std::clamp(roll, -AngleConstraint, AngleConstraint);
