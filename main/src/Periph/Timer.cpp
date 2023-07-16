@@ -1,6 +1,4 @@
 #include "Timer.h"
-#include <soc/rtc.h>
-#include <utility>
 
 Timer::Timer(uint32_t period, TimerCallback ISR, void* dataPtr) : ISR(ISR), dataPtr(dataPtr){
 
