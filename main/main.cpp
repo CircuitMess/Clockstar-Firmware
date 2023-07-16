@@ -23,6 +23,7 @@
 #include "Settings/Settings.h"
 #include "Services/Sleep.h"
 #include "UIElements/ClockLabelBig.h"
+#include "Devices/Battery.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -60,6 +61,9 @@ void init(){
 	auto server = new BLE::Server(gap);
 	auto phone = new Phone(server, client);
 	server->start();
+
+	auto battery = new Battery();
+	Services.set(Service::Battery, battery);
 
 	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
 	auto audio = new ChirpSystem(*pwm);
