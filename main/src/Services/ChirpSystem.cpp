@@ -56,6 +56,8 @@ void ChirpSystem::play(const Sound& sound){
 			durationSum += constrainedTonePeriod;
 		}
 	}
+	const QueueItem endItem = { QueueItem::Type::Tone, { .tone = { 0, 0 } } };
+	xQueueSend(queue, &endItem, portMAX_DELAY);
 }
 
 void IRAM_ATTR ChirpSystem::playFromISR(std::initializer_list<Chirp> sound){
@@ -101,6 +103,9 @@ void IRAM_ATTR ChirpSystem::playFromISR(const Sound& sound){
 			durationSum += constrainedTonePeriod;
 		}
 	}
+
+	const QueueItem endItem = { QueueItem::Type::Tone, { .tone = { 0, 0 } } };
+	xQueueSendFromISR(queue, &endItem, &xHigherPriorityTaskWoken);
 }
 
 void IRAM_ATTR ChirpSystem::stopFromISR(){
@@ -143,6 +148,11 @@ void ChirpSystem::loop(){
 		while(item.type == QueueItem::Type::ClearTones || (item.type == QueueItem::Type::Tone && item.data.tone.length == 0)){
 			if(item.type == QueueItem::Type::ClearTones){
 				processClearTone(item.data.numToClear);
+			}
+			else if(item.type == QueueItem::Type::Tone){
+				if(item.data.tone.freq == 0){
+					pwm.stop();
+				}
 			}
 			xQueueReceive(queue, &item, portMAX_DELAY);
 		}
