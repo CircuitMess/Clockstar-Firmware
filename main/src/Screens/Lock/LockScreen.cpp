@@ -4,6 +4,8 @@
 #include "Services/Time.h"
 #include "Util/stdafx.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "Services/Sleep.h"
+#include "LV_Interface/FSLVGL.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
@@ -31,6 +33,16 @@ void LockScreen::onStarting(){
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
 
+	for(const auto& notif : notifs){
+		notifRem(notif.first);
+	}
+
+	for(const auto& notif : phone.getNotifs()){
+		if(notifs.count(notif.uid) != 0){
+			notifAdd(notif);
+		}
+	}
+
 	updateTime(ts.getTime());
 }
 
@@ -43,6 +55,8 @@ void LockScreen::loop(){
 	}
 
 	status->loop();
+
+	clock->loop();
 
 	if(millis() - lastTimeUpdate > TimeUpdateInterval){
 		updateTime(ts.getTime());
@@ -71,9 +85,31 @@ void LockScreen::processInput(const Input::Data& evt){
 
 	if(evt.btn == Input::Alt){
 		if(evt.action == Input::Data::Press){
+			if(millis() - wakeTime <= 200){
+				wakeTime = 0;
+				return;
+			}
+
 			locker->start();
+			altPress = millis();
 		}else if(evt.action == Input::Data::Release){
 			locker->stop();
+
+			if(altPress != 0 && millis() - altPress < 200){
+				altPress = 0;
+
+				auto sleep = (Sleep*) Services.get(Service::Sleep);
+				sleep->sleep([this](){
+					locker->hide();
+					status->loop();
+					updateTime(ts.getTime());
+					// TODO: process all (Phone) events
+					// TODO: separate queue for Phone events, so that Time and Input event queues can be reset on wake
+					// TODO: trigger a single LVGL timer tick, so the screen gets pushed to display before backlight comes on
+				});
+
+				wakeTime = millis();
+			}
 		}
 	}
 }
@@ -90,11 +126,10 @@ void LockScreen::processEvt(const Phone::Event& evt){
 }
 
 void LockScreen::notifAdd(const Notif& notif){
-	// TODO: check more icons than fit in single row
 	// TODO: dynamically load needed icons into cache
 
 	if(notifs.count(notif.uid) == 0){
-		lv_obj_t* icon = lv_img_create(icons);
+		addNotifIcon(notif);
 
 		auto uid = notif.uid;
 		auto item = std::make_unique<Item>(rest, [this, uid](){
@@ -105,18 +140,20 @@ void LockScreen::notifAdd(const Notif& notif){
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
 
-		notifs.insert(std::make_pair(notif.uid, NotifEl {
-			.notif = notif,
-			.icon = icon,
-			.item = std::move(item)
+		notifs.insert(std::make_pair(notif.uid, NotifEl{
+				.notif = notif,
+				.item = std::move(item)
 		}));
 	}else{
+		if(iconPath(notifs[notif.uid].notif) != iconPath(notif)){
+			addNotifIcon(notif);
+			removeNotifIcon(notifs[notif.uid].notif);
+		}
 		notifs[notif.uid].notif = notif;
 	}
 
 	NotifEl& el = notifs[notif.uid];
 
-	lv_img_set_src(el.icon, iconPath(notif));
 	el.item->update(notif);
 }
 
@@ -125,21 +162,82 @@ void LockScreen::notifRem(uint32_t id){
 	if(it == notifs.end()) return;
 	auto& el = it->second;
 
+	removeNotifIcon(el.notif);
 	lv_group_focus_next(inputGroup);
-	lv_obj_del(el.icon);
 	notifs.erase(it);
 }
 
 void LockScreen::notifsClear(){
 	notifs.clear(); // This has to precede rest clearing
 	lv_obj_clean(rest);
+	for(auto& [path, icon] : notifIcons){
+		FSLVGL::removeFromCache(path);
+	}
+	notifIcons.clear();
 	lv_obj_clean(icons);
+}
+
+
+void LockScreen::addNotifIcon(const Notif& notif){
+
+	if(!notifIcons.count(iconPath(notif))){
+		if(notifIcons.size() >= MaxIconsCount){
+			if(notifIcons.count(EtcIconPath) == 0){
+				lv_obj_t* icon = lv_img_create(icons);
+				NotifIcon notifIcon = { 1, icon };
+				notifIcons.insert({ EtcIconPath, notifIcon });
+				FSLVGL::addToCache(EtcIconPath, false);
+				lv_img_set_src(icon, EtcIconPath);
+			}
+
+			NotifIcon notifIcon = { 1, nullptr };
+			notifIcons.insert({ iconPath(notif), notifIcon });
+		}else{
+			lv_obj_t* icon = lv_img_create(icons);
+			NotifIcon notifIcon = { 1, icon };
+			notifIcons.insert({ iconPath(notif), notifIcon });
+			FSLVGL::addToCache(iconPath(notif), false);
+			lv_img_set_src(icon, iconPath(notif));
+		}
+	}else{
+		notifIcons[iconPath(notif)].count++;
+	}
+}
+
+void LockScreen::removeNotifIcon(const Notif& notif){
+	if(!notifIcons.count(iconPath(notif))) return;
+
+	auto& notifIcon = notifIcons[iconPath(notif)];
+	if(--notifIcon.count <= 0){
+		if(notifIcon.icon != nullptr){
+			FSLVGL::removeFromCache(iconPath(notif));
+			lv_obj_del(notifIcon.icon);
+		}
+		notifIcons.erase(iconPath(notif));
+		if(notifIcons.count(EtcIconPath)){
+			for(auto& [path, icon] : notifIcons){
+				if(icon.icon == nullptr){
+					icon.icon = lv_img_create(icons);
+					FSLVGL::addToCache(path, false);
+					lv_img_set_src(icon.icon, path);
+					break;
+				}
+			}
+			if(notifIcons.size() - 1 <= MaxIconsCount){
+				auto& etcIcon = notifIcons[EtcIconPath];
+				FSLVGL::removeFromCache(EtcIconPath);
+				lv_obj_del(etcIcon.icon);
+				notifIcons.erase(EtcIconPath);
+			}else{
+				lv_obj_move_to_index(notifIcons[EtcIconPath].icon, -1);
+			}
+		}
+	}
 }
 
 void LockScreen::updateTime(const tm& time){
 	lastTimeUpdate = millis();
 
-	char clockText[128];
 	char dateText[128];
 
 	static const char* Months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
@@ -151,10 +249,8 @@ void LockScreen::updateTime(const tm& time){
 	else if(dayLd == 3) daySuff = "rd";
 	else daySuff = "th";
 
-	snprintf(clockText, sizeof(clockText), "%02d%c%02d", time.tm_hour, time.tm_sec % 2 ? ':' : ' ', time.tm_min);
 	snprintf(dateText, sizeof(dateText), "%s %d%s, %d", Months[time.tm_mon % 12], time.tm_mday, daySuff, 1900 + time.tm_year);
 
-	lv_label_set_text(clock, clockText);
 	lv_label_set_text(date, dateText);
 }
 
@@ -185,14 +281,12 @@ void LockScreen::buildUI(){
 
 	locker = new Slider(main);
 
-	clock = lv_label_create(mainMid);
-	lv_obj_set_style_text_align(clock, LV_TEXT_ALIGN_CENTER, 0);
-	lv_obj_set_style_text_font(clock, &clockfont, 0);
-	lv_obj_set_style_text_color(clock, lv_color_make(244, 126, 27), 0);
+	clock = new ClockLabelBig(mainMid);
 
 	date = lv_label_create(mainMid);
 	lv_obj_set_size(date, 128, 10);
 	lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
+	lv_obj_set_style_pad_top(date, 2, 0);
 
 	icons = lv_obj_create(mainMid);
 	lv_obj_set_size(icons, 128, 11);

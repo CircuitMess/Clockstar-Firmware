@@ -21,8 +21,10 @@
 #include "Screens/Lock/LockScreen.h"
 #include "Services/ChirpSystem.h"
 #include "Settings/Settings.h"
+#include "Services/Sleep.h"
+#include "UIElements/ClockLabelBig.h"
+#include "Devices/Battery.h"
 #include "Services/BacklightBrightness.h"
-#include "Screens/Settings/SettingsScreen.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -61,6 +63,9 @@ void init(){
 	auto phone = new Phone(server, client);
 	server->start();
 
+	auto battery = new Battery();
+	Services.set(Service::Battery, battery);
+
 	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
 	auto audio = new ChirpSystem(*pwm);
 	audio->setMute(!settings->get().notificationSounds);
@@ -72,13 +77,18 @@ void init(){
 	auto disp = new Display();
 	auto input = new Input();
 
+	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
+	auto sleep = new Sleep(*input, *time);
+	Services.set(Service::Sleep, sleep);
+
 	auto lvgl = new LVGL(*disp);
 	auto theme = theme_init(lvgl->disp());
 	lv_disp_set_theme(lvgl->disp(), theme);
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
-	fs->addToCache("/bg.bin");
+	fs->addToCache("/bg.bin", true);
+	ClockLabelBig::loadCache();
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });

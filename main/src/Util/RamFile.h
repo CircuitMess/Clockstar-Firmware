@@ -8,7 +8,7 @@
 
 class RamFile {
 public:
-	RamFile(const char* path);
+	RamFile(const char* path, bool use32bAligned);
 	virtual ~RamFile();
 
 	size_t read(void* dest, size_t len);

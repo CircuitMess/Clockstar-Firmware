@@ -1,5 +1,6 @@
 #include "Battery.h"
 #include "../Pins.hpp"
+#include "Util/Events.h"
 #include <soc/efuse_reg.h>
 #include <Util/stdafx.h>
 #include <cmath>
@@ -34,14 +35,24 @@ bool Battery::isCharging() const{
 	return gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
 }
 
+bool Battery::isCritical() const{
+	return getLevel() == 0;
+}
+
 void Battery::loop(){
 	vTaskDelay(MeasureInverval);
 
 	// TODO: send evt on chrg
 	if(isCharging()){
+		if(!wasCharging){
+			Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = true });
+			batteryLowAlert = false;
+		}
 		wasCharging = true;
 		return;
 	}else if(wasCharging){
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = false });
+
 		wasCharging = false;
 		adc.resetEma();
 		quickSample();
@@ -58,8 +69,14 @@ void Battery::loop(){
 	voltage = mapReading(measureSum / MeasureCount);
 	measureSum = 0;
 	measureCount = 0;
-
 	level = hysteresis.update(getPercentage());
+
+	if(isCritical() && !batteryLowAlert){
+		batteryLowAlert = true;
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow });
+	}else if(!isCritical() && batteryLowAlert){
+		batteryLowAlert = false;
+	}
 }
 
 uint16_t Battery::mapReading(uint16_t reading){

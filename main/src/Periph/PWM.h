@@ -3,6 +3,7 @@
 
 #include <driver/gptimer.h>
 #include <driver/ledc.h>
+#include <esp_attr.h>
 
 /**
  * Duty resolution defaults to 10-bit (usually enough for most uses such as a piezo buzzer or LED dimming).
@@ -36,7 +37,7 @@ public:
 	void setDuty(uint8_t duty); //duty in percentage (0 - 100%)
 	void stop();
 
-	static constexpr bool checkFrequency(uint16_t freq){
+	static constexpr bool IRAM_ATTR checkFrequency(uint16_t freq){
 		uint64_t divParam = 0;
 		uint32_t precision = (0x1 << DutyResDefault); // 2**depth
 
@@ -50,17 +51,16 @@ public:
 
 private:
 	void attach();
-	void detach();
 	uint8_t pin = -1;
 	ledc_channel_t channel = LEDC_CHANNEL_0;
 	static constexpr uint32_t DefaultFreq = 5000;    //placeholder, usually changed before attaching to a channel or pin
 
-	static constexpr ledc_timer_bit_t DutyResDefault = LEDC_TIMER_10_BIT;
-	static constexpr uint32_t FullDuty = (1 << (DutyResDefault - 1)) - 1;
+	static constexpr ledc_timer_bit_t DRAM_ATTR DutyResDefault = LEDC_TIMER_10_BIT;
+	static constexpr uint32_t DRAM_ATTR FullDuty = (1 << (DutyResDefault - 1)) - 1;
 
 	static constexpr ledc_mode_t getSpeedMode(ledc_channel_t channel);
 	static constexpr ledc_timer_t getTimer(ledc_channel_t channel);
-	static constexpr uint32_t src_clk_freq = 80000000; //80 MHz
+	static constexpr uint32_t DRAM_ATTR src_clk_freq = 80000000; //80 MHz
 };
 
 #endif //CIRCUITOS_PIEZO_H
