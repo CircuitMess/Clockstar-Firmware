@@ -5,6 +5,8 @@
 #include "Settings/Settings.h"
 #include "Util/Events.h"
 #include "UIElements/StatusBar.h"
+#include "Services/BacklightBrightness.h"
+#include "Services/ChirpSystem.h"
 
 class BoolElement;
 
@@ -17,15 +19,18 @@ public:
 	SettingsScreen();
 
 private:
+	void onStarting() override;
 	void onStop() override;
 	void loop() override;
 
 	Settings& settings;
+	BacklightBrightness& backlight;
+	ChirpSystem& audio;
 
 	lv_obj_t* bg;
 	lv_obj_t* container;
-	BoolElement* audio;
-	SliderElement* brightness;
+	BoolElement* audioSwitch;
+	SliderElement* brightnessSlider;
 	StatusBar* statusBar;
 	LabelElement* saveAndExit;
 

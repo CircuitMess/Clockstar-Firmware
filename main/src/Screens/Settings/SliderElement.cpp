@@ -58,7 +58,7 @@ SliderElement::SliderElement(lv_obj_t* parent, const char* name, std::function<v
 
 	lv_obj_add_event_cb(slider, [](lv_event_t* e){
 		auto element = static_cast<SliderElement*>(e->user_data);
-		element->value = lv_slider_get_value(element->slider);
+		element->value = lv_slider_get_value(element->slider) * MaxValue / SliderRange;
 		if(element->cb) element->cb(element->value);
 	}, LV_EVENT_VALUE_CHANGED, this);
 
@@ -72,7 +72,7 @@ SliderElement::SliderElement(lv_obj_t* parent, const char* name, std::function<v
 
 void SliderElement::setValue(uint8_t value){
 	this->value = value;
-	lv_slider_set_value(slider, value * SliderRange / 255, LV_ANIM_OFF);
+	lv_slider_set_value(slider, value * SliderRange / MaxValue, LV_ANIM_OFF);
 }
 
 uint8_t SliderElement::getValue() const{

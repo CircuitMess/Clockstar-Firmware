@@ -42,6 +42,12 @@ void PWM::setFreq(uint16_t freq){
 	ledc_update_duty(group, channel);
 }
 
+void PWM::setDuty(uint8_t duty){
+	auto group = getSpeedMode(channel);
+	ledc_set_duty(group, channel, FullDuty * duty / 100);
+	ledc_update_duty(group, channel);
+}
+
 void PWM::stop(){
 	if(pin == (uint8_t) -1) return;
 	ledc_stop(getSpeedMode(channel), channel, 0);
