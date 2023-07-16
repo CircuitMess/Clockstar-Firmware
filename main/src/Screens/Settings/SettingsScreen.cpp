@@ -63,11 +63,10 @@ void SettingsScreen::onStop(){
 	settings.set(savedSettings);
 
 	backlight.setBrightness(brightnessSlider->getValue());
-	audio.setMute(audioSwitch->getValue());
+	audio.setMute(!savedSettings.notificationSounds);
 }
 
 void SettingsScreen::onStarting(){
 	brightnessSlider->setValue(settings.get().screenBrightness);
 	audioSwitch->setValue(settings.get().notificationSounds);
 }
-
