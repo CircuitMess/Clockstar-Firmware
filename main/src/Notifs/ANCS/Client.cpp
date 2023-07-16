@@ -163,7 +163,7 @@ void ANCS::Client::processData(bool sendIncomplete){
 
 		notif.message = std::regex_replace(notif.message, std::regex("\\\\n"), "\n");
 		notif.message = std::regex_replace(notif.message, std::regex("\\\\r"), "\r");
-		notif.message = std::regex_replace(notif.message, std::regex("\\\\\\"), "\\");
+		notif.message = std::regex_replace(notif.message, std::regex(R"(\\\\)"), "\\");
 		notif.message = std::regex_replace(notif.message, std::regex("\\\\t"), "\t");
 		notif.message.erase(std::remove(notif.message.begin(), notif.message.end(), '\r'), notif.message.end());
 		std::replace(notif.message.begin(), notif.message.end(), '\t', ' ');
