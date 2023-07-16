@@ -4,7 +4,7 @@
 #include "Util/Threaded.h"
 #include "Devices/RTC.h"
 
-class Time : private Threaded {
+class Time : public SleepyThreaded {
 public:
 	Time(RTC& rtc);
 	~Time();
@@ -30,7 +30,12 @@ private:
 
 	time_t time;
 
-	void loop() override;
+	void sleepyLoop() override;
+	tm updateFromRTC();
+
+	// Hide public functions
+	using Threaded::start;
+	using Threaded::stop;
 
 };
 

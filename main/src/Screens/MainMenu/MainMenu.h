@@ -7,6 +7,7 @@
 #include "UIElements/StatusBar.h"
 #include "MenuItem.h"
 #include "Notifs/Phone.h"
+#include "Devices/Input.h"
 
 class MainMenu : public LVScreen {
 public:
@@ -46,6 +47,8 @@ private:
 
 	void onClick();
 
+	void handlePhoneChange(Phone::Event& event);
+	void handleInput(Input::Data& event);
 };
 
 

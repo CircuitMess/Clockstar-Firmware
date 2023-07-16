@@ -56,4 +56,28 @@ protected:
 
 };
 
+class SleepyThreaded : public Threaded {
+public:
+	virtual ~SleepyThreaded();
+
+	void pause();
+	void resume();
+
+protected:
+	SleepyThreaded(TickType_t loopInterval, const char* name, size_t stackSize = 12000, uint8_t priority = 5, int8_t core = -1);
+
+	void resetTime();
+	virtual void sleepyLoop() = 0;
+
+private:
+	const TickType_t SleepTime;
+	TickType_t lastLoop = 0;
+
+	SemaphoreHandle_t pauseSem;
+	bool paused = false;
+
+	void loop() final;
+
+};
+
 #endif //CLOCKSTAR_FIRMWARE_THREADED_H
