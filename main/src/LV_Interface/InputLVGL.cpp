@@ -36,9 +36,10 @@ void InputLVGL::loop(){
 	Event event{};
 
 	if(queue.get(event, portMAX_DELAY)){
-		auto inputData = *((Input::Data*) event.data);
-		lastKey = inputData.btn;
-		action = inputData.action;
+		auto inputData = ((Input::Data*) event.data);
+		lastKey = inputData->btn;
+		action = inputData->action;
+		free(event.data);
 	}
 }
 

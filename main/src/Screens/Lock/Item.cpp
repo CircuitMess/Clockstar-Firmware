@@ -1,5 +1,4 @@
 #include "Item.h"
-#include <regex>
 
 Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(parent), onDismiss(dismiss){
 	lv_obj_set_size(*this, lv_pct(100), LV_SIZE_CONTENT);
