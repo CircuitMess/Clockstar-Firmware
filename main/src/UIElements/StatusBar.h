@@ -3,7 +3,7 @@
 
 
 #include "LV_Interface/LVObject.h"
-#include "ClockLabel.h"
+#include "ClockLabelSmall.h"
 #include "Services/Time.h"
 #include "Notifs/Phone.h"
 #include "Util/Events.h"
@@ -13,6 +13,7 @@
 class StatusBar : public LVObject {
 public:
 	explicit StatusBar(lv_obj_t* parent, bool showClock = true);
+
 	void loop();
 
 private:
@@ -26,7 +27,7 @@ private:
 	lv_obj_t* left;
 	BatteryElement* batPhone;
 	lv_obj_t* phoneIcon;
-	ClockLabel* clock = nullptr;
+	ClockLabelSmall* clock = nullptr;
 	BatteryElement* batDevice;
 
 	void setPhoneConnected();

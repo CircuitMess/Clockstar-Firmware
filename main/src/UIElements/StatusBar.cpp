@@ -20,7 +20,7 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 	phoneIcon = lv_img_create(left);
 
 	if(showClock){
-		clock = new ClockLabel(*this);
+		clock = new ClockLabelSmall(*this);
 		lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
 		lv_obj_center(*clock);
 	}

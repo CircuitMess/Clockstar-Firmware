@@ -6,6 +6,7 @@
 #include <freertos/queue.h>
 #include <unordered_map>
 #include <unordered_set>
+#include <mutex>
 
 enum class Facility { Input, Motion, Phone, Time, Battery };
 
@@ -34,6 +35,7 @@ public:
 
 private:
 	static std::unordered_map<Facility, std::unordered_set<EventQueue*>> queues;
+	static std::mutex mut;
 
 };
 

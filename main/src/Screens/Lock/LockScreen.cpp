@@ -4,6 +4,7 @@
 #include "Services/Time.h"
 #include "Util/stdafx.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "Services/Sleep.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
@@ -31,6 +32,16 @@ void LockScreen::onStarting(){
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
 
+	for(const auto& notif : notifs){
+		notifRem(notif.first);
+	}
+
+	for(const auto& notif : phone.getNotifs()){
+		if(notifs.count(notif.uid) != 0){
+			notifAdd(notif);
+		}
+	}
+
 	updateTime(ts.getTime());
 }
 
@@ -43,6 +54,8 @@ void LockScreen::loop(){
 	}
 
 	status->loop();
+
+	clock->loop();
 
 	if(millis() - lastTimeUpdate > TimeUpdateInterval){
 		updateTime(ts.getTime());
@@ -71,9 +84,31 @@ void LockScreen::processInput(const Input::Data& evt){
 
 	if(evt.btn == Input::Alt){
 		if(evt.action == Input::Data::Press){
+			if(millis() - wakeTime <= 200){
+				wakeTime = 0;
+				return;
+			}
+
 			locker->start();
+			altPress = millis();
 		}else if(evt.action == Input::Data::Release){
 			locker->stop();
+
+			if(altPress != 0 && millis() - altPress < 200){
+				altPress = 0;
+
+				auto sleep = (Sleep*) Services.get(Service::Sleep);
+				sleep->sleep([this](){
+					locker->hide();
+					status->loop();
+					updateTime(ts.getTime());
+					// TODO: process all (Phone) events
+					// TODO: separate queue for Phone events, so that Time and Input event queues can be reset on wake
+					// TODO: trigger a single LVGL timer tick, so the screen gets pushed to display before backlight comes on
+				});
+
+				wakeTime = millis();
+			}
 		}
 	}
 }
@@ -105,10 +140,10 @@ void LockScreen::notifAdd(const Notif& notif){
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
 
-		notifs.insert(std::make_pair(notif.uid, NotifEl {
-			.notif = notif,
-			.icon = icon,
-			.item = std::move(item)
+		notifs.insert(std::make_pair(notif.uid, NotifEl{
+				.notif = notif,
+				.icon = icon,
+				.item = std::move(item)
 		}));
 	}else{
 		notifs[notif.uid].notif = notif;
@@ -139,7 +174,6 @@ void LockScreen::notifsClear(){
 void LockScreen::updateTime(const tm& time){
 	lastTimeUpdate = millis();
 
-	char clockText[128];
 	char dateText[128];
 
 	static const char* Months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
@@ -151,10 +185,8 @@ void LockScreen::updateTime(const tm& time){
 	else if(dayLd == 3) daySuff = "rd";
 	else daySuff = "th";
 
-	snprintf(clockText, sizeof(clockText), "%02d%c%02d", time.tm_hour, time.tm_sec % 2 ? ':' : ' ', time.tm_min);
 	snprintf(dateText, sizeof(dateText), "%s %d%s, %d", Months[time.tm_mon % 12], time.tm_mday, daySuff, 1900 + time.tm_year);
 
-	lv_label_set_text(clock, clockText);
 	lv_label_set_text(date, dateText);
 }
 
@@ -185,14 +217,12 @@ void LockScreen::buildUI(){
 
 	locker = new Slider(main);
 
-	clock = lv_label_create(mainMid);
-	lv_obj_set_style_text_align(clock, LV_TEXT_ALIGN_CENTER, 0);
-	lv_obj_set_style_text_font(clock, &clockfont, 0);
-	lv_obj_set_style_text_color(clock, lv_color_make(244, 126, 27), 0);
+	clock = new ClockLabelBig(mainMid);
 
 	date = lv_label_create(mainMid);
 	lv_obj_set_size(date, 128, 10);
 	lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
+	lv_obj_set_style_pad_top(date, 2, 0);
 
 	icons = lv_obj_create(mainMid);
 	lv_obj_set_size(icons, 128, 11);

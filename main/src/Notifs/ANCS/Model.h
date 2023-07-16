@@ -2,6 +2,8 @@
 #define CLOCKSTAR_FIRMWARE_MODEL_H
 
 #include <unordered_set>
+#include <map>
+#include <string>
 
 namespace ANCS {
 	enum Error {
@@ -59,6 +61,15 @@ namespace ANCS {
 		Location = 10,
 		Entertainment = 11,
 		// Reserved CategoryID values = 12–255
+	};
+
+	static const std::map<std::string, std::string> AppIDMap = {
+			{ "com.apple.MobileSMS",      "Messages" },
+			{ "com.facebook.Messenger",   "Messenger" },
+			{ "net.whatsapp.WhatsApp",    "WhatsApp" },
+			{ "com.burbn.instagram",      "Instagram" },
+			{ "com.toyopagroup.picaboo",  "Snapchat" },
+			{ "com.zhiliaoapp.musically", "TikTok" }
 	};
 
 	const char* labelError(Error error);

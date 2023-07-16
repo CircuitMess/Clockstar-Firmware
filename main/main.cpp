@@ -19,6 +19,10 @@
 #include <lvgl/lvgl.h>
 #include "Theme/theme.h"
 #include "Screens/Lock/LockScreen.h"
+#include "Services/ChirpSystem.h"
+#include "Settings/Settings.h"
+#include "Services/Sleep.h"
+#include "UIElements/ClockLabelBig.h"
 #include "Devices/Battery.h"
 
 void init(){
@@ -41,6 +45,9 @@ void init(){
 	auto bl = new PinOut(PIN_BL, true);
 	bl->on();
 
+	auto settings = new Settings();
+	Services.set(Service::Settings, settings);
+
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto rtc = new RTC(*i2c);
 	auto imu = new IMU(*i2c);
@@ -56,13 +63,21 @@ void init(){
 	server->start();
 
 	auto battery = new Battery();
-
 	Services.set(Service::Battery, battery);
+
+	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
+	auto audio = new ChirpSystem(*pwm);
+
+	Services.set(Service::Audio, audio);
 	Services.set(Service::IMU, imu);
 	Services.set(Service::Phone, phone);
 
 	auto disp = new Display();
 	auto input = new Input();
+
+	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
+	auto sleep = new Sleep(*input, *time);
+	Services.set(Service::Sleep, sleep);
 
 	auto lvgl = new LVGL(*disp);
 	auto theme = theme_init(lvgl->disp());
@@ -71,6 +86,9 @@ void init(){
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
 	fs->addToCache("/bg.bin");
+	ClockLabelBig::loadCache();
+
+	//TODO - apply settings
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
