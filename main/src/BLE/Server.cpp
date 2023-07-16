@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "GAP.h"
+#include "ConMan.h"
 #include <esp_log.h>
 #include <esp_gatts_api.h>
 #include <algorithm>
@@ -201,16 +202,7 @@ void BLE::Server::onConnect(const esp_ble_gatts_cb_param_t::gatts_connect_evt_pa
 	// Client will initiate pairing, after which onPairDone() is called
 	// Here, we only set up the connection parameters
 
-	/* For the IOS system, please reference the apple official documents about the ble connection parameters restrictions. */
-	esp_ble_conn_update_params_t conn_params = {
-			.min_int = 0x10, // min_int = 0x10*1.25ms = 20ms, -- 800 for light sleep
-			.max_int = 0x20, // max_int = 0x20*1.25ms = 40ms, -- 800 for light sleep
-			.latency = 0,
-			.timeout = 400 // timeout = 400*10ms = 4000ms -- 500 for light sleep
-	};
-	memcpy(conn_params.bda, param->remote_bda, 6);
-
-	esp_ble_gap_update_conn_params(&conn_params);
+	ConMan.connect(param->remote_bda);
 
 	if(onConnectCB){
 		onConnectCB(con.addr);
@@ -222,7 +214,7 @@ void BLE::Server::onDisconnect(const esp_ble_gatts_cb_param_t::gatts_disconnect_
 	memset(con.addr, 0, 6);
 	con.hndl = 0xffff;
 
-	gap->startAdvertising(); // TODO: remove. should be invoked by whatever will encapsulate phone interface classes
+	ConMan.disconnect();
 
 	if(onDisconnectCB){
 		onDisconnectCB(con.addr);

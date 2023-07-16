@@ -1,7 +1,8 @@
 #include "StatusBar.h"
 #include "Util/Services.h"
 
-StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
+StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))),
+														 battery(*((Battery*) Services.get(Service::Battery))), queue(12){
 	lv_obj_set_size(*this, 128, 15);
 	lv_obj_set_style_pad_ver(*this, 2, 0);
 	lv_obj_set_style_pad_hor(*this, 3, 0);
@@ -15,25 +16,29 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 	lv_obj_set_flex_flow(left, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(left, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	batPhone = lv_img_create(left);
+	batPhone = new BatteryElement(left);
 	phoneIcon = lv_img_create(left);
 
 	if(showClock){
-		clock = new ClockLabel(*this);
+		clock = new ClockLabelSmall(*this);
 		lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
 		lv_obj_center(*clock);
 	}
 
-	batDevice = lv_img_create(*this);
+	batDevice = new BatteryElement(*this);
 
 	// Events::listen(Facility::Phone, &queue); TODO: uncomment once evnet processing is actually hapening
+	Events::listen(Facility::Battery, &queue);
 
 	setPhoneConnected();
 	setPhoneBattery();
-	setDeviceBattery();
-
-	// TODO: blink battery icon when below 5% battery
-	// TODO: play "charging" animation when charging - all level icons looped with ~500ms between them
+	if(battery.isCharging()){
+		batDevice->set(BatteryElement::Charging);
+	}else if(battery.getPercentage() < 5){
+		batDevice->set(BatteryElement::Empty);
+	}else{
+		setDeviceBattery();
+	}
 }
 
 void StatusBar::loop(){
@@ -45,11 +50,33 @@ void StatusBar::loop(){
 		setPhoneConnected();
 	}
 
-	if(perBatPhone != 0 /*phone.battery*/){
+	if(batPhone->getLevel() != 0 /*phone.battery*/){
 		setPhoneBattery();
 	}
 
-	if(perBatDevice != 0 /*battery.perc*/){
+
+	Event event{};
+	if(queue.get(event, 0)){
+		if(event.facility == Facility::Battery){
+			auto data = (Battery::Event*) event.data;
+			if(data->action == Battery::Event::BatteryLow){
+				batDevice->set(BatteryElement::Empty);
+			}else if(data->action == Battery::Event::Charging){
+				if(data->chargeStatus){
+					batDevice->set(BatteryElement::Charging);
+				}else{
+					setDeviceBattery();
+				}
+			}
+		}
+	}
+
+	batDevice->loop();
+	batPhone->loop();
+
+	if(batDevice->getLevel() == BatteryElement::Charging) return;
+
+	if(batDevice->getLevel() != getLevel(battery.getLevel())){
 		setDeviceBattery();
 	}
 }
@@ -59,27 +86,26 @@ void StatusBar::setPhoneConnected(){
 
 	if(connected){
 		lv_img_set_src(phoneIcon, "S:/icons/phone.bin");
-		lv_obj_clear_flag(batPhone, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_clear_flag(*batPhone, LV_OBJ_FLAG_HIDDEN);
 	}else{
 		lv_img_set_src(phoneIcon, "S:/icons/phoneDisconnected.bin");
-		lv_obj_add_flag(batPhone, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(*batPhone, LV_OBJ_FLAG_HIDDEN);
 	}
 
 	lv_obj_refr_size(left);
 }
 
 void StatusBar::setPhoneBattery(){
-	perBatPhone = 0; // phone.battery
-	lv_img_set_src(batPhone, percentToIcon(perBatPhone));
+	batPhone->set(getLevel(0 /* phone level */));
 }
 
 void StatusBar::setDeviceBattery(){
-	perBatDevice = 0; // phone.battery
-	lv_img_set_src(batDevice, percentToIcon(perBatDevice));
+	batDevice->set(getLevel(battery.getLevel()));
 }
 
-const char* StatusBar::percentToIcon(uint8_t percent){
-	if(percent >= 75) return "S:/icons/batteryFull.bin";
-	else if(percent >= 25) return "S:/icons/batteryMid.bin";
-	else return "S:/icons/batteryLow.bin";
+BatteryElement::Level StatusBar::getLevel(uint8_t level){
+	if(level >= 3) return BatteryElement::Full;
+	else if(level >= 2) return BatteryElement::Mid;
+	else if(level >= 1) return BatteryElement::Low;
+	else return BatteryElement::Empty;
 }

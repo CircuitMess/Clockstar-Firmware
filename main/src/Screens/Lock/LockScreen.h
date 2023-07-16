@@ -9,6 +9,7 @@
 #include "UIElements/StatusBar.h"
 #include "Slider.h"
 #include "Devices/Input.h"
+#include "UIElements/ClockLabelBig.h"
 
 class LockScreen : public LVScreen {
 public:
@@ -39,7 +40,7 @@ private:
 	lv_obj_t* mainTop;
 
 	lv_obj_t* mainMid;
-	lv_obj_t* clock;
+	ClockLabelBig* clock;
 	lv_obj_t* date;
 	lv_obj_t* icons;
 
@@ -85,6 +86,9 @@ private:
 	void updateTime(const tm& time);
 	static constexpr uint32_t TimeUpdateInterval = 200;
 	uint64_t lastTimeUpdate = 0;
+
+	uint32_t altPress = 0;
+	uint32_t wakeTime = 0;
 
 	void buildUI();
 

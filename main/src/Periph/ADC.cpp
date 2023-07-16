@@ -3,7 +3,7 @@
 #include <esp_log.h>
 #include <algorithm>
 
-const char* TAG = "ADC";
+static const char* TAG = "ADC";
 
 ADC::ADC(gpio_num_t pin, float ema_a, int min, int max) : pin(pin), ema_a(ema_a), min(min), max(max){
 	if(pin != GPIO_NUM_36){

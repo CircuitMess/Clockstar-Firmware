@@ -3,10 +3,12 @@
 
 
 #include "LV_Interface/LVObject.h"
-#include "ClockLabel.h"
+#include "ClockLabelSmall.h"
 #include "Services/Time.h"
 #include "Notifs/Phone.h"
 #include "Util/Events.h"
+#include "Devices/Battery.h"
+#include "BatteryElement.h"
 
 class StatusBar : public LVObject {
 public:
@@ -16,24 +18,23 @@ public:
 
 private:
 	Phone& phone;
+	Battery& battery;
 
 	EventQueue queue;
 
 	bool connected = false;
-	uint8_t perBatPhone = 0;
-	uint8_t perBatDevice = 0;
 
 	lv_obj_t* left;
-	lv_obj_t* batPhone;
+	BatteryElement* batPhone;
 	lv_obj_t* phoneIcon;
-	ClockLabel* clock = nullptr;
-	lv_obj_t* batDevice;
+	ClockLabelSmall* clock = nullptr;
+	BatteryElement* batDevice;
 
 	void setPhoneConnected();
 	void setPhoneBattery();
 	void setDeviceBattery();
 
-	static const char* percentToIcon(uint8_t percent);
+	static BatteryElement::Level getLevel(uint8_t level);
 };
 
 
