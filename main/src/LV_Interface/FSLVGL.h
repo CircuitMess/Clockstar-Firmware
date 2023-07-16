@@ -18,7 +18,7 @@ public:
 	 * @param use32bAligned Choose to use ESP32's IRAM or not. Defaults to False.
 	 * 						Useful if caching 4-byte palette sprites for example, but will throw LoadStoreError if data isn't accesed in 32-bit chunks.
 	 */
-	static void addToCache(const char* path, bool use32bAligned);
+	static void addToCache(const char* path, bool use32bAligned = false);
 	static void removeFromCache(const char* path);
 
 private:
