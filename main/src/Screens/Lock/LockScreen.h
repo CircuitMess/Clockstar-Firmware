@@ -58,16 +58,26 @@ private:
 
 	struct NotifEl {
 		Notif notif;
-		lv_obj_t* icon;
 		std::unique_ptr<Item> item;
 	};
 	std::unordered_map<uint32_t, NotifEl> notifs;
+
+	struct NotifIcon {
+		uint32_t count;
+		lv_obj_t* icon;
+	};
+	std::unordered_map<const char*, NotifIcon> notifIcons;
+	static constexpr uint8_t MaxIconsCount = 8;
+	static constexpr const char* EtcIconPath = "S:/icon/etc.bin";
 
 	void onStarting() override;
 
 	void notifAdd(const Notif& notif);
 	void notifRem(uint32_t id);
 	void notifsClear();
+
+	void addNotifIcon(const Notif& notif);
+	void removeNotifIcon(const Notif& notif);
 
 	void loop() override;
 	void processEvt(const Phone::Event& evt);

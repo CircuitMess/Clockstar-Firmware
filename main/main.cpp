@@ -85,7 +85,7 @@ void init(){
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
-	fs->addToCache("/bg.bin");
+	fs->addToCache("/bg.bin", true);
 	ClockLabelBig::loadCache();
 
 	//TODO - apply settings

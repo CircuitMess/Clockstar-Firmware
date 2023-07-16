@@ -5,6 +5,7 @@
 #include "Util/stdafx.h"
 #include "Screens/MainMenu/MainMenu.h"
 #include "Services/Sleep.h"
+#include "LV_Interface/FSLVGL.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
 	buildUI();
@@ -125,11 +126,10 @@ void LockScreen::processEvt(const Phone::Event& evt){
 }
 
 void LockScreen::notifAdd(const Notif& notif){
-	// TODO: check more icons than fit in single row
 	// TODO: dynamically load needed icons into cache
 
 	if(notifs.count(notif.uid) == 0){
-		lv_obj_t* icon = lv_img_create(icons);
+		addNotifIcon(notif);
 
 		auto uid = notif.uid;
 		auto item = std::make_unique<Item>(rest, [this, uid](){
@@ -142,16 +142,18 @@ void LockScreen::notifAdd(const Notif& notif){
 
 		notifs.insert(std::make_pair(notif.uid, NotifEl{
 				.notif = notif,
-				.icon = icon,
 				.item = std::move(item)
 		}));
 	}else{
+		if(iconPath(notifs[notif.uid].notif) != iconPath(notif)){
+			addNotifIcon(notif);
+			removeNotifIcon(notifs[notif.uid].notif);
+		}
 		notifs[notif.uid].notif = notif;
 	}
 
 	NotifEl& el = notifs[notif.uid];
 
-	lv_img_set_src(el.icon, iconPath(notif));
 	el.item->update(notif);
 }
 
@@ -160,15 +162,77 @@ void LockScreen::notifRem(uint32_t id){
 	if(it == notifs.end()) return;
 	auto& el = it->second;
 
+	removeNotifIcon(el.notif);
 	lv_group_focus_next(inputGroup);
-	lv_obj_del(el.icon);
 	notifs.erase(it);
 }
 
 void LockScreen::notifsClear(){
 	notifs.clear(); // This has to precede rest clearing
 	lv_obj_clean(rest);
+	for(auto& [path, icon] : notifIcons){
+		FSLVGL::removeFromCache(path);
+	}
+	notifIcons.clear();
 	lv_obj_clean(icons);
+}
+
+
+void LockScreen::addNotifIcon(const Notif& notif){
+
+	if(!notifIcons.count(iconPath(notif))){
+		if(notifIcons.size() >= MaxIconsCount){
+			if(notifIcons.count(EtcIconPath) == 0){
+				lv_obj_t* icon = lv_img_create(icons);
+				NotifIcon notifIcon = { 1, icon };
+				notifIcons.insert({ EtcIconPath, notifIcon });
+				FSLVGL::addToCache(EtcIconPath, false);
+				lv_img_set_src(icon, EtcIconPath);
+			}
+
+			NotifIcon notifIcon = { 1, nullptr };
+			notifIcons.insert({ iconPath(notif), notifIcon });
+		}else{
+			lv_obj_t* icon = lv_img_create(icons);
+			NotifIcon notifIcon = { 1, icon };
+			notifIcons.insert({ iconPath(notif), notifIcon });
+			FSLVGL::addToCache(iconPath(notif), false);
+			lv_img_set_src(icon, iconPath(notif));
+		}
+	}else{
+		notifIcons[iconPath(notif)].count++;
+	}
+}
+
+void LockScreen::removeNotifIcon(const Notif& notif){
+	if(!notifIcons.count(iconPath(notif))) return;
+
+	auto& notifIcon = notifIcons[iconPath(notif)];
+	if(--notifIcon.count <= 0){
+		if(notifIcon.icon != nullptr){
+			FSLVGL::removeFromCache(iconPath(notif));
+			lv_obj_del(notifIcon.icon);
+		}
+		notifIcons.erase(iconPath(notif));
+		if(notifIcons.count(EtcIconPath)){
+			for(auto& [path, icon] : notifIcons){
+				if(icon.icon == nullptr){
+					icon.icon = lv_img_create(icons);
+					FSLVGL::addToCache(path, false);
+					lv_img_set_src(icon.icon, path);
+					break;
+				}
+			}
+			if(notifIcons.size() - 1 <= MaxIconsCount){
+				auto& etcIcon = notifIcons[EtcIconPath];
+				FSLVGL::removeFromCache(EtcIconPath);
+				lv_obj_del(etcIcon.icon);
+				notifIcons.erase(EtcIconPath);
+			}else{
+				lv_obj_move_to_index(notifIcons[EtcIconPath].icon, -1);
+			}
+		}
+	}
 }
 
 void LockScreen::updateTime(const tm& time){
