@@ -23,6 +23,8 @@
 #include "Settings/Settings.h"
 #include "Services/Sleep.h"
 #include "UIElements/ClockLabelBig.h"
+#include "Devices/Battery.h"
+#include "Services/BacklightBrightness.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -41,8 +43,8 @@ void init(){
 	}
 	ESP_ERROR_CHECK(ret);
 
-	auto bl = new PinOut(PIN_BL, true);
-	bl->on();
+	auto bl = new BacklightBrightness(new PWM(PIN_BL, LEDC_CHANNEL_1));
+	Services.set(Service::Backlight, bl);
 
 	auto settings = new Settings();
 	Services.set(Service::Settings, settings);
@@ -61,8 +63,12 @@ void init(){
 	auto phone = new Phone(server, client);
 	server->start();
 
+	auto battery = new Battery();
+	Services.set(Service::Battery, battery);
+
 	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
 	auto audio = new ChirpSystem(*pwm);
+	audio->setMute(!settings->get().notificationSounds);
 
 	Services.set(Service::Audio, audio);
 	Services.set(Service::IMU, imu);
@@ -81,10 +87,8 @@ void init(){
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
-	fs->addToCache("/bg.bin");
+	fs->addToCache("/bg.bin", true);
 	ClockLabelBig::loadCache();
-
-	//TODO - apply settings
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
@@ -92,6 +96,7 @@ void init(){
 	// Start UI thread after initialization
 	lvgl->start();
 
+	bl->fadeIn();
 }
 
 extern "C" void app_main(void){

@@ -5,7 +5,7 @@
 
 static const char* TAG = "RamFile";
 
-RamFile::RamFile(const char* path) : filePath(path){
+RamFile::RamFile(const char* path, bool use32bAligned = false) : filePath(path){
 	auto file = fopen(path, "rb");
 	if(file == nullptr){
 		ESP_LOGE(TAG, "Couldn't open file: %s", path);
@@ -21,17 +21,19 @@ RamFile::RamFile(const char* path) : filePath(path){
 		fclose(file);
 		return;
 	}
-
-	auto rest = fileSize % 8;
-	auto allocSize = fileSize;
-	if(rest != 0){
-		allocSize += (8 - rest);
+	size_t allocSize = fileSize;
+	if(use32bAligned){
+		auto rest = fileSize % 4;
+		if(rest != 0){
+			allocSize += (4 - rest);
+		}
 	}
 
-	data = (uint8_t*) heap_caps_malloc(allocSize, MALLOC_CAP_INTERNAL | MALLOC_CAP_32BIT);
+	data = (uint8_t*) heap_caps_malloc(allocSize, MALLOC_CAP_INTERNAL | (use32bAligned ? MALLOC_CAP_32BIT : MALLOC_CAP_8BIT));
 	if(data == nullptr){
 		fileSize = 0;
-		ESP_LOGE(TAG, "Couldn't allocate memory for %s. Need %zu B, largest block: %zu B", path, allocSize, heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_32BIT));
+		ESP_LOGE(TAG, "Couldn't allocate memory for %s. Need %zu B, largest block: %zu B", path, allocSize,
+				 heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | (use32bAligned ? MALLOC_CAP_32BIT : MALLOC_CAP_8BIT)));
 		fclose(file);
 		return;
 	}

@@ -11,13 +11,15 @@ PWM::PWM(uint8_t pin, ledc_channel_t channel) : pin(pin), channel(channel){
 			.duty_resolution  = DutyResDefault,
 			.timer_num        = getTimer(channel),
 			.freq_hz          = DefaultFreq,
-			.clk_cfg          = LEDC_AUTO_CLK
+			.clk_cfg          = LEDC_AUTO_CLK,
+			.deconfigure      = false
 	};
 	if(ledc_timer_config(&ledc_timer) != ESP_OK){
 		ESP_LOGE(TAG, "timer config failed!");
 		return;
 	}
 	attach();
+	ledc_stop(getSpeedMode(channel), channel, 0);
 }
 
 PWM::~PWM(){
@@ -37,35 +39,36 @@ void PWM::setFreq(uint16_t freq){
 	auto timer = getTimer(channel);
 
 	ledc_set_freq(group, timer, freq);
-	ledc_set_duty(group, channel, FullDuty);
+	ledc_update_duty(group, channel);
+}
+
+void PWM::setDuty(uint8_t duty){
+	auto group = getSpeedMode(channel);
+	ledc_set_duty(group, channel, FullDuty * duty / 100);
 	ledc_update_duty(group, channel);
 }
 
 void PWM::stop(){
 	if(pin == (uint8_t) -1) return;
-	detach();
+	ledc_stop(getSpeedMode(channel), channel, 0);
 }
 
 void PWM::attach(){
 	if(pin == (uint8_t) -1) return;
 
-	uint8_t group = (channel / 8);
-	uint8_t timer = ((channel / 2) % 4);
 	ledc_channel_config_t ledc_channel = {
 			.gpio_num       = pin,
-			.speed_mode     = static_cast<ledc_mode_t>(group),
+			.speed_mode     = getSpeedMode(channel),
 			.channel        = channel,
 			.intr_type      = LEDC_INTR_DISABLE,
-			.timer_sel      = static_cast<ledc_timer_t>(timer),
+			.timer_sel      = getTimer(channel),
 			.duty           = 0,
 			.hpoint         = 0,
 			.flags = { .output_invert = 1 }
 	};
 	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
-}
 
-void PWM::detach(){
-	ledc_stop(getSpeedMode(channel), channel, 0);
+	ledc_set_duty(getSpeedMode(channel), channel, FullDuty);
 }
 
 constexpr ledc_mode_t PWM::getSpeedMode(ledc_channel_t channel){

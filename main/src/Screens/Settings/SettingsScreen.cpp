@@ -6,7 +6,8 @@
 #include "SliderElement.h"
 #include "LabelElement.h"
 
-SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)){
+SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
+								   audio(*(ChirpSystem*) Services.get(Service::Audio)){
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
 
 
@@ -32,19 +33,18 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 
 	auto startingSettings = settings.get();
 
-	audio = new BoolElement(container, "Sound", [this](bool value){
-		printf("value changed %d\n", value);
+	audioSwitch = new BoolElement(container, "Sound", [this](bool value){
+		audio.setMute(!audioSwitch->getValue());
 		if(value){
-			//TODO - set audio mute/unmute
-			//TODO - add piezo beep on toggle     tone(NOTE_C5, 25);
+			audio.play({ { 523, 523, 25 } });
 		}
 	}, startingSettings.notificationSounds);
-	lv_group_add_obj(inputGroup, *audio);
+	lv_group_add_obj(inputGroup, *audioSwitch);
 
-	brightness = new SliderElement(container, "Brightness", [this](bool value){
-		//TODO - set brightness
+	brightnessSlider = new SliderElement(container, "Brightness", [this](uint8_t value){
+		backlight.setBrightness(value);
 	}, startingSettings.screenBrightness);
-	lv_group_add_obj(inputGroup, *brightness);
+	lv_group_add_obj(inputGroup, *brightnessSlider);
 
 	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
 		transition([](){ return std::make_unique<MainMenu>(); });
@@ -58,9 +58,15 @@ void SettingsScreen::loop(){
 
 void SettingsScreen::onStop(){
 	auto savedSettings = settings.get();
-	savedSettings.notificationSounds = audio->getValue();
-	savedSettings.screenBrightness = brightness->getValue();
+	savedSettings.notificationSounds = audioSwitch->getValue();
+	savedSettings.screenBrightness = brightnessSlider->getValue();
 	settings.set(savedSettings);
-	//TODO - apply settings
+
+	backlight.setBrightness(brightnessSlider->getValue());
+	audio.setMute(!savedSettings.notificationSounds);
 }
 
+void SettingsScreen::onStarting(){
+	brightnessSlider->setValue(settings.get().screenBrightness);
+	audioSwitch->setValue(settings.get().notificationSounds);
+}

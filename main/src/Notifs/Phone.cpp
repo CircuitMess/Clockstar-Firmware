@@ -20,6 +20,12 @@ bool Phone::isConnected(){
 	return current != nullptr;
 }
 
+Phone::PhoneType Phone::getPhoneType(){
+	if(current == &ancs) return PhoneType::IPhone;
+	else if(current == &bangle) return PhoneType::Android;
+	else return PhoneType::None;
+}
+
 auto Phone::findNotif(uint32_t id){
 	return std::find_if(notifs.begin(), notifs.end(), [id](const auto& notif){ return notif.uid == id; });
 }
@@ -46,22 +52,22 @@ void Phone::doNeg(uint32_t id){
 
 void Phone::onConnect(NotifSource* src){
 	current = src;
-	Events::post(Facility::Phone, Event { .action = Event::Connected });
+	Events::post(Facility::Phone, Event { .action = Event::Connected, .data = { .phoneType = getPhoneType() } });
 
 	if(!notifs.empty()){
 		notifs.clear();
-		Events::post(Facility::Phone, Event { .action = Event::Cleared });
+		Events::post(Facility::Phone, Event { .action = Event::Cleared, .data = { .phoneType = getPhoneType() } });
 	}
 }
 
 void Phone::onDisconnect(NotifSource* src){
 	if(current != src) return;
+	Events::post(Facility::Phone, Event { .action = Event::Disconnected, .data = { .phoneType = getPhoneType() } });
 	current = nullptr;
-	Events::post(Facility::Phone, Event { .action = Event::Disconnected });
 
 	if(!notifs.empty()){
 		notifs.clear();
-		Events::post(Facility::Phone, Event { .action = Event::Cleared });
+		Events::post(Facility::Phone, Event { .action = Event::Cleared, .data = { .phoneType = getPhoneType() } });
 	}
 }
 

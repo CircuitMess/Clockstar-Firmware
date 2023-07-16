@@ -113,7 +113,6 @@ void Item::update(const Notif& notif){
 	lv_label_set_text(label, notif.title.c_str());
 
 	auto copy = notif.message;
-	copy = std::regex_replace(copy, std::regex("\\\n"), "  ");
 
 	lv_label_set_text(body, copy.c_str());
 }

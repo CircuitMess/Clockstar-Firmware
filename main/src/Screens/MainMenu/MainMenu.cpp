@@ -1,8 +1,6 @@
 #include "MainMenu.h"
 #include "Util/Services.h"
 #include "MenuItemAlt.h"
-#include "Devices/Input.h"
-#include "Util/stdafx.h"
 #include "Screens/Lock/LockScreen.h"
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
@@ -51,8 +49,7 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	lv_group_set_wrap(inputGroup, false);
 
 	Events::listen(Facility::Input, &queue);
-
-	// TODO: hide "find phone" if disconnected or not connected to android phone
+	Events::listen(Facility::Phone, &queue);
 }
 
 MainMenu::~MainMenu(){
@@ -60,6 +57,10 @@ MainMenu::~MainMenu(){
 }
 
 void MainMenu::onStarting(){
+	if(phone.getPhoneType() != Phone::PhoneType::Android){
+		lv_obj_add_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
+	}
+
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(*items[0]);
 }
@@ -71,13 +72,13 @@ void MainMenu::loop(){
 	if(queue.get(evt, 0)){
 		if(evt.facility == Facility::Input){
 			auto data = (Input::Data*) evt.data;
-			if(data->btn == Input::Alt && data->action == Input::Data::Press){
-				delete data;
-				transition([](){ return std::make_unique<LockScreen>(); });
-				return;
-			}
+			handleInput(*data);
+			delete data;
+		}else if(evt.facility == Facility::Phone){
+			auto data = (Phone::Event*) evt.data;
+			handlePhoneChange(*data);
+			delete data;
 		}
-		delete evt.data;
 	}
 }
 
@@ -88,4 +89,39 @@ void MainMenu::onClick(){
 	if(index < AltItemCount) return;
 
 	// TODO: launch stuff
+}
+
+void MainMenu::handlePhoneChange(Phone::Event& event){
+	auto focused = lv_group_get_focused(inputGroup);
+	auto index = lv_obj_get_index(focused);
+	auto& findPhone = *items[1];
+	bool hiddenBefore = lv_obj_has_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
+
+	if(event.action == Phone::Event::Connected || event.action == Phone::Event::Disconnected){
+		if(event.data.phoneType == Phone::PhoneType::Android && event.action == Phone::Event::Connected){
+			lv_obj_clear_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
+		}else{
+			lv_obj_add_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
+
+	if(hiddenBefore != lv_obj_has_flag(findPhone, LV_OBJ_FLAG_HIDDEN)){
+		if(hiddenBefore && index >= 2){
+			lv_obj_scroll_to_view(*items[index - 1], LV_ANIM_OFF);
+		}else if(!hiddenBefore){
+			if(index == 2){
+				lv_obj_scroll_to_view(*items[0], LV_ANIM_OFF);
+				lv_group_focus_obj(*items[0]);
+			}else if(index > 2){
+				lv_obj_scroll_to_view(*items[index - 1], LV_ANIM_OFF);
+				lv_group_focus_obj(*items[index - 1]);
+			}
+		}
+	}
+}
+
+void MainMenu::handleInput(Input::Data& event){
+	if(event.btn == Input::Alt && event.action == Input::Data::Press){
+		transition([](){ return std::make_unique<LockScreen>(); });
+	}
 }
