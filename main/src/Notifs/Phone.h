@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "Bangle.h"
 #include "ANCS/Client.h"
+#include "CurrentTime.h"
 #include "NotifSource.h"
 
 class Phone {
@@ -35,6 +36,7 @@ public:
 
 private:
 	ANCS::Client ancs;
+	CurrentTime cTime;
 	Bangle bangle;
 
 	NotifSource* current = nullptr;
