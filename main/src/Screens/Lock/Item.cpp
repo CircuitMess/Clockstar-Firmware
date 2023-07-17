@@ -1,4 +1,5 @@
 #include "Item.h"
+#include <regex>
 
 Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(parent), onDismiss(dismiss){
 	lv_obj_set_size(*this, lv_pct(100), LV_SIZE_CONTENT);
@@ -112,6 +113,7 @@ void Item::update(const Notif& notif){
 	lv_label_set_text(label, notif.title.c_str());
 
 	auto copy = notif.message;
+	copy = std::regex_replace(copy, std::regex("\\n"), "  ");
 
 	lv_label_set_text(body, copy.c_str());
 }
