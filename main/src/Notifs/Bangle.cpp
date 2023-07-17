@@ -159,10 +159,11 @@ void Bangle::handle_notify(const std::string& line){
 		}
 
 		std::string s = std::string(val + 1, val + len - 1);
-		s = std::regex_replace(s, std::regex("\\\\n"), "\n");
-		s = std::regex_replace(s, std::regex("\\\\r"), "\r");
+		s = std::regex_replace(s, std::regex(R"(\\u[a-zA-Z0-9]{3,4})"), "?");
+		s = std::regex_replace(s, std::regex(R"(\\n)"), "\n");
+		s = std::regex_replace(s, std::regex(R"(\\r)"), "\r");
 		s = std::regex_replace(s, std::regex(R"(\\\\)"), "\\");
-		s = std::regex_replace(s, std::regex("\\\\t"), "\t");
+		s = std::regex_replace(s, std::regex(R"(\\t)"), "\t");
 		s.erase(std::remove(s.begin(), s.end(), '\r'), s.end());
 		std::replace(s.begin(), s.end(), '\t', ' ');
 

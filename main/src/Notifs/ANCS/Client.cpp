@@ -1,7 +1,6 @@
 #include "Client.h"
 #include <cstring>
 #include <esp_log.h>
-#include <regex>
 
 static const char* TAG = "ANCS";
 
