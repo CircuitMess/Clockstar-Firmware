@@ -10,6 +10,8 @@ public:
 
 	void write(uint8_t* data, size_t len, bool needResponse);
 
+	void read();
+
 private:
 	const BLE::Client* client;
 

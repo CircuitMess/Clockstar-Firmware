@@ -109,3 +109,14 @@ void BLE::Client::Char::write(const std::vector<uint8_t>& data){
 
 	chr->write((uint8_t*) data.data(), data.size(), true);
 }
+
+void BLE::Client::Char::read(){
+	if(!connected()) return;
+
+	if(!(props & ESP_GATT_CHAR_PROP_BIT_READ) || !(remoteProps & ESP_GATT_CHAR_PROP_BIT_READ)){
+		ESP_LOGW(TAG, "Requesting read, but READ property bit isn't");
+		return;
+	}
+
+	chr->read();
+}

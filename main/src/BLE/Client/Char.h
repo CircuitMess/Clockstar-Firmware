@@ -26,6 +26,8 @@ public:
 
 	void write(const std::vector<uint8_t>& data);
 
+	void read();
+
 private:
 	friend BLE::Client;
 	friend BLE::Client::Service;
