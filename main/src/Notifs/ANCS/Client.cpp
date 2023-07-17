@@ -143,13 +143,7 @@ void ANCS::Client::processData(bool sendIncomplete){
 		auto get = [&nd](AttributeID id){
 			auto attr = nd.attrs.find(id);
 			if(attr == nd.attrs.end()) return std::string();
-			auto s = attr->second;
-			s = std::regex_replace(s, std::regex("\\\\n"), "\n");
-			s = std::regex_replace(s, std::regex("\\\\r"), "\r");
-			s = std::regex_replace(s, std::regex(R"(\\\\)"), "\\");
-			s = std::regex_replace(s, std::regex("\\\\t"), "\t");
-			s.erase(std::remove(s.begin(), s.end(), '\r'), s.end());
-			return s;
+			return attr->second;
 		};
 
 		Notif notif = {
