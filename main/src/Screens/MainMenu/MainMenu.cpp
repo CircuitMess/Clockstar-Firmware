@@ -73,12 +73,11 @@ void MainMenu::loop(){
 		if(evt.facility == Facility::Input){
 			auto data = (Input::Data*) evt.data;
 			handleInput(*data);
-			delete data;
 		}else if(evt.facility == Facility::Phone){
 			auto data = (Phone::Event*) evt.data;
 			handlePhoneChange(*data);
-			delete data;
 		}
+		free(evt.data);
 	}
 }
 

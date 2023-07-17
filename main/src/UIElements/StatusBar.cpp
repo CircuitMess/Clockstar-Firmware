@@ -41,6 +41,10 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 	}
 }
 
+StatusBar::~StatusBar(){
+	Events::unlisten(&queue);
+}
+
 void StatusBar::loop(){
 	if(clock){
 		clock->loop();
@@ -69,6 +73,7 @@ void StatusBar::loop(){
 				}
 			}
 		}
+		free(event.data);
 	}
 
 	batDevice->loop();

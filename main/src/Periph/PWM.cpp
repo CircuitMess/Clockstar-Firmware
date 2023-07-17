@@ -4,7 +4,7 @@
 
 static const char* TAG = "PMW";
 
-PWM::PWM(uint8_t pin, ledc_channel_t channel) : pin(pin), channel(channel){
+PWM::PWM(uint8_t pin, ledc_channel_t channel, bool invertDuty) : pin(pin), channel(channel), invertDuty(invertDuty){
 
 	ledc_timer_config_t ledc_timer = {
 			.speed_mode       = getSpeedMode(channel),
@@ -48,6 +48,12 @@ void PWM::setDuty(uint8_t duty){
 	ledc_update_duty(group, channel);
 }
 
+void PWM::setDuty(uint8_t duty){
+	auto group = getSpeedMode(channel);
+	ledc_set_duty(group, channel, FullDuty * duty / 100);
+	ledc_update_duty(group, channel);
+}
+
 void PWM::stop(){
 	if(pin == (uint8_t) -1) return;
 	ledc_stop(getSpeedMode(channel), channel, 0);
@@ -64,7 +70,7 @@ void PWM::attach(){
 			.timer_sel      = getTimer(channel),
 			.duty           = 0,
 			.hpoint         = 0,
-			.flags = { .output_invert = 1 }
+			.flags = { .output_invert = invertDuty }
 	};
 	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 
