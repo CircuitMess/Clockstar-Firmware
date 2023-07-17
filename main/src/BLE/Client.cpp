@@ -141,7 +141,7 @@ void BLE::Client::searchServices(){
 
 void BLE::Client::onSearchResult(const esp_ble_gattc_cb_param_t::gattc_search_res_evt_param* param){
 	for(const auto& service : services){
-		if(param->srvc_id.uuid.len == ESP_UUID_LEN_128 && memcmp(param->srvc_id.uuid.uuid.uuid128, service->uuid.uuid.uuid128, 16) == 0){
+		if(param->srvc_id.uuid.len == service->uuid.len && memcmp(param->srvc_id.uuid.uuid.uuid128, service->uuid.uuid.uuid128, service->uuid.len) == 0){
 			service->establish(std::make_unique<ServiceInfo>(this, param->start_handle, param->end_handle));
 		}
 	}
@@ -154,10 +154,10 @@ void BLE::Client::onSearchComplete(const esp_ble_gattc_cb_param_t::gattc_search_
 	}
 
 	// TODO: invoke pull on the service which search results belong to
-	// current implementation only works with one service registered
+	// current implementation only works with one service registered, I think
 	for(auto& svc : services){
-		if(!svc->established()) return;
-		if(svc->populated()) return;
+		if(!svc->established()) continue;
+		if(svc->populated()) continue;
 		svc->pull();
 	}
 
