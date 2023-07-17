@@ -73,6 +73,7 @@ void StatusBar::loop(){
 				}
 			}
 		}
+		free(event.data);
 	}
 
 	batDevice->loop();
