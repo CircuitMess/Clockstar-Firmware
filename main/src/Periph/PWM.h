@@ -30,7 +30,7 @@
 
 class PWM {
 public:
-	PWM(uint8_t pin, ledc_channel_t channel);
+	PWM(uint8_t pin, ledc_channel_t channel, bool invertDuty = false);
 	virtual ~PWM();
 
 	void setFreq(uint16_t freq);
@@ -53,6 +53,8 @@ private:
 	void attach();
 	uint8_t pin = -1;
 	ledc_channel_t channel = LEDC_CHANNEL_0;
+	bool invertDuty = false;
+
 	static constexpr uint32_t DefaultFreq = 5000;    //placeholder, usually changed before attaching to a channel or pin
 
 	static constexpr ledc_timer_bit_t DRAM_ATTR DutyResDefault = LEDC_TIMER_10_BIT;
