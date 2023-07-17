@@ -2,6 +2,9 @@
 #include "Util/Services.h"
 #include "MenuItemAlt.h"
 #include "Screens/Lock/LockScreen.h"
+#include "Screens/Level.h"
+#include "Screens/Theremin/Theremin.h"
+#include "Screens/Settings/SettingsScreen.h"
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
@@ -84,10 +87,15 @@ void MainMenu::loop(){
 void MainMenu::onClick(){
 	auto focused = lv_group_get_focused(inputGroup);
 	auto index = lv_obj_get_index(focused);
+	if(index <= AltItemCount) return;
 
-	if(index < AltItemCount) return;
+	std::function<void()> launcher[] = {
+			[this](){ transition([](){ return std::make_unique<Level>(); }); },
+			[this](){ transition([](){ return std::make_unique<Theremin>(); }); },
+			[this](){ transition([](){ return std::make_unique<SettingsScreen>(); }); }
+	};
 
-	// TODO: launch stuff
+	launcher[index - AltItemCount - 1]();
 }
 
 void MainMenu::handlePhoneChange(Phone::Event& event){

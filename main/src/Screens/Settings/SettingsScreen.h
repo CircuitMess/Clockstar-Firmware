@@ -20,6 +20,7 @@ public:
 
 private:
 	void onStarting() override;
+	void onStart() override;
 	void onStop() override;
 	void loop() override;
 
@@ -33,6 +34,8 @@ private:
 	SliderElement* brightnessSlider;
 	StatusBar* statusBar;
 	LabelElement* saveAndExit;
+
+	EventQueue queue;
 
 };
 
