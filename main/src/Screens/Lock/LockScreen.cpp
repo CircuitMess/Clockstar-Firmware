@@ -36,6 +36,7 @@ void LockScreen::prepare(){
 	status->loop();
 	clock->loop();
 	updateTime(ts.getTime());
+	queue.reset();
 	updateNotifs();
 }
 
@@ -98,7 +99,6 @@ void LockScreen::processInput(const Input::Data& evt){
 			auto sleep = (Sleep*) Services.get(Service::Sleep);
 			sleep->sleep([this](){
 				prepare();
-				queue.reset();
 				lv_timer_handler();
 			});
 
