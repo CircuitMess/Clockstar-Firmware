@@ -33,6 +33,7 @@ private:
 	lv_obj_t* container;
 	BoolElement* audioSwitch;
 	SliderElement* brightnessSlider;
+	BoolElement* ledSwitch;
 	StatusBar* statusBar;
 	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;

@@ -47,6 +47,14 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.screenBrightness);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
+	ledSwitch = new BoolElement(container, "LED enable", [this](bool value){
+		//TODO - apply LED toggle
+		if(value){
+			//TODO - blink LED
+		}
+	}, startingSettings.notificationSounds);
+	lv_group_add_obj(inputGroup, *ledSwitch);
+
 	sleepSlider = new DiscreteSliderElement(container, "Sleep time", [this](uint8_t value){
 		//TODO - apply sleep if necessary
 	}, std::vector<const char*>(Settings::SleepText, Settings::SleepText + Settings::SleepSteps), startingSettings.sleepTime);
@@ -67,15 +75,18 @@ void SettingsScreen::onStop(){
 	savedSettings.notificationSounds = audioSwitch->getValue();
 	savedSettings.screenBrightness = brightnessSlider->getValue();
 	savedSettings.sleepTime = sleepSlider->getValue();
+	savedSettings.ledEnable = ledSwitch->getValue();
 	settings.set(savedSettings);
 
 	backlight.setBrightness(brightnessSlider->getValue());
 	audio.setMute(!savedSettings.notificationSounds);
 	//TODO - apply sleep time
+	//TODO - apply LED toggle
 }
 
 void SettingsScreen::onStarting(){
 	brightnessSlider->setValue(settings.get().screenBrightness);
 	audioSwitch->setValue(settings.get().notificationSounds);
+	ledSwitch->setValue(settings.get().ledEnable);
 	sleepSlider->setValue(settings.get().sleepTime);
 }

@@ -91,6 +91,8 @@ void init(){
 	fs->addToCache("/bg.bin", true);
 	ClockLabelBig::loadCache();
 
+	//TODO - apply LED enable from settings
+
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
 
