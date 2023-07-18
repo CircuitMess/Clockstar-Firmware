@@ -7,7 +7,7 @@
 #include "LabelElement.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
-								   audio(*(ChirpSystem*) Services.get(Service::Audio)){
+								   audio(*(ChirpSystem*) Services.get(Service::Audio)), queue(4){
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
 
 
@@ -61,6 +61,19 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 }
 
 void SettingsScreen::loop(){
+	Event evt{};
+	if(queue.get(evt, 0)){
+		if(evt.facility == Facility::Input){
+			auto eventData = (Input::Data*) evt.data;
+			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
+				free(evt.data);
+				transition([](){ return std::make_unique<MainMenu>(); });
+				return;
+			}
+		}
+		free(evt.data);
+	}
+
 	statusBar->loop();
 }
 
@@ -73,11 +86,17 @@ void SettingsScreen::onStop(){
 
 	backlight.setBrightness(brightnessSlider->getValue());
 	audio.setMute(!savedSettings.notificationSounds);
-	//TODO - apply LED toggle
+//TODO - apply LED toggle
+
+	Events::unlisten(&queue);
 }
 
 void SettingsScreen::onStarting(){
 	brightnessSlider->setValue(settings.get().screenBrightness);
 	audioSwitch->setValue(settings.get().notificationSounds);
 	ledSwitch->setValue(settings.get().ledEnable);
+}
+
+void SettingsScreen::onStart(){
+	Events::listen(Facility::Input, &queue);
 }

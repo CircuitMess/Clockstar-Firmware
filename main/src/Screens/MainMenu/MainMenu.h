@@ -21,18 +21,18 @@ private:
 	};
 	static constexpr ItemInfo ItemInfos[] = {
 			{ "S:/menu/labels/connection.bin", "S:/menu/disconnected" },
-			{ "S:/menu/labels/find.bin", "S:/menu/find" },
-			{ "S:/menu/labels/level.bin", "S:/menu/level" },
-			{ "S:/menu/labels/theremin.bin", "S:/menu/theremin" },
-			{ "S:/menu/labels/settings.bin", "S:/menu/settings" },
+			{ "S:/menu/labels/find.bin",       "S:/menu/find" },
+			{ "S:/menu/labels/level.bin",      "S:/menu/level" },
+			{ "S:/menu/labels/theremin.bin",   "S:/menu/theremin" },
+			{ "S:/menu/labels/settings.bin",   "S:/menu/settings" },
 	};
 	static constexpr uint8_t ItemCount = sizeof(ItemInfos) / sizeof(ItemInfos[0]);
 
 	static constexpr ItemInfo AltItems[] = {
 			{ "S:/menu/labels/connection.bin", "S:/menu/connected" },
-			{ "S:/menu/labels/ringing.bin", "S:/menu/ring" },
+			{ "S:/menu/labels/ringing.bin",    "S:/menu/ring" },
 	};
-	static constexpr uint8_t AltItemCount = sizeof(ItemInfos) / sizeof(ItemInfos[0]);
+	static constexpr uint8_t AltItemCount = sizeof(AltItems) / sizeof(AltItems[0]);
 
 	Phone& phone;
 

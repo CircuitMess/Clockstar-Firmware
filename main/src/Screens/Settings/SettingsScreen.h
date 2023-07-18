@@ -20,6 +20,7 @@ public:
 
 private:
 	void onStarting() override;
+	void onStart() override;
 	void onStop() override;
 	void loop() override;
 
@@ -34,6 +35,8 @@ private:
 	BoolElement* ledSwitch;
 	StatusBar* statusBar;
 	LabelElement* saveAndExit;
+
+	EventQueue queue;
 
 };
 

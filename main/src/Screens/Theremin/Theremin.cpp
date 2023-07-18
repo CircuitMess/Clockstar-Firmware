@@ -1,13 +1,15 @@
-#include <algorithm>
 #include "Theremin.h"
+#include <algorithm>
 #include "Util/Services.h"
 #include "Util/stdafx.h"
+#include "Devices/Input.h"
+#include "Screens/MainMenu/MainMenu.h"
 
 
 Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)), sem(xSemaphoreCreateBinary()),
 					   timer(getToneDuration(sequence.getSize()), timerCB, sem),
 					   audioThread([this](){ audioThreadFunc(); }, "Theremin audio", 2048, 5, 1), imu((IMU*) Services.get(Service::IMU)),
-					   pitchFilter(filterStrength), rollFilter(filterStrength){
+					   pitchFilter(filterStrength), rollFilter(filterStrength), queue(4){
 	buildUI();
 	sequence.refresh();
 
@@ -51,17 +53,41 @@ void Theremin::onStart(){
 	rollFilter.reset(pitchRoll.roll);
 	setOrientation(pitchRoll.pitch, pitchRoll.roll);
 
+	abortFlag = false;
 	audioThread.start();
 	timer.start();
+	Events::listen(Facility::Input, &queue);
 }
 
 void Theremin::onStop(){
 	timer.stop();
 	audio.stop();
-	audioThread.stop();
+
+	audioThread.stop(0);
+	abortFlag = true;
+	xSemaphoreGive(sem);
+	while(audioThread.running()){
+		vTaskDelay(1);
+	}
+
+	Events::unlisten(&queue);
 }
 
 void Theremin::loop(){
+
+	Event evt{};
+	if(queue.get(evt, 0)){
+		if(evt.facility == Facility::Input){
+			auto eventData = (Input::Data*) evt.data;
+			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
+				free(evt.data);
+				transition([](){ return std::make_unique<MainMenu>(); });
+				return;
+			}
+		}
+		free(evt.data);
+	}
+
 	const IMU::Sample reading = imu->getSample();
 	const PitchRoll pitchRoll = { (float) pitchFilter.update(-reading.accelY), (float) rollFilter.update(-reading.accelX) };
 	setOrientation(pitchRoll.pitch, pitchRoll.roll);
@@ -74,6 +100,8 @@ void IRAM_ATTR Theremin::timerCB(void* arg){
 
 void Theremin::audioThreadFunc(){
 	while(!xSemaphoreTake(sem, portMAX_DELAY));
+
+	if(abortFlag) return;
 
 	if(sequenceIndex >= sequence.getSize()){
 		sequenceIndex = 0;
