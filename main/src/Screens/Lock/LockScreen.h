@@ -58,7 +58,7 @@ private:
 
 	struct NotifEl {
 		Notif notif;
-		std::unique_ptr<Item> item;
+		Item* item;
 	};
 	std::unordered_map<uint32_t, NotifEl> notifs;
 
@@ -72,6 +72,7 @@ private:
 
 	void onStarting() override;
 
+	void updateNotifs();
 	void notifAdd(const Notif& notif);
 	void notifRem(uint32_t id);
 	void notifsClear();

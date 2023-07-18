@@ -33,17 +33,9 @@ void LockScreen::onStarting(){
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
 
-	for(const auto& notif : notifs){
-		notifRem(notif.first);
-	}
-
-	for(const auto& notif : phone.getNotifs()){
-		if(notifs.count(notif.uid) != 0){
-			notifAdd(notif);
-		}
-	}
-
 	updateTime(ts.getTime());
+	status->loop();
+	updateNotifs();
 }
 
 void LockScreen::loop(){
@@ -125,14 +117,39 @@ void LockScreen::processEvt(const Phone::Event& evt){
 	}
 }
 
-void LockScreen::notifAdd(const Notif& notif){
-	// TODO: dynamically load needed icons into cache
+void LockScreen::updateNotifs(){
+	auto set = phone.getNotifs();
+	auto find = [&set](uint32_t uid) -> Notif*{
+		for(auto& notif : set){
+			if(notif.uid == uid) return &notif;
+		}
+		return nullptr;
+	};
 
+	std::unordered_set<uint32_t> forRem;
+	for(const auto& pair : notifs){
+		auto exists = find(pair.first);
+		if(!exists){
+			forRem.insert(pair.first);
+		}
+	}
+	for(uint32_t uid : forRem){
+		notifRem(uid);
+	}
+
+	for(const auto& notif : set){
+		if(notifs.count(notif.uid) == 0){
+			notifAdd(notif);
+		}
+	}
+}
+
+void LockScreen::notifAdd(const Notif& notif){
 	if(notifs.count(notif.uid) == 0){
 		addNotifIcon(notif);
 
 		auto uid = notif.uid;
-		auto item = std::make_unique<Item>(rest, [this, uid](){
+		auto item = new Item(rest, [this, uid](){
 			notifRem(uid);
 			phone.doNeg(uid);
 		});
@@ -142,7 +159,7 @@ void LockScreen::notifAdd(const Notif& notif){
 
 		notifs.insert(std::make_pair(notif.uid, NotifEl{
 				.notif = notif,
-				.item = std::move(item)
+				.item = item
 		}));
 	}else{
 		if(iconPath(notifs[notif.uid].notif) != iconPath(notif)){
@@ -164,6 +181,8 @@ void LockScreen::notifRem(uint32_t id){
 
 	removeNotifIcon(el.notif);
 	lv_group_focus_next(inputGroup);
+
+	delete el.item;
 	notifs.erase(it);
 }
 
