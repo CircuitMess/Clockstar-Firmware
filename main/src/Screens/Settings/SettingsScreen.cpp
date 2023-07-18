@@ -6,6 +6,7 @@
 #include "SliderElement.h"
 #include "LabelElement.h"
 #include "DiscreteSliderElement.h"
+#include "Services/StatusCenter.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), queue(4){
@@ -34,7 +35,6 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	auto startingSettings = settings.get();
 
 	audioSwitch = new BoolElement(container, "Sound", [this](bool value){
-		audio.setMute(!audioSwitch->getValue());
 		if(value){
 			audio.play({ { 523, 523, 50 } });
 		}
@@ -47,9 +47,15 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
 	ledSwitch = new BoolElement(container, "LED enable", [this](bool value){
-		//TODO - apply LED toggle
+		auto s = settings.get();
+		s.ledEnable = value;
+		settings.set(s);
+
+		auto status = (StatusCenter*) Services.get(Service::Status);
+		status->updateLED();
+
 		if(value){
-			//TODO - blink LED
+			status->blink();
 		}
 	}, startingSettings.notificationSounds);
 	lv_group_add_obj(inputGroup, *ledSwitch);
@@ -95,12 +101,14 @@ void SettingsScreen::onStop(){
 	settings.set(savedSettings);
 
 	backlight.setBrightness(brightnessSlider->getValue());
-	audio.setMute(!savedSettings.notificationSounds);
 
 	//TODO - apply sleep time
-	//TODO - apply LED toggle
 
 	Events::unlisten(&queue);
+
+	auto status = (StatusCenter*) Services.get(Service::Status);
+	status->blockAudio(false);
+	status->updateLED();
 }
 
 void SettingsScreen::onStarting(){
@@ -112,4 +120,7 @@ void SettingsScreen::onStarting(){
 
 void SettingsScreen::onStart(){
 	Events::listen(Facility::Input, &queue);
+
+	auto status = (StatusCenter*) Services.get(Service::Status);
+	status->blockAudio(true);
 }
