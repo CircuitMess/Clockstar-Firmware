@@ -76,7 +76,12 @@ void PWM::attach(){
 
 void PWM::detach(){
 	if(!attached) return;
-	gpio_reset_pin((gpio_num_t) pin);
+	gpio_config_t cfg = {
+			.pin_bit_mask = 1ULL << pin,
+			.mode = GPIO_MODE_OUTPUT
+	};
+	gpio_config(&cfg);
+	gpio_set_level((gpio_num_t) pin, invertDuty);
 	attached = false;
 }
 
