@@ -1,6 +1,7 @@
 #ifndef CLOCKSTAR_FIRMWARE_THEREMIN_H
 #define CLOCKSTAR_FIRMWARE_THEREMIN_H
 
+#include <atomic>
 #include "LV_Interface/LVScreen.h"
 #include "LV_Interface/LVStyle.h"
 #include "ArpeggioSequence.h"
@@ -8,6 +9,7 @@
 #include "Util/Queue.h"
 #include "Util/EMA.h"
 #include "Devices/IMU.h"
+#include "Util/Events.h"
 
 class Theremin : public LVScreen {
 public:
@@ -66,6 +68,9 @@ private:
 	EMA pitchFilter;
 	EMA rollFilter;
 	static constexpr float filterStrength = 0.12;
+
+	EventQueue queue;
+	std::atomic_bool abortFlag = false;
 
 	void buildUI();
 };

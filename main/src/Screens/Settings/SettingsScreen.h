@@ -14,12 +14,15 @@ class SliderElement;
 
 class LabelElement;
 
+class DiscreteSliderElement;
+
 class SettingsScreen : public LVScreen {
 public:
 	SettingsScreen();
 
 private:
 	void onStarting() override;
+	void onStart() override;
 	void onStop() override;
 	void loop() override;
 
@@ -31,8 +34,14 @@ private:
 	lv_obj_t* container;
 	BoolElement* audioSwitch;
 	SliderElement* brightnessSlider;
+	BoolElement* ledSwitch;
 	StatusBar* statusBar;
+	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
+
+	static constexpr uint8_t TopPadding = 18;
+
+	EventQueue queue;
 
 };
 
