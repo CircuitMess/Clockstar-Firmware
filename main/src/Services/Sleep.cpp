@@ -28,12 +28,11 @@ void Sleep::sleep(std::function<void()> preWake){
 	auto sleepTime = esp_timer_get_time() - sleepStartTime;
 
 	ConMan.goHiPow();
+	input.resume();
+	time.resume();
 
 	preWake();
 	bl.fadeIn();
-
-	input.resume();
-	time.resume();
 
 	ESP_LOGI(TAG, "Slept for %lld us\n", sleepTime);
 }
