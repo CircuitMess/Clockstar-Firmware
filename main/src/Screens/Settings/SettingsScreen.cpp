@@ -9,8 +9,7 @@
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), queue(4){
-	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
-
+	lv_obj_set_size(*this, 128, 128);
 
 	bg = lv_obj_create(*this);
 	lv_obj_add_flag(bg, LV_OBJ_FLAG_FLOATING);
@@ -21,11 +20,11 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_obj_set_style_bg_img_src(bg, "S:/bg.bin", 0);
 
 	container = lv_obj_create(*this);
-	lv_obj_set_size(container, 128, LV_SIZE_CONTENT);
+	lv_obj_set_size(container, 128, 128 - TopPadding);
+	lv_obj_set_pos(container, 0, TopPadding);
 	lv_obj_add_flag(container, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN);
 	lv_obj_set_flex_align(container, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-	lv_obj_set_style_pad_top(container, 20, 0);
 	lv_obj_set_style_pad_gap(container, 5, 0);
 
 	statusBar = new StatusBar(*this);
@@ -64,6 +63,10 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 		transition([](){ return std::make_unique<MainMenu>(); });
 	});
 	lv_group_add_obj(inputGroup, *saveAndExit);
+
+	for(int i = 0; i < lv_obj_get_child_cnt(container); ++i){
+		lv_obj_add_flag(lv_obj_get_child(container, i), LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+	}
 }
 
 void SettingsScreen::loop(){

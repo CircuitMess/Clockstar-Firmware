@@ -39,6 +39,8 @@ private:
 	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
 
+	static constexpr uint8_t TopPadding = 18;
+
 	EventQueue queue;
 
 };

@@ -1,5 +1,4 @@
 #include "DiscreteSliderElement.h"
-#include <cstdio>
 #include "Theme/theme.h"
 
 DiscreteSliderElement::DiscreteSliderElement(lv_obj_t* parent, const char* name, std::function<void(uint8_t)> cb, std::vector<const char*> displayValues,
@@ -38,7 +37,6 @@ DiscreteSliderElement::DiscreteSliderElement(lv_obj_t* parent, const char* name,
 	lv_obj_align(slider, LV_ALIGN_RIGHT_MID, 0, 0);
 	lv_obj_set_size(slider, SliderWidth, SliderHeight);
 
-	printf("range max: %d\n", this->displayValues.size() - 1);
 	lv_slider_set_range(slider, 0, this->displayValues.size() - 1);
 	lv_obj_set_style_pad_hor(slider, 5, 0);
 	lv_obj_add_style(slider, sliderMainStyle, LV_PART_MAIN);
