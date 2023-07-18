@@ -19,11 +19,11 @@ PWM::PWM(uint8_t pin, ledc_channel_t channel, bool invertDuty) : pin(pin), chann
 		return;
 	}
 	attach();
-	ledc_stop(getSpeedMode(channel), channel, 0);
 }
 
 PWM::~PWM(){
 	stop();
+	detach();
 }
 
 void PWM::setFreq(uint16_t freq){
@@ -43,6 +43,8 @@ void PWM::setFreq(uint16_t freq){
 }
 
 void PWM::setDuty(uint8_t duty){
+	attach();
+
 	auto group = getSpeedMode(channel);
 	ledc_set_duty(group, channel, FullDuty * duty / 100);
 	ledc_update_duty(group, channel);
@@ -50,11 +52,12 @@ void PWM::setDuty(uint8_t duty){
 
 void PWM::stop(){
 	if(pin == (uint8_t) -1) return;
-	ledc_stop(getSpeedMode(channel), channel, 0);
+	ledc_stop(getSpeedMode(channel), channel, invertDuty);
 }
 
 void PWM::attach(){
 	if(pin == (uint8_t) -1) return;
+	if(attached) return;
 
 	ledc_channel_config_t ledc_channel = {
 			.gpio_num       = pin,
@@ -68,7 +71,13 @@ void PWM::attach(){
 	};
 	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 
-	ledc_set_duty(getSpeedMode(channel), channel, FullDuty);
+	attached = true;
+}
+
+void PWM::detach(){
+	if(!attached) return;
+	gpio_reset_pin((gpio_num_t) pin);
+	attached = false;
 }
 
 constexpr ledc_mode_t PWM::getSpeedMode(ledc_channel_t channel){
@@ -78,4 +87,3 @@ constexpr ledc_mode_t PWM::getSpeedMode(ledc_channel_t channel){
 constexpr ledc_timer_t PWM::getTimer(ledc_channel_t channel){
 	return static_cast<ledc_timer_t>(((channel / 2) % 4));
 }
-

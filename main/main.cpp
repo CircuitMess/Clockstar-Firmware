@@ -43,7 +43,7 @@ void init(){
 	}
 	ESP_ERROR_CHECK(ret);
 
-	auto bl = new BacklightBrightness(new PWM(PIN_BL, LEDC_CHANNEL_1));
+	auto bl = new BacklightBrightness(new PWM(PIN_BL, LEDC_CHANNEL_1, true));
 	Services.set(Service::Backlight, bl);
 
 	auto settings = new Settings();
