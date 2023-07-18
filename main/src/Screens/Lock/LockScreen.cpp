@@ -95,9 +95,9 @@ void LockScreen::processInput(const Input::Data& evt){
 					locker->hide();
 					status->loop();
 					updateTime(ts.getTime());
-					// TODO: process all (Phone) events
-					// TODO: separate queue for Phone events, so that Time and Input event queues can be reset on wake
-					// TODO: trigger a single LVGL timer tick, so the screen gets pushed to display before backlight comes on
+					updateNotifs();
+					queue.reset();
+					lv_timer_handler();
 				});
 
 				wakeTime = millis();
