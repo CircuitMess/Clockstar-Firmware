@@ -78,32 +78,35 @@ void LockScreen::loop(){
 }
 
 void LockScreen::processInput(const Input::Data& evt){
-	if(lv_group_get_focused(inputGroup) != main) return;
+	if(evt.btn != Input::Alt) return;
 
-	if(evt.btn == Input::Alt){
-		if(evt.action == Input::Data::Press){
-			if(millis() - wakeTime <= 200){
-				wakeTime = 0;
-				return;
-			}
+	if(evt.action == Input::Data::Press && lv_group_get_focused(inputGroup) != main){
+		lv_group_focus_obj(main);
+		return;
+	}
 
-			locker->start();
-			altPress = millis();
-		}else if(evt.action == Input::Data::Release){
-			locker->stop();
+	if(evt.action == Input::Data::Press){
+		if(millis() - wakeTime <= 200){
+			wakeTime = 0;
+			return;
+		}
 
-			if(altPress != 0 && millis() - altPress < 200){
-				altPress = 0;
+		locker->start();
+		altPress = millis();
+	}else if(evt.action == Input::Data::Release){
+		locker->stop();
 
-				auto sleep = (Sleep*) Services.get(Service::Sleep);
-				sleep->sleep([this](){
-					prepare();
-					queue.reset();
-					lv_timer_handler();
-				});
+		if(altPress != 0 && millis() - altPress < 200){
+			altPress = 0;
 
-				wakeTime = millis();
-			}
+			auto sleep = (Sleep*) Services.get(Service::Sleep);
+			sleep->sleep([this](){
+				prepare();
+				queue.reset();
+				lv_timer_handler();
+			});
+
+			wakeTime = millis();
 		}
 	}
 }
