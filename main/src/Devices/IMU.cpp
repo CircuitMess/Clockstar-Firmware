@@ -86,8 +86,6 @@ bool IMU::init(){
 	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0 });
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
 
-	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED);
-
 	gpio_config_t io_conf = {};
 	io_conf.intr_type = GPIO_INTR_POSEDGE;
 	io_conf.mode = GPIO_MODE_INPUT;

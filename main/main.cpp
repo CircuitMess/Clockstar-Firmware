@@ -49,6 +49,8 @@ void init(){
 	auto settings = new Settings();
 	Services.set(Service::Settings, settings);
 
+	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
+
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto rtc = new RTC(*i2c);
 	auto imu = new IMU(*i2c);
@@ -77,7 +79,6 @@ void init(){
 	auto disp = new Display();
 	auto input = new Input();
 
-	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
 	auto sleep = new Sleep(*input, *time);
 	Services.set(Service::Sleep, sleep);
 	//TODO - apply sleepTime from Settings
