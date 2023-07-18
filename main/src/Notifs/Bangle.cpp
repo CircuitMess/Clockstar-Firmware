@@ -5,6 +5,7 @@
 #include <esp_log.h>
 #include <cmath>
 #include <regex>
+#include <mbedtls/base64.h>
 
 static const char* TAG = "Bangle";
 
@@ -153,12 +154,34 @@ void Bangle::handle_notify(const std::string& line){
 		prop.insert(0, "$.");
 		int len;
 		const char* val;
-		if(mjson_find(line.c_str(), line.size(), prop.c_str(), &val, &len) != MJSON_TOK_STRING){
+		std::string s;
+
+		if(mjson_find(line.c_str(), line.size(), prop.c_str(), &val, &len) == MJSON_TOK_B64){
+			s = std::string(val + 1, val + len - 1);
+
+			size_t outLen = 0;
+			auto ret = mbedtls_base64_decode(nullptr, 0, &outLen, (unsigned char*) s.c_str(), s.length());
+			if(ret != MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL || outLen <= 0){
+				ESP_LOGW(TAG, "(1) Failed decoding base64: %s | Return status: %d", s.c_str(), ret);
+				return std::string();
+			}
+
+			std::string decoded(outLen+1, '\0');
+			ret = mbedtls_base64_decode((unsigned char*) decoded.data(), decoded.size(), &outLen, (unsigned char*) s.c_str(), s.length());
+			if(ret != 0 || outLen <= 0){
+				ESP_LOGW(TAG, "(2) Failed decoding base64: %s | Return status: %d", s.c_str(), ret);
+				return std::string();
+			}
+			decoded.resize(outLen);
+
+			s = std::move(decoded);
+		}else if(mjson_find(line.c_str(), line.size(), prop.c_str(), &val, &len) == MJSON_TOK_STRING){
+			s = std::string(val + 1, val + len - 1);
+		}else{
 			ESP_LOGD(TAG, "Missing prop in notif: %s", prop.c_str() + 2);
 			return std::string();
 		}
 
-		std::string s = std::string(val + 1, val + len - 1);
 		s = std::regex_replace(s, std::regex(R"(\\u[a-zA-Z0-9]{3,4})"), "?");
 		s = std::regex_replace(s, std::regex(R"(\\n)"), "\n");
 		s = std::regex_replace(s, std::regex(R"(\\r)"), "\r");
