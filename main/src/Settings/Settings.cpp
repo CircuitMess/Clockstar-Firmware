@@ -5,14 +5,7 @@
 static const char* TAG = "Settings";
 
 Settings::Settings(){
-	esp_err_t err = nvs_flash_init();
-	if(err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND){
-		ESP_ERROR_CHECK(nvs_flash_erase());
-		err = nvs_flash_init();
-	}
-	ESP_ERROR_CHECK(err);
-
-	err = nvs_open(NVSNamespace, NVS_READWRITE, &handle);
+	auto err = nvs_open(NVSNamespace, NVS_READWRITE, &handle);
 	ESP_ERROR_CHECK(err);
 	load();
 }
@@ -44,6 +37,11 @@ void Settings::load(){
 	size_t out_size = sizeof(SettingsStruct);
 	auto err = nvs_get_blob(handle, BlobName, &settingsStruct, &out_size);
 	if(err != ESP_OK){
-		ESP_LOGW(TAG, "NVS settings load error: %d", err);
+		ESP_LOGI(TAG, "Settings not found, writing defaults");
+		store();
+		err = nvs_get_blob(handle, BlobName, &settingsStruct, &out_size);
+		if(err != ESP_OK){
+			ESP_LOGE(TAG, "Couldn't access NVS settings: %d", err);
+		}
 	}
 }
