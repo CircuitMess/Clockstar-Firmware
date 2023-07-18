@@ -9,7 +9,7 @@
 
 static const char* TAG = "Sleep";
 
-Sleep::Sleep(Input& input, Time& time) : input(input), time(time){
+Sleep::Sleep(Input& input, Time& time, BacklightBrightness& bl) : input(input), time(time), bl(bl){
 	confPM(false);
 	wakeSem = xSemaphoreCreateBinary();
 }
@@ -20,7 +20,7 @@ void Sleep::sleep(std::function<void()> preWake){
 	input.pause();
 	time.pause();
 
-	gpio_set_level((gpio_num_t) PIN_BL, 1); // TODO: PWM
+	bl.fadeOut();
 	ConMan.goLowPow();
 
 	int64_t sleepStartTime = esp_timer_get_time();
@@ -30,7 +30,7 @@ void Sleep::sleep(std::function<void()> preWake){
 	ConMan.goHiPow();
 
 	preWake();
-	gpio_set_level((gpio_num_t) PIN_BL, 0); // TODO: PWM
+	bl.fadeIn();
 
 	input.resume();
 	time.resume();

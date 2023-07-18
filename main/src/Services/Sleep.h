@@ -3,17 +3,19 @@
 
 #include "Devices/Input.h"
 #include "Services/Time.h"
+#include "BacklightBrightness.h"
 #include "Pins.hpp"
 
 class Sleep {
 public:
-	Sleep(Input& input, Time& time);
+	Sleep(Input& input, Time& time, BacklightBrightness& bl);
 
 	void sleep(std::function<void()> preWake = {});
 
 private:
 	Input& input;
 	Time& time;
+	BacklightBrightness& bl;
 
 	static constexpr gpio_num_t WakePin = (gpio_num_t) BTN_ALT;
 
