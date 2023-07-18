@@ -27,13 +27,11 @@ private:
 	bool connected = false;
 
 	lv_obj_t* left;
-	BatteryElement* batPhone;
 	lv_obj_t* phoneIcon;
 	ClockLabelSmall* clock = nullptr;
 	BatteryElement* batDevice;
 
 	void setPhoneConnected();
-	void setPhoneBattery();
 	void setDeviceBattery();
 
 	static BatteryElement::Level getLevel(uint8_t level);

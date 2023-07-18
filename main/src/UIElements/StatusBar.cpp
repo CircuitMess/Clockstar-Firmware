@@ -16,7 +16,6 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 	lv_obj_set_flex_flow(left, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(left, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	batPhone = new BatteryElement(left);
 	phoneIcon = lv_img_create(left);
 
 	if(showClock){
@@ -31,7 +30,6 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 	Events::listen(Facility::Battery, &queue);
 
 	setPhoneConnected();
-	setPhoneBattery();
 	if(battery.isCharging()){
 		batDevice->set(BatteryElement::Charging);
 	}else if(battery.getPercentage() < 5){
@@ -54,10 +52,6 @@ void StatusBar::loop(){
 		setPhoneConnected();
 	}
 
-	if(batPhone->getLevel() != 0 /*phone.battery*/){
-		setPhoneBattery();
-	}
-
 
 	Event event{};
 	if(queue.get(event, 0)){
@@ -77,7 +71,6 @@ void StatusBar::loop(){
 	}
 
 	batDevice->loop();
-	batPhone->loop();
 
 	if(batDevice->getLevel() == BatteryElement::Charging) return;
 
@@ -91,17 +84,11 @@ void StatusBar::setPhoneConnected(){
 
 	if(connected){
 		lv_img_set_src(phoneIcon, "S:/icons/phone.bin");
-		lv_obj_clear_flag(*batPhone, LV_OBJ_FLAG_HIDDEN);
 	}else{
 		lv_img_set_src(phoneIcon, "S:/icons/phoneDisconnected.bin");
-		lv_obj_add_flag(*batPhone, LV_OBJ_FLAG_HIDDEN);
 	}
 
 	lv_obj_refr_size(left);
-}
-
-void StatusBar::setPhoneBattery(){
-	batPhone->set(getLevel(0 /* phone level */));
 }
 
 void StatusBar::setDeviceBattery(){
