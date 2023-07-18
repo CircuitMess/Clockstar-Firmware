@@ -74,6 +74,10 @@ template <typename T>
 void LEDController<T>::breathe(T start, T end, size_t period, int16_t loops){
 	if(loops == 0) return;
 
+	if(LEDstate == Breathe && breathePeriod == period && breatheStart == start && breatheEnd == end){
+		return;
+	}
+
 	breathePeriod = period;
 	breatheLoops = loops;
 	breatheStart = start;
