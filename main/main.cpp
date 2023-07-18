@@ -25,6 +25,8 @@
 #include "UIElements/ClockLabelBig.h"
 #include "Devices/Battery.h"
 #include "Services/BacklightBrightness.h"
+#include "Services/StatusCenter.h"
+#include "Util/Notes.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -53,7 +55,9 @@ void init(){
 
 	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
 	auto rtc = new RTC(*i2c);
+
 	auto imu = new IMU(*i2c);
+	Services.set(Service::IMU, imu);
 
 	auto time = new Time(*rtc);
 	Services.set(Service::Time, time); // Time service is required as soon as Phone is up
@@ -64,17 +68,17 @@ void init(){
 	auto server = new BLE::Server(gap);
 	auto phone = new Phone(server, client);
 	server->start();
+	Services.set(Service::Phone, phone);
 
 	auto battery = new Battery();
 	Services.set(Service::Battery, battery);
 
-	auto pwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
-	auto audio = new ChirpSystem(*pwm);
-	audio->setMute(!settings->get().notificationSounds);
-
+	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
+	auto audio = new ChirpSystem(*buzzPwm);
 	Services.set(Service::Audio, audio);
-	Services.set(Service::IMU, imu);
-	Services.set(Service::Phone, phone);
+
+	auto status = new StatusCenter();
+	Services.set(Service::Status, status);
 
 	auto disp = new Display();
 	auto input = new Input();
@@ -92,7 +96,14 @@ void init(){
 	fs->addToCache("/bg.bin", true);
 	ClockLabelBig::loadCache();
 
-	//TODO - apply LED enable from settings
+	audio->play({
+		Chirp{ .startFreq = NOTE_E4, .endFreq = NOTE_GS4, .duration = 100 },
+		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+		Chirp{ .startFreq = NOTE_GS4, .endFreq = NOTE_B4, .duration = 100 },
+		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+		Chirp{ .startFreq = NOTE_B4, .endFreq = NOTE_E5, .duration = 100 }
+	});
+	vTaskDelay(300); // maybe
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });

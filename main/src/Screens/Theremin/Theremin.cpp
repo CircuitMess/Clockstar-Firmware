@@ -4,6 +4,7 @@
 #include "Util/stdafx.h"
 #include "Devices/Input.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "Services/StatusCenter.h"
 
 
 Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)), sem(xSemaphoreCreateBinary()),
@@ -45,6 +46,9 @@ void Theremin::setOrientation(float pitch, float roll){
 }
 
 void Theremin::onStart(){
+	auto status = (StatusCenter*) Services.get(Service::Status);
+	status->blockAudio(true);
+
 	audio.setPersistentAttach(true);
 	imu->enableFIFO(false);
 
@@ -73,6 +77,9 @@ void Theremin::onStop(){
 	}
 
 	Events::unlisten(&queue);
+
+	auto status = (StatusCenter*) Services.get(Service::Status);
+	status->blockAudio(false);
 }
 
 void Theremin::loop(){
