@@ -105,7 +105,6 @@ void init(){
 		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
 		Chirp{ .startFreq = NOTE_B4, .endFreq = NOTE_E5, .duration = 100 }
 	});
-	vTaskDelay(300); // maybe
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
