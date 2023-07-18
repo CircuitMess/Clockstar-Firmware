@@ -24,13 +24,14 @@ LockScreen::~LockScreen(){
 }
 
 void LockScreen::onStarting(){
-	lv_obj_scroll_to(rest, 0, 0, LV_ANIM_OFF);
-	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
-	lv_group_focus_obj(main);
 	prepare();
 }
 
 void LockScreen::prepare(){
+	lv_obj_scroll_to(rest, 0, 0, LV_ANIM_OFF);
+	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
+	lv_group_focus_obj(main);
+
 	locker->hide();
 	status->loop();
 	clock->loop();
