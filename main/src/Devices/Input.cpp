@@ -19,7 +19,7 @@ const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 		{ Alt,    "Alt" },
 };
 
-Input::Input() : SleepyThreaded(SleepTime, "Input", 1024, 6, 0){
+Input::Input() : SleepyThreaded(SleepTime, "Input", 2048, 6, 0){
 	auto mask = 0ULL;
 	for(const auto& pair : PinMap){
 		const auto port = pair.first;
