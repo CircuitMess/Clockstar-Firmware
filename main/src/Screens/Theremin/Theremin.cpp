@@ -63,9 +63,12 @@ void Theremin::onStop(){
 	timer.stop();
 	audio.stop();
 
+	audioThread.stop(0);
 	abortFlag = true;
 	xSemaphoreGive(sem);
-	audioThread.stop();
+	while(audioThread.running()){
+		vTaskDelay(1);
+	}
 
 	Events::unlisten(&queue);
 }
