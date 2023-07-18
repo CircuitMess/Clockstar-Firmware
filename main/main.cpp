@@ -26,6 +26,7 @@
 #include "Devices/Battery.h"
 #include "Services/BacklightBrightness.h"
 #include "Services/StatusCenter.h"
+#include "Util/Notes.h"
 
 void init(){
 	gpio_config_t io_conf = {
@@ -94,6 +95,15 @@ void init(){
 	auto fs = new FSLVGL('S');
 	fs->addToCache("/bg.bin", true);
 	ClockLabelBig::loadCache();
+
+	audio->play({
+		Chirp{ .startFreq = NOTE_E4, .endFreq = NOTE_GS4, .duration = 100 },
+		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+		Chirp{ .startFreq = NOTE_GS4, .endFreq = NOTE_B4, .duration = 100 },
+		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+		Chirp{ .startFreq = NOTE_B4, .endFreq = NOTE_E5, .duration = 100 }
+	});
+	vTaskDelay(300); // maybe
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
