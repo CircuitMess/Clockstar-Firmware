@@ -177,7 +177,10 @@ void SingleLEDController::deinit(){
 }
 
 void SingleLEDController::write(uint8_t val){
-	pwm.setDuty(val);
+	double fVal = (float) val / 255.0f;
+	fVal = std::pow(fVal, 2);
+	fVal = std::round(fVal * 255.0f);
+	pwm.setDuty((uint8_t) fVal);
 }
 
 
