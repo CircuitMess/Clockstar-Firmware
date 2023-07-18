@@ -88,6 +88,7 @@ void BLE::Client::ble_GATTC_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_i
 			case ESP_GATTC_REG_FOR_NOTIFY_EVT:
 			case ESP_GATTC_NOTIFY_EVT:
 			case ESP_GATTC_WRITE_CHAR_EVT:
+			case ESP_GATTC_READ_CHAR_EVT:
 				passToChar(event, param);
 				break;
 			default:
@@ -141,7 +142,7 @@ void BLE::Client::searchServices(){
 
 void BLE::Client::onSearchResult(const esp_ble_gattc_cb_param_t::gattc_search_res_evt_param* param){
 	for(const auto& service : services){
-		if(param->srvc_id.uuid.len == ESP_UUID_LEN_128 && memcmp(param->srvc_id.uuid.uuid.uuid128, service->uuid.uuid.uuid128, 16) == 0){
+		if(param->srvc_id.uuid.len == service->uuid.len && memcmp(param->srvc_id.uuid.uuid.uuid128, service->uuid.uuid.uuid128, service->uuid.len) == 0){
 			service->establish(std::make_unique<ServiceInfo>(this, param->start_handle, param->end_handle));
 		}
 	}
@@ -154,10 +155,10 @@ void BLE::Client::onSearchComplete(const esp_ble_gattc_cb_param_t::gattc_search_
 	}
 
 	// TODO: invoke pull on the service which search results belong to
-	// current implementation only works with one service registered
+	// current implementation only works with one service registered, I think
 	for(auto& svc : services){
-		if(!svc->established()) return;
-		if(svc->populated()) return;
+		if(!svc->established()) continue;
+		if(svc->populated()) continue;
 		svc->pull();
 	}
 
@@ -195,6 +196,19 @@ void BLE::Client::passToChar(esp_gattc_cb_event_t event, esp_ble_gattc_cb_param_
 		check(chr);
 
 		chr->second->onNotify(&param->notify);
+	}else if(event == ESP_GATTC_READ_CHAR_EVT){
+		ESP_LOGI(TAG, "ESP_GATTC_READ_CHAR_EVT");
+
+		auto chr = chars.find(param->read.handle);
+		check(chr);
+
+		// TODO: lol what is this, turn this into actual read evt handling
+		esp_ble_gattc_cb_param_t::gattc_notify_evt_param notifParam = {
+				.value_len = param->read.value_len,
+				.value = param->read.value,
+				.is_notify = true
+		};
+		chr->second->onNotify(&notifParam);
 	}else if(event == ESP_GATTC_WRITE_CHAR_EVT){
 		ESP_LOGI(TAG, "ESP_GATTC_WRITE_CHAR_EVT");
 

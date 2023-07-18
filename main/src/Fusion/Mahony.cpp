@@ -100,9 +100,10 @@ Fusion::Orient Fusion::Mahony::get(){
 	return { pitch, glm::degrees(final.z), glm::degrees(final.y) };
 }
 
-double Fusion::Mahony::invSqrt(double x){
+// TODO: IRAM_ATTR also adds __attribute__, check if both are applied
+double IRAM_ATTR __attribute__((optimize("O0"))) Fusion::Mahony::invSqrt(double x){
 	double halfx = 0.5 * x;
-	float y = x;
+	volatile float y = x;
 	long i = *(long*)&y;
 	i = 0x5f3759df - (i>>1);
 	y = *(float*)&i;

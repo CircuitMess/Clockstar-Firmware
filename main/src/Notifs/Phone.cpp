@@ -1,7 +1,7 @@
 #include "Phone.h"
 #include "Util/Events.h"
 
-Phone::Phone(BLE::Server* server, BLE::Client* client) : ancs(client), bangle(server){
+Phone::Phone(BLE::Server* server, BLE::Client* client) : ancs(client), cTime(client), bangle(server){
 	notifs.reserve(32);
 
 	auto reg = [this](NotifSource* src){
