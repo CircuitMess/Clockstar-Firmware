@@ -96,8 +96,8 @@ void LockScreen::processInput(const Input::Data& evt){
 					locker->hide();
 					status->loop();
 					updateTime(ts.getTime());
-					updateNotifs();
 					queue.reset();
+					updateNotifs();
 					lv_timer_handler();
 				});
 
@@ -119,8 +119,8 @@ void LockScreen::processEvt(const Phone::Event& evt){
 }
 
 void LockScreen::updateNotifs(){
-	auto set = phone.getNotifs();
-	auto find = [&set](uint32_t uid) -> Notif*{
+	const auto set = phone.getNotifs();
+	auto find = [&set](uint32_t uid) -> const Notif*{
 		for(auto& notif : set){
 			if(notif.uid == uid) return &notif;
 		}
