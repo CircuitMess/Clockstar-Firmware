@@ -71,6 +71,7 @@ private:
 	static constexpr const char* EtcIconPath = "S:/icon/etc.bin";
 
 	void onStarting() override;
+	void prepare();
 
 	void updateNotifs();
 	void notifAdd(const Notif& notif);

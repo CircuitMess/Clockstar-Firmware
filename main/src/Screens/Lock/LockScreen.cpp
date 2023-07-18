@@ -32,10 +32,14 @@ void LockScreen::onStarting(){
 	lv_obj_scroll_to(rest, 0, 0, LV_ANIM_OFF);
 	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
 	lv_group_focus_obj(main);
+	prepare();
+}
 
-	updateTime(ts.getTime());
-	status->loop();
+void LockScreen::prepare(){
 	locker->hide();
+	status->loop();
+	clock->loop();
+	updateTime(ts.getTime());
 	updateNotifs();
 }
 
@@ -93,11 +97,8 @@ void LockScreen::processInput(const Input::Data& evt){
 
 				auto sleep = (Sleep*) Services.get(Service::Sleep);
 				sleep->sleep([this](){
-					locker->hide();
-					status->loop();
-					updateTime(ts.getTime());
+					prepare();
 					queue.reset();
-					updateNotifs();
 					lv_timer_handler();
 				});
 
