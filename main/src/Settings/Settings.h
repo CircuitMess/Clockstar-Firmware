@@ -6,6 +6,7 @@
 struct SettingsStruct {
 	bool notificationSounds = true;
 	uint8_t screenBrightness = 100;
+	bool ledEnable = true;
 };
 
 class Settings {

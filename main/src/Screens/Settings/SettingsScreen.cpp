@@ -46,6 +46,14 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.screenBrightness);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
+	ledSwitch = new BoolElement(container, "LED enable", [this](bool value){
+		//TODO - apply LED toggle
+		if(value){
+			//TODO - blink LED
+		}
+	}, startingSettings.notificationSounds);
+	lv_group_add_obj(inputGroup, *ledSwitch);
+
 	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
 		transition([](){ return std::make_unique<MainMenu>(); });
 	});
@@ -60,13 +68,16 @@ void SettingsScreen::onStop(){
 	auto savedSettings = settings.get();
 	savedSettings.notificationSounds = audioSwitch->getValue();
 	savedSettings.screenBrightness = brightnessSlider->getValue();
+	savedSettings.ledEnable = ledSwitch->getValue();
 	settings.set(savedSettings);
 
 	backlight.setBrightness(brightnessSlider->getValue());
 	audio.setMute(!savedSettings.notificationSounds);
+	//TODO - apply LED toggle
 }
 
 void SettingsScreen::onStarting(){
 	brightnessSlider->setValue(settings.get().screenBrightness);
 	audioSwitch->setValue(settings.get().notificationSounds);
+	ledSwitch->setValue(settings.get().ledEnable);
 }
