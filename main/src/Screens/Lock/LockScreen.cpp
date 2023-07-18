@@ -35,6 +35,7 @@ void LockScreen::onStarting(){
 
 	updateTime(ts.getTime());
 	status->loop();
+	locker->hide();
 	updateNotifs();
 }
 
