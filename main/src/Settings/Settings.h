@@ -6,6 +6,7 @@
 struct SettingsStruct {
 	bool notificationSounds = true;
 	uint8_t screenBrightness = 100;
+	uint8_t sleepTime = 1;
 };
 
 class Settings {
@@ -14,6 +15,10 @@ public:
 
 	SettingsStruct get();
 	void set(SettingsStruct& settings);
+
+	static constexpr uint8_t SleepSteps = 5;
+	static constexpr const uint32_t  SleepSeconds[SleepSteps] = { 0, 30, 60, 2 * 60, 5 * 60 };
+	static constexpr const char* SleepText[SleepSteps] = { "OFF", "30 sec", "1 min", "2 min", "5 min" };
 
 private:
 	nvs_handle_t handle{};

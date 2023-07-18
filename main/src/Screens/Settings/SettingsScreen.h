@@ -14,6 +14,8 @@ class SliderElement;
 
 class LabelElement;
 
+class DiscreteSliderElement;
+
 class SettingsScreen : public LVScreen {
 public:
 	SettingsScreen();
@@ -32,6 +34,7 @@ private:
 	BoolElement* audioSwitch;
 	SliderElement* brightnessSlider;
 	StatusBar* statusBar;
+	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
 
 };

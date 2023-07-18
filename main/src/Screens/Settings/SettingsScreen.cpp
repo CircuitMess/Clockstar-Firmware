@@ -5,6 +5,7 @@
 #include "BoolElement.h"
 #include "SliderElement.h"
 #include "LabelElement.h"
+#include "DiscreteSliderElement.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)){
@@ -46,6 +47,11 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.screenBrightness);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
+	sleepSlider = new DiscreteSliderElement(container, "Sleep time", [this](uint8_t value){
+		//TODO - apply sleep if necessary
+	}, std::vector<const char*>(Settings::SleepText, Settings::SleepText + Settings::SleepSteps), startingSettings.sleepTime);
+	lv_group_add_obj(inputGroup, *sleepSlider);
+
 	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
 		transition([](){ return std::make_unique<MainMenu>(); });
 	});
@@ -60,13 +66,16 @@ void SettingsScreen::onStop(){
 	auto savedSettings = settings.get();
 	savedSettings.notificationSounds = audioSwitch->getValue();
 	savedSettings.screenBrightness = brightnessSlider->getValue();
+	savedSettings.sleepTime = sleepSlider->getValue();
 	settings.set(savedSettings);
 
 	backlight.setBrightness(brightnessSlider->getValue());
 	audio.setMute(!savedSettings.notificationSounds);
+	//TODO - apply sleep time
 }
 
 void SettingsScreen::onStarting(){
 	brightnessSlider->setValue(settings.get().screenBrightness);
 	audioSwitch->setValue(settings.get().notificationSounds);
+	sleepSlider->setValue(settings.get().sleepTime);
 }
