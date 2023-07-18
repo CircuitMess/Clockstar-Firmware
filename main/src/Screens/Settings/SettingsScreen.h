@@ -14,6 +14,8 @@ class SliderElement;
 
 class LabelElement;
 
+class DiscreteSliderElement;
+
 class SettingsScreen : public LVScreen {
 public:
 	SettingsScreen();
@@ -34,7 +36,10 @@ private:
 	SliderElement* brightnessSlider;
 	BoolElement* ledSwitch;
 	StatusBar* statusBar;
+	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
+
+	static constexpr uint8_t TopPadding = 18;
 
 	EventQueue queue;
 

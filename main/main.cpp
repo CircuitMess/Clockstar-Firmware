@@ -80,6 +80,7 @@ void init(){
 	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
 	auto sleep = new Sleep(*input, *time);
 	Services.set(Service::Sleep, sleep);
+	//TODO - apply sleepTime from Settings
 
 	auto lvgl = new LVGL(*disp);
 	auto theme = theme_init(lvgl->disp());
