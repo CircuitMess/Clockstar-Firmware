@@ -4,10 +4,11 @@
 
 static const char* TAG = "ChirpSystem";
 
-ChirpSystem::ChirpSystem(PWM& pwm) : Threaded("ChirpSystem", 1024, UINT8_MAX, 0), pwm(pwm), queue(xQueueCreate(QueueLength, sizeof(QueueItem))),
+ChirpSystem::ChirpSystem(PWM& pwm) : Threaded("ChirpSystem", 2048, UINT8_MAX, 0), pwm(pwm), queue(xQueueCreate(QueueLength, sizeof(QueueItem))),
 									 timerSem(xSemaphoreCreateBinary()), timer(MinimumLength * 1000, isr, timerSem){
 	start();
 	xSemaphoreGive(timerSem);
+	pwm.detach();
 }
 
 ChirpSystem::~ChirpSystem(){
@@ -23,6 +24,11 @@ void ChirpSystem::play(std::initializer_list<Chirp> sound){
 
 void ChirpSystem::play(const Sound& sound){
 	if(mute) return;
+
+	if(!pwmPersistence){
+		pwm.attach();
+		pwm.setDuty(100);
+	}
 
 	uint32_t totalLength = 0;
 	for(const Chirp& chirp : sound){
@@ -60,7 +66,7 @@ void ChirpSystem::play(const Sound& sound){
 	xQueueSend(queue, &endItem, portMAX_DELAY);
 }
 
-void IRAM_ATTR ChirpSystem::playFromISR(std::initializer_list<Chirp> sound){
+/*void IRAM_ATTR ChirpSystem::playFromISR(std::initializer_list<Chirp> sound){
 	playFromISR((Sound) sound);
 }
 
@@ -106,7 +112,7 @@ void IRAM_ATTR ChirpSystem::playFromISR(const Sound& sound){
 
 	const QueueItem endItem = { QueueItem::Type::Tone, { .tone = { 0, 0 } } };
 	xQueueSendFromISR(queue, &endItem, &xHigherPriorityTaskWoken);
-}
+}*/
 
 void IRAM_ATTR ChirpSystem::stopFromISR(){
 	BaseType_t priority = pdFALSE;
@@ -120,6 +126,7 @@ void IRAM_ATTR ChirpSystem::stopFromISR(){
 void ChirpSystem::stop(){
 	xQueueReset(queue);
 	pwm.stop();
+	pwm.detach();
 }
 
 void ChirpSystem::setMute(bool mute){
@@ -131,6 +138,16 @@ void ChirpSystem::setMute(bool mute){
 
 bool ChirpSystem::isMuted() const{
 	return mute;
+}
+
+void ChirpSystem::setPersistentAttach(bool persistent){
+	this->pwmPersistence = persistent;
+	if(persistent){
+		pwm.attach();
+		pwm.setDuty(100);
+	}else if(uxQueueMessagesWaiting(queue) <= 0){
+		pwm.detach();
+	}
 }
 
 void IRAM_ATTR ChirpSystem::isr(void* arg){
@@ -148,10 +165,12 @@ void ChirpSystem::loop(){
 		while(item.type == QueueItem::Type::ClearTones || (item.type == QueueItem::Type::Tone && item.data.tone.length == 0)){
 			if(item.type == QueueItem::Type::ClearTones){
 				processClearTone(item.data.numToClear);
-			}
-			else if(item.type == QueueItem::Type::Tone){
+			}else if(item.type == QueueItem::Type::Tone){
 				if(item.data.tone.freq == 0){
 					pwm.stop();
+					if(!pwmPersistence){
+						pwm.detach();
+					}
 				}
 			}
 			xQueueReceive(queue, &item, portMAX_DELAY);

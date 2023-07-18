@@ -37,6 +37,9 @@ public:
 	void setDuty(uint8_t duty); //duty in percentage (0 - 100%)
 	void stop();
 
+	void attach();
+	void detach();
+
 	static constexpr bool IRAM_ATTR checkFrequency(uint16_t freq){
 		uint64_t divParam = 0;
 		uint32_t precision = (0x1 << DutyResDefault); // 2**depth
@@ -50,10 +53,10 @@ public:
 	}
 
 private:
-	void attach();
 	uint8_t pin = -1;
 	ledc_channel_t channel = LEDC_CHANNEL_0;
 	bool invertDuty = false;
+	bool attached = false;
 
 	static constexpr uint32_t DefaultFreq = 5000;    //placeholder, usually changed before attaching to a channel or pin
 

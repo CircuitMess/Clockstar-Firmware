@@ -43,6 +43,7 @@ void Theremin::setOrientation(float pitch, float roll){
 }
 
 void Theremin::onStart(){
+	audio.setPersistentAttach(true);
 	imu->enableFIFO(false);
 
 	const IMU::Sample reading = imu->getSample();
@@ -59,6 +60,7 @@ void Theremin::onStop(){
 	timer.stop();
 	audio.stop();
 	audioThread.stop();
+	audio.setPersistentAttach(false);
 }
 
 void Theremin::loop(){

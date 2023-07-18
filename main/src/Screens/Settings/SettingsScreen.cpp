@@ -36,7 +36,7 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	audioSwitch = new BoolElement(container, "Sound", [this](bool value){
 		audio.setMute(!audioSwitch->getValue());
 		if(value){
-			audio.play({ { 523, 523, 25 } });
+			audio.play({ { 523, 523, 50 } });
 		}
 	}, startingSettings.notificationSounds);
 	lv_group_add_obj(inputGroup, *audioSwitch);

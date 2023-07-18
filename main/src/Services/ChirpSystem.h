@@ -25,18 +25,26 @@ typedef std::vector<Chirp> Sound;
 class ChirpSystem : private Threaded {
 public:
 	explicit ChirpSystem(PWM& pwm);
-	virtual ~ChirpSystem();
+	~ChirpSystem() override;
 	/**
 	 * Plays the specified sound, interrupts the currently playing sound.
 	 */
-	void playFromISR(std::initializer_list<Chirp> sound);
-	void playFromISR(const Sound& sound);
+/*	void playFromISR(std::initializer_list<Chirp> sound);
+	void playFromISR(const Sound& sound);*/
 
 	void play(std::initializer_list<Chirp> sound);
 	void play(const Sound& sound);
 
 	void stopFromISR();
 	void stop();
+
+	/**
+	 * True - leaves the PWM attached between playing chirps. May result in noise on the pin.
+	 * Useful when there is heavy usage of the system since detaching and reattaching has a performance penalty
+	 *
+	 * False - default, attaches and detaches the PWM for every chirp.
+	 */
+	void setPersistentAttach(bool persistent);
 
 	void setMute(bool mute);
 	[[nodiscard]] bool isMuted() const;
@@ -53,6 +61,8 @@ private:
 
 	Timer timer;
 	static void isr(void* arg);
+
+	bool pwmPersistence = false;
 
 	static constexpr long freqMap(long val, long fromLow, long fromHigh, long toLow, long toHigh);
 	static constexpr uint32_t DRAM_ATTR MaxLength = 10000; //10s
