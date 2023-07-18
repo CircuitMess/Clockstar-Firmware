@@ -5,6 +5,7 @@
 #include "../LV_Interface/LVStyle.h"
 #include "../Util/EMA.h"
 #include "../Devices/IMU.h"
+#include "Util/Events.h"
 
 class Level : public LVScreen {
 public:
@@ -25,6 +26,7 @@ private:
 	IMU* imu;
 	void loop() override;
 	void onStart() override;
+	void onStop() override;
 	void onStarting() override;
 
 	ThreadedClosure reader;
@@ -43,6 +45,7 @@ private:
 	EMA rollFilter;
 	static constexpr float filterStrength = 0.2;
 
+	EventQueue queue;
 
 	static constexpr Constraint VerticalConstr = { 10, 73 };
 	static constexpr Constraint HorizontalConstr = { 10, 72 };

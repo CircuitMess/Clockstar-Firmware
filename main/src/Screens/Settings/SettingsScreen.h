@@ -22,6 +22,7 @@ public:
 
 private:
 	void onStarting() override;
+	void onStart() override;
 	void onStop() override;
 	void loop() override;
 
@@ -37,6 +38,8 @@ private:
 	StatusBar* statusBar;
 	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
+
+	EventQueue queue;
 
 };
 

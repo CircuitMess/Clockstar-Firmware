@@ -4,9 +4,11 @@
 #include <geometric.hpp>
 #include <esp_log.h>
 #include "../Util/Services.h"
+#include "Devices/Input.h"
+#include "Screens/MainMenu/MainMenu.h"
 
 Level::Level() : imu((IMU*) Services.get(Service::IMU)), reader([this](){ readerFunc(); }, "reader", 2048, 5, 1), data(QueueSize),
-				 pitchFilter(filterStrength), rollFilter(filterStrength){
+				 pitchFilter(filterStrength), rollFilter(filterStrength), queue(4){
 	bg = lv_obj_create(*this);
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_size(bg, 128, 128);
@@ -54,6 +56,19 @@ void Level::setOrientation(double pitch, double roll){
 }
 
 void Level::loop(){
+	Event evt{};
+	if(queue.get(evt, 0)){
+		if(evt.facility == Facility::Input){
+			auto eventData = (Input::Data*) evt.data;
+			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
+				free(evt.data);
+				transition([](){ return std::make_unique<MainMenu>(); });
+				return;
+			}
+		}
+		free(evt.data);
+	}
+
 	PitchRoll sample{};
 	if(!data.get(sample, 0)){
 		return;
@@ -69,6 +84,7 @@ void Level::onStart(){
 	}
 	imu->enableFIFO(false);
 	reader.start();
+	Events::listen(Facility::Input, &queue);
 }
 
 void Level::onStarting(){
@@ -85,4 +101,9 @@ void Level::readerFunc(){
 	data.post(pitchRoll);
 
 	vTaskDelay(ReaderDelay);
+}
+
+void Level::onStop(){
+	reader.stop();
+	Events::unlisten(&queue);
 }
