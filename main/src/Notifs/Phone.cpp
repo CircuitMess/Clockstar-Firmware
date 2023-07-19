@@ -40,6 +40,10 @@ std::vector<Notif> Phone::getNotifs(){
 	return notifs;
 }
 
+uint32_t Phone::getNotifsCount() const{
+	return notifs.size();
+}
+
 void Phone::doPos(uint32_t id){
 	if(current == nullptr || findNotif(id) == notifs.end()) return;
 	current->actionPos(id);
