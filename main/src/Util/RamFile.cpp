@@ -5,7 +5,7 @@
 
 static const char* TAG = "RamFile";
 
-RamFile::RamFile(const char* path, bool use32bAligned = false) : filePath(path){
+RamFile::RamFile(const char* path, bool use32bAligned) : filePath(path){
 	auto file = fopen(path, "rb");
 	if(file == nullptr){
 		ESP_LOGE(TAG, "Couldn't open file: %s", path);
@@ -46,8 +46,8 @@ RamFile::~RamFile(){
 	free(data);
 }
 
-size_t RamFile::read(void* dest, size_t len){
-	auto olen = len;
+size_t IRAM_ATTR RamFile::read(void* dest, size_t len){
+	if(cursor >= fileSize) return 0;
 	len = std::min(len, fileSize - cursor);
 	if(len <= 0) return 0;
 
