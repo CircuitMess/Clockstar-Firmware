@@ -34,6 +34,8 @@ private:
 	};
 	static constexpr uint8_t AltItemCount = sizeof(AltItems) / sizeof(AltItems[0]);
 
+	static uint8_t lastIndex;
+
 	Phone& phone;
 
 	StatusBar* statusBar;
