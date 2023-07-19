@@ -95,8 +95,7 @@ void init(){
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
-	fs->addToCache("/bg.bin", true);
-	ClockLabelBig::loadCache();
+	FSLVGL::loadCache();
 
 	audio->play({
 		Chirp{ .startFreq = NOTE_E4, .endFreq = NOTE_GS4, .duration = 100 },

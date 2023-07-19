@@ -30,14 +30,3 @@ constexpr const char* ClockLabelBig::getPath(char c){
 	}
 }
 
-void ClockLabelBig::loadCache(){
-	for(auto& path : IconPaths){
-		FSLVGL::addToCache(path);
-	}
-}
-
-void ClockLabelBig::unloadCache(){
-	for(auto& path : IconPaths){
-		FSLVGL::removeFromCache(path);
-	}
-}

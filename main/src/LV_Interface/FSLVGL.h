@@ -21,6 +21,8 @@ public:
 	static void addToCache(const char* path, bool use32bAligned = false);
 	static void removeFromCache(const char* path);
 
+	static void loadCache();
+
 private:
 	lv_fs_drv_t drv;                   /*Needs to be static or global*/
 	const std::string Root = "/spiffs";
