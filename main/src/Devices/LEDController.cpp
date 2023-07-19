@@ -65,6 +65,10 @@ void LEDController<T>::blinkTwice(T color){
 
 template <typename T>
 void LEDController<T>::blinkContinuous(T color, uint32_t onTime, uint32_t offTime){
+	if(LEDstate == Continuous && blinkColor == color && blinkContinuousOnTime == onTime && blinkContinuousOffTime == offTime){
+		return;
+	}
+
 	blink(color);
 	blinkContinuousOnTime = onTime;
 	blinkContinuousOffTime = offTime;
@@ -75,7 +79,7 @@ template <typename T>
 void LEDController<T>::breathe(T start, T end, size_t period, int16_t loops){
 	if(loops == 0) return;
 
-	if(LEDstate == Breathe && breathePeriod == period && breatheStart == start && breatheEnd == end){
+	if(LEDstate == Breathe && breathePeriod == period && breatheStart == start && breatheEnd == end && breatheLoops == loops){
 		return;
 	}
 
