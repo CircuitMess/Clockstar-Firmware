@@ -42,6 +42,21 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 		lv_obj_clear_flag(*items[i], LV_OBJ_FLAG_CLICK_FOCUSABLE);
 	}
 
+	//find my phone
+	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
+		auto menu = static_cast<MainMenu*>(evt->user_data);
+		menu->findPhoneRinging = !menu->findPhoneRinging;
+		menu->findPhoneRinging ? menu->phone.findPhoneStart() : menu->phone.findPhoneStop();
+	}, LV_EVENT_CLICKED, this);
+
+	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
+		auto menu = static_cast<MainMenu*>(evt->user_data);
+		if(menu->findPhoneRinging){
+			menu->findPhoneRinging = false;
+			menu->phone.findPhoneStop();
+		}
+	}, LV_EVENT_DEFOCUSED, this);
+
 	statusBar = new StatusBar(*this);
 	lv_obj_add_flag(*statusBar, LV_OBJ_FLAG_FLOATING);
 	lv_obj_set_pos(*statusBar, 0, 0);

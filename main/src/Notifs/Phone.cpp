@@ -101,3 +101,13 @@ void Phone::onRemove(uint32_t id){
 	notifs.erase(notif);
 	Events::post(Facility::Phone, Event { .action = Event::Removed, .data = { .addChgRem = { .id = id } } });
 }
+
+void Phone::findPhoneStart(){
+	if(current != &bangle) return;
+	bangle.findPhoneStart();
+}
+
+void Phone::findPhoneStop(){
+	if(current != &bangle) return;
+	bangle.findPhoneStop();
+}

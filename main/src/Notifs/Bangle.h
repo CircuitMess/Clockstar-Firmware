@@ -13,6 +13,9 @@ public:
 	void actionPos(uint32_t uid) override;
 	void actionNeg(uint32_t uid) override;
 
+	void findPhoneStart();
+	void findPhoneStop();
+
 private:
 	BLE::Server* server;
 	BLE::UART uart;
