@@ -62,7 +62,7 @@ private:
 	int16_t breatheLoops = 0;
 	uint16_t breatheLoopCounter = 0;
 
-	static constexpr uint32_t blinkDuration = 200; //[ms]
+	static constexpr uint32_t blinkDuration = 100; //[ms]
 
 	void setValue(T color);
 };
