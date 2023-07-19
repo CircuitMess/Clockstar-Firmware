@@ -8,6 +8,9 @@
 #include "LV_Interface/FSLVGL.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
+	notifs.reserve(32);
+	notifIcons.reserve(MaxIconsCount);
+
 	buildUI();
 	Events::listen(Facility::Phone, &queue);
 	Events::listen(Facility::Time, &queue);
