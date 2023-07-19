@@ -278,14 +278,6 @@ void LockScreen::buildUI(){
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
 
-	bg = lv_obj_create(*this);
-	lv_obj_add_flag(bg, LV_OBJ_FLAG_IGNORE_LAYOUT);
-	lv_obj_set_size(bg, 128, 256);
-	lv_obj_set_pos(bg, 0, 0);
-	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
-	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
-	lv_obj_set_style_bg_img_src(bg, "S:/bg.bin", 0);
-
 	main = lv_obj_create(*this);
 	lv_obj_set_size(main, 128, 128);
 	lv_obj_set_flex_flow(main, LV_FLEX_FLOW_COLUMN);
@@ -322,6 +314,16 @@ void LockScreen::buildUI(){
 	lv_obj_set_style_pad_hor(rest, 4, 0);
 	lv_obj_set_style_pad_ver(rest, 3, 0);
 	lv_obj_set_style_pad_gap(rest, 3, 0);
+
+	// BG
+
+	lv_obj_set_style_bg_color(main, lv_color_black(), 0);
+	lv_obj_set_style_bg_opa(main, LV_OPA_COVER, 0);
+	lv_obj_set_style_bg_img_src(main, "S:/bg.bin", 0);
+
+	lv_obj_set_style_bg_color(rest, lv_color_black(), 0);
+	lv_obj_set_style_bg_opa(rest, LV_OPA_COVER, 0);
+	lv_obj_set_style_bg_img_src(rest, "S:/bg_bot.bin", 0);
 
 	// Scrolling
 

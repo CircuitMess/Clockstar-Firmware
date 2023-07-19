@@ -17,7 +17,6 @@ public:
 	virtual ~LockScreen();
 
 private:
-	lv_obj_t* bg;
 
 	/** Layout:
 	 *
