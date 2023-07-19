@@ -1,7 +1,13 @@
 #include "Item.h"
 #include <regex>
 
+LVStyle Item::standard;
+LVStyle Item::focused;
+bool Item::styleInited = false;
+
 Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(parent), onDismiss(dismiss){
+	initStyle();
+
 	lv_obj_set_size(*this, lv_pct(100), LV_SIZE_CONTENT);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
 
@@ -9,20 +15,6 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 
 	lv_obj_add_style(*this, standard, LV_STATE_DEFAULT);
 	lv_obj_add_style(*this, focused, LV_STATE_FOCUSED);
-
-	lv_style_set_radius(standard, 3);
-	lv_style_set_pad_top(standard, 2);
-	lv_style_set_pad_bottom(standard, 3);
-	lv_style_set_pad_hor(standard, 3);
-	lv_style_set_pad_gap(standard, 4);
-
-	lv_style_set_border_width(standard, 1);
-	lv_style_set_border_color(standard, lv_color_white());
-	lv_style_set_border_opa(standard, 40);
-
-	lv_style_set_bg_color(focused, lv_color_white());
-	lv_style_set_bg_opa(focused, 40);
-	lv_style_set_border_opa(focused, LV_OPA_0);
 
 	top = lv_obj_create(*this);
 	lv_obj_set_size(top, lv_pct(100), 11);
@@ -126,4 +118,23 @@ void Item::delControls(){
 	lv_obj_del(ctrl);
 	ctrl = nullptr;
 	del = canc = nullptr;
+}
+
+void Item::initStyle(){
+	if(styleInited) return;
+	styleInited = true;
+
+	lv_style_set_radius(standard, 3);
+	lv_style_set_pad_top(standard, 2);
+	lv_style_set_pad_bottom(standard, 3);
+	lv_style_set_pad_hor(standard, 3);
+	lv_style_set_pad_gap(standard, 4);
+
+	lv_style_set_border_width(standard, 1);
+	lv_style_set_border_color(standard, lv_color_white());
+	lv_style_set_border_opa(standard, 40);
+
+	lv_style_set_bg_color(focused, lv_color_white());
+	lv_style_set_bg_opa(focused, 40);
+	lv_style_set_border_opa(focused, LV_OPA_0);
 }

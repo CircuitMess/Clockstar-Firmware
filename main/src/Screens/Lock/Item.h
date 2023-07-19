@@ -15,8 +15,11 @@ public:
 	void update(const Notif& notif);
 
 private:
-	LVStyle standard;
-	LVStyle focused;
+	static LVStyle standard;
+	static LVStyle focused;
+
+	static bool styleInited;
+	static void initStyle();
 
 	lv_obj_t* top;
 	lv_obj_t* icon;
