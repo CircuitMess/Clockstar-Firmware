@@ -25,9 +25,12 @@ private:
 	lv_obj_t* bot;
 	lv_obj_t* body;
 
-	lv_obj_t* ctrl;
-	CtrlItem* del;
-	CtrlItem* canc;
+	lv_obj_t* ctrl = nullptr;
+	CtrlItem* del = nullptr;
+	CtrlItem* canc = nullptr;
+
+	void createControls();
+	void delControls();
 
 	const std::function<void()> onDismiss;
 

@@ -53,7 +53,8 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);
 		lv_obj_set_size(item->body, lv_pct(100), LV_SIZE_CONTENT);
-		lv_obj_clear_flag(item->ctrl, LV_OBJ_FLAG_HIDDEN);
+
+		item->createControls();
 		lv_group_focus_obj(*item->canc);
 		lv_obj_scroll_to_view(*item, LV_ANIM_ON);
 	}, LV_EVENT_CLICKED, this);
@@ -61,7 +62,8 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);
 		lv_obj_set_size(item->body, lv_pct(100), 8);
-		lv_obj_add_flag(item->ctrl, LV_OBJ_FLAG_HIDDEN);
+
+		item->delControls();
 	}, LV_EVENT_READY, this);
 
 	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
@@ -75,8 +77,20 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 		lv_label_set_long_mode(item->label, LV_LABEL_LONG_DOT);
 		lv_label_set_long_mode(item->body, LV_LABEL_LONG_DOT);
 	}, LV_EVENT_DEFOCUSED, this);
+}
 
+void Item::update(const Notif& notif){
+	lv_img_set_src(icon, iconPath(notif));
 
+	lv_label_set_text(label, notif.title.c_str());
+
+	auto copy = notif.message;
+	copy = std::regex_replace(copy, std::regex("\\n"), "  ");
+
+	lv_label_set_text(body, copy.c_str());
+}
+
+void Item::createControls(){
 	ctrl = lv_obj_create(*this);
 	lv_obj_set_size(ctrl, lv_pct(100), LV_SIZE_CONTENT);
 	lv_obj_set_style_bg_color(ctrl, lv_color_black(), 0);
@@ -104,18 +118,12 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	lv_group_add_obj(inputGroup, *del);
 	lv_group_add_obj(inputGroup, *canc);
 	lv_group_set_wrap(inputGroup, false);
-
-	lv_obj_add_flag(ctrl, LV_OBJ_FLAG_HIDDEN);
-
 }
 
-void Item::update(const Notif& notif){
-	lv_img_set_src(icon, iconPath(notif));
-
-	lv_label_set_text(label, notif.title.c_str());
-
-	auto copy = notif.message;
-	copy = std::regex_replace(copy, std::regex("\\n"), "  ");
-
-	lv_label_set_text(body, copy.c_str());
+void Item::delControls(){
+	delete del;
+	delete canc;
+	lv_obj_del(ctrl);
+	ctrl = nullptr;
+	del = canc = nullptr;
 }
