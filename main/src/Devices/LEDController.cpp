@@ -64,9 +64,10 @@ void LEDController<T>::blinkTwice(T color){
 }
 
 template <typename T>
-void LEDController<T>::blinkContinuous(T color, uint32_t duration){
+void LEDController<T>::blinkContinuous(T color, uint32_t onTime, uint32_t offTime){
 	blink(color);
-	blinkContinuousDuration = duration;
+	blinkContinuousOnTime = onTime;
+	blinkContinuousOffTime = offTime;
 	LEDstate = Continuous;
 }
 
@@ -102,7 +103,8 @@ void LEDController<T>::loop(){
 	else if(LEDstate == Twice || LEDstate == Once){
 		if(millis() - blinkStartTime < blinkDuration) return;
 	}else if(LEDstate == Continuous){
-		if(millis() - blinkStartTime < blinkContinuousDuration) return;
+		if(blinkState && millis() - blinkStartTime < blinkContinuousOnTime) return;
+		else if(!blinkState && millis() - blinkStartTime < blinkContinuousOffTime) return;
 	}
 
 	bool push = false;

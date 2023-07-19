@@ -23,7 +23,7 @@ public:
 	 * @param color Selected color
 	 * @param duration Duration of LED on/off cycle. LED will stay the same color for 'duration' ms, then turn off for 'duration' ms.
 	 */
-	void blinkContinuous(T color, uint32_t duration = 500);
+	void blinkContinuous(T color, uint32_t onTime = 500, uint32_t offTime = 500);
 
 	/**
 	 * Breathes an LED from specified start value to end value.
@@ -52,7 +52,8 @@ private:
 	T blinkColor{};
 	uint32_t blinkStartTime = 0;
 	bool blinkState = false;
-	uint32_t blinkContinuousDuration = 0; //[ms]
+	uint32_t blinkContinuousOnTime = 0; //[ms]
+	uint32_t blinkContinuousOffTime = 0; //[ms]
 
 	bool breatheQueued = false; // used to prevent breathe command from interrupting blink/doubleBlink
 	T breatheStart{};
