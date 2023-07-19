@@ -49,10 +49,10 @@ void StatusCenter::processPhone(const Phone::Event& evt){
 			Chirp { .startFreq = 0, .endFreq = 0, .duration = 100 },
 			Chirp { .startFreq = 1000, .endFreq = 800, .duration = 100 }
 		});
-	}
 
-	if(settings.get().ledEnable){
-		blink();
+		if(settings.get().ledEnable){
+			blink();
+		}
 	}
 
 	updateLED();
