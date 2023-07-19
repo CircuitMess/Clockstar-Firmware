@@ -78,9 +78,9 @@ void StatusCenter::updateLED(){
 	}
 
 	if(battState == Empty){
-		led->breathe({ 255, 0, 0 }, { 255, 80, 80 }, 1000000);
-	}else if(battState == Empty){
-		led->breathe({ 0, 0, 255 }, { 80, 0, 230 }, 1000000);
+		led->blinkContinuous({ 255, 0, 0 }, 100, 3000);
+	}else if(battState == Charging){
+		led->breathe({ 40, 250, 0 }, { 60, 230, 0 }, 6000);
 	}else if(battState == Ok){
 		led->clear();
 	}
