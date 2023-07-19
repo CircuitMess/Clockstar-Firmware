@@ -85,7 +85,7 @@ void init(){
 	auto disp = new Display();
 	auto input = new Input();
 
-	auto sleep = new Sleep(*input, *time, *bl);
+	auto sleep = new Sleep(*input, *time, *bl, *battery);
 	Services.set(Service::Sleep, sleep);
 	//TODO - apply sleepTime from Settings
 
