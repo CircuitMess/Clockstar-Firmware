@@ -72,7 +72,8 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 }
 
 void Item::update(const Notif& notif){
-	lv_img_set_src(icon, iconPath(notif));
+	iPath = ::iconPath(notif);
+	lv_img_set_src(icon, iPath);
 
 	lv_label_set_text(label, notif.title.c_str());
 
@@ -80,6 +81,10 @@ void Item::update(const Notif& notif){
 	copy = std::regex_replace(copy, std::regex("\\n"), "  ");
 
 	lv_label_set_text(body, copy.c_str());
+}
+
+const char* Item::iconPath(){
+	return iPath;
 }
 
 void Item::createControls(){

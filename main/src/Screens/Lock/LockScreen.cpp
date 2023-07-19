@@ -147,8 +147,6 @@ void LockScreen::updateNotifs(){
 
 void LockScreen::notifAdd(const Notif& notif){
 	if(notifs.count(notif.uid) == 0){
-		addNotifIcon(notif);
-
 		auto uid = notif.uid;
 		auto item = new Item(rest, [this, uid](){
 			notifRem(uid);
@@ -158,21 +156,13 @@ void LockScreen::notifAdd(const Notif& notif){
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
 
-		notifs.insert(std::make_pair(notif.uid, NotifEl{
-				.notif = notif,
-				.item = item
-		}));
-	}else{
-		if(iconPath(notifs[notif.uid].notif) != iconPath(notif)){
-			addNotifIcon(notif);
-			removeNotifIcon(notifs[notif.uid].notif);
-		}
-		notifs[notif.uid].notif = notif;
+		notifs.insert(std::make_pair(notif.uid, item));
+
+		addNotifIcon(iconPath(notif));
 	}
 
-	NotifEl& el = notifs[notif.uid];
-
-	el.item->update(notif);
+	auto el = notifs[notif.uid];
+	el->update(notif);
 }
 
 void LockScreen::notifRem(uint32_t id){
@@ -180,79 +170,51 @@ void LockScreen::notifRem(uint32_t id){
 	if(it == notifs.end()) return;
 	auto& el = it->second;
 
-	removeNotifIcon(el.notif);
+	removeNotifIcon(el->iconPath());
 	lv_group_focus_next(inputGroup);
 
-	delete el.item;
+	delete el;
 	notifs.erase(it);
 }
 
 void LockScreen::notifsClear(){
 	notifs.clear(); // This has to precede rest clearing
 	lv_obj_clean(rest);
-	for(auto& [path, icon] : notifIcons){
-		FSLVGL::removeFromCache(path);
-	}
+
 	notifIcons.clear();
 	lv_obj_clean(icons);
 }
 
 
-void LockScreen::addNotifIcon(const Notif& notif){
+void LockScreen::addNotifIcon(const char* path){
+	if(path == nullptr) return;
 
-	if(!notifIcons.count(iconPath(notif))){
-		if(notifIcons.size() >= MaxIconsCount){
-			if(notifIcons.count(EtcIconPath) == 0){
-				lv_obj_t* icon = lv_img_create(icons);
-				NotifIcon notifIcon = { 1, icon };
-				notifIcons.insert({ EtcIconPath, notifIcon });
-				FSLVGL::addToCache(EtcIconPath, false);
-				lv_img_set_src(icon, EtcIconPath);
-			}
-
-			NotifIcon notifIcon = { 1, nullptr };
-			notifIcons.insert({ iconPath(notif), notifIcon });
-		}else{
-			lv_obj_t* icon = lv_img_create(icons);
-			NotifIcon notifIcon = { 1, icon };
-			notifIcons.insert({ iconPath(notif), notifIcon });
-			FSLVGL::addToCache(iconPath(notif), false);
-			lv_img_set_src(icon, iconPath(notif));
-		}
-	}else{
-		notifIcons[iconPath(notif)].count++;
+	if(notifIcons.count(path)){
+		notifIcons[path].count++;
+		return;
 	}
+
+	if(notifIcons.size() >= MaxIconsCount) return;
+
+
+	lv_obj_t* icon = lv_img_create(icons);
+	lv_img_set_src(icon, path);
+
+	NotifIcon notifIcon = { 1, icon };
+	notifIcons.insert({ path, notifIcon });
 }
 
-void LockScreen::removeNotifIcon(const Notif& notif){
-	if(!notifIcons.count(iconPath(notif))) return;
+void LockScreen::removeNotifIcon(const char* path){
+	if(path == nullptr) return;
 
-	auto& notifIcon = notifIcons[iconPath(notif)];
-	if(--notifIcon.count <= 0){
-		if(notifIcon.icon != nullptr){
-			FSLVGL::removeFromCache(iconPath(notif));
-			lv_obj_del(notifIcon.icon);
-		}
-		notifIcons.erase(iconPath(notif));
-		if(notifIcons.count(EtcIconPath)){
-			for(auto& [path, icon] : notifIcons){
-				if(icon.icon == nullptr){
-					icon.icon = lv_img_create(icons);
-					FSLVGL::addToCache(path, false);
-					lv_img_set_src(icon.icon, path);
-					break;
-				}
-			}
-			if(notifIcons.size() - 1 <= MaxIconsCount){
-				auto& etcIcon = notifIcons[EtcIconPath];
-				FSLVGL::removeFromCache(EtcIconPath);
-				lv_obj_del(etcIcon.icon);
-				notifIcons.erase(EtcIconPath);
-			}else{
-				lv_obj_move_to_index(notifIcons[EtcIconPath].icon, -1);
-			}
-		}
-	}
+	auto pair = notifIcons.find(path);
+	if(pair == notifIcons.end()) return;
+
+	pair->second.count -= 1;
+	if(pair->second.count > 0) return;
+
+	lv_obj_del(pair->second.icon);
+	notifIcons.erase(pair);
 }
 
 void LockScreen::updateTime(const tm& time){
