@@ -6,6 +6,8 @@
 #include "Screens/Theremin/Theremin.h"
 #include "Screens/Settings/SettingsScreen.h"
 
+uint8_t  MainMenu::lastIndex = 0;
+
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
@@ -64,8 +66,8 @@ void MainMenu::onStarting(){
 		lv_obj_add_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
 	}
 
-	lv_obj_scroll_to(*this, 0, 0, LV_ANIM_OFF);
-	lv_group_focus_obj(*items[0]);
+	lv_group_focus_obj(*items[lastIndex]);
+	lv_obj_scroll_to_view(*items[lastIndex], LV_ANIM_OFF);
 }
 
 void MainMenu::loop(){
@@ -88,6 +90,8 @@ void MainMenu::onClick(){
 	auto focused = lv_group_get_focused(inputGroup);
 	auto index = lv_obj_get_index(focused);
 	if(index <= AltItemCount) return;
+
+	lastIndex = index - 1;
 
 	std::function<void()> launcher[] = {
 			[this](){ transition([](){ return std::make_unique<Level>(); }); },
@@ -130,5 +134,6 @@ void MainMenu::handlePhoneChange(Phone::Event& event){
 void MainMenu::handleInput(Input::Data& event){
 	if(event.btn == Input::Alt && event.action == Input::Data::Press){
 		transition([](){ return std::make_unique<LockScreen>(); });
+		lastIndex = 0;
 	}
 }
