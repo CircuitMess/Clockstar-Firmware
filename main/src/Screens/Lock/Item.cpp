@@ -97,7 +97,7 @@ void Item::createControls(){
 	lv_obj_set_style_radius(ctrl, 3, 0);
 
 	del = new CtrlItem(ctrl, "S:/icon/trash.bin", "S:/icon/trash_sel.bin");
-	canc = new CtrlItem(ctrl, "S:/icon/x.bin", "S:/icon/x_sel.bin");
+	canc = new CtrlItem(ctrl, "S:/icon/back.bin", "S:/icon/back_sel.bin");
 
 	lv_obj_add_event_cb(*canc, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);

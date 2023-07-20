@@ -22,4 +22,7 @@ uint64_t micros();
 
 void ramReport();
 
+void stackRep(const char* where = nullptr);
+void heapRep(const char* where = nullptr);
+
 #endif //CLOCKSTAR_FIRMWARE_STDAFX_H

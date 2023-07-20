@@ -1,8 +1,8 @@
 #include "StatusBar.h"
 #include "Util/Services.h"
 
-StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))),
-														 battery(*((Battery*) Services.get(Service::Battery))), queue(12){
+StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))),
+														 battery(*((Battery*) Services.get(Service::Battery))), queue(12), showExtra(showExtra){
 	lv_obj_set_size(*this, 128, 15);
 	lv_obj_set_style_pad_ver(*this, 2, 0);
 	lv_obj_set_style_pad_hor(*this, 3, 0);
@@ -18,10 +18,14 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showClock) : LVObject(parent), phone
 
 	phoneIcon = lv_img_create(left);
 
-	if(showClock){
+	if(showExtra){
 		clock = new ClockLabelSmall(*this);
 		lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
 		lv_obj_center(*clock);
+
+		notifIcon = lv_img_create(left);
+		lv_img_set_src(notifIcon, "S:/icon/cat_other.bin");
+		setNotifIcon();
 	}
 
 	batDevice = new BatteryElement(*this);
@@ -52,6 +56,9 @@ void StatusBar::loop(){
 		setPhoneConnected();
 	}
 
+	if(showExtra && notifPresent ^ (phone.getNotifsCount() > 0)){
+		setNotifIcon();
+	}
 
 	Event event{};
 	if(queue.get(event, 0)){
@@ -100,4 +107,14 @@ BatteryElement::Level StatusBar::getLevel(uint8_t level){
 	else if(level >= 2) return BatteryElement::Mid;
 	else if(level >= 1) return BatteryElement::Low;
 	else return BatteryElement::Empty;
+}
+
+void StatusBar::setNotifIcon(){
+	if(phone.getNotifsCount()){
+		lv_obj_clear_flag(notifIcon, LV_OBJ_FLAG_HIDDEN);
+		notifPresent = true;
+	}else{
+		lv_obj_add_flag(notifIcon, LV_OBJ_FLAG_HIDDEN);
+		notifPresent = false;
+	}
 }

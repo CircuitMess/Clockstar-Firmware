@@ -9,7 +9,7 @@
 
 static const char* TAG = "Bangle";
 
-Bangle::Bangle(BLE::Server* server) : Threaded("Bangle", 12 * 1024), server(server), uart(server){
+Bangle::Bangle(BLE::Server* server) : Threaded("Bangle", 4 * 1024), server(server), uart(server){
 	server->setOnConnectCb([this](const esp_bd_addr_t addr){ connect(); });
 	server->setOnDisconnectCb([this](const esp_bd_addr_t addr){ disconnect(); });
 	start();

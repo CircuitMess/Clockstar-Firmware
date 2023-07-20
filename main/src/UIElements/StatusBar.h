@@ -12,7 +12,7 @@
 
 class StatusBar : public LVObject {
 public:
-	explicit StatusBar(lv_obj_t* parent, bool showClock = true);
+	explicit StatusBar(lv_obj_t* parent, bool showExtra = true);
 
 	~StatusBar() override;
 
@@ -25,14 +25,18 @@ private:
 	EventQueue queue;
 
 	bool connected = false;
+	bool showExtra = false;
+	bool notifPresent = false;
 
 	lv_obj_t* left;
 	lv_obj_t* phoneIcon;
+	lv_obj_t* notifIcon;
 	ClockLabelSmall* clock = nullptr;
 	BatteryElement* batDevice;
 
 	void setPhoneConnected();
 	void setDeviceBattery();
+	void setNotifIcon();
 
 	static BatteryElement::Level getLevel(uint8_t level);
 };

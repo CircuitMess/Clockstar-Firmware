@@ -40,8 +40,8 @@ static const char* Cached[] = {
 	"/icon/lock_open.bin",
 	"/icon/trash.bin",
 	"/icon/trash_sel.bin",
-	"/icon/x.bin",
-	"/icon/x_sel.bin",
+	"/icon/back.bin",
+	"/icon/back_sel.bin",
 
 	"/clockIcons/0.bin",
 	"/clockIcons/1.bin",

@@ -43,6 +43,8 @@ private:
 	uint32_t findPhoneCounter = 0;
 	static constexpr uint32_t FindPhonePeriod = 1000; //1 second
 
+	static uint8_t lastIndex;
+
 	Phone& phone;
 
 	StatusBar* statusBar;
