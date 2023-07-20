@@ -7,11 +7,62 @@
 #include <algorithm>
 #include <unordered_map>
 
+static const char* Cached[] = {
+	"/bg.bin",
+	"/bg_bot.bin",
+
+	/*"/icons/batteryFull.bin",
+	"/icons/batteryLow.bin",
+	"/icons/batteryMid.bin",
+	"/icons/phone.bin",
+	"/icons/phoneDisconnected.bin",
+
+	"/icon/app_inst.bin",
+	"/icon/app_mess.bin",
+	"/icon/app_sms.bin",
+	"/icon/app_snap.bin",
+	"/icon/app_tiktok.bin",
+	"/icon/app_wapp.bin",
+	"/icon/call_in.bin",
+	"/icon/call_miss.bin",
+	"/icon/call_out.bin",
+	"/icon/cat_email.bin",
+	"/icon/cat_entert.bin",
+	"/icon/cat_fin.bin",
+	"/icon/cat_health.bin",
+	"/icon/cat_loc.bin",
+	"/icon/cat_news.bin",
+	"/icon/cat_other.bin",
+	"/icon/cat_sched.bin",
+	"/icon/cat_soc.bin",
+	"/icon/etc.bin",
+	"/icon/lock_closed.bin",
+	"/icon/lock_open.bin",
+	"/icon/trash.bin",
+	"/icon/trash_sel.bin",
+	"/icon/back.bin",
+	"/icon/back_sel.bin",
+
+	"/clockIcons/0.bin",
+	"/clockIcons/1.bin",
+	"/clockIcons/2.bin",
+	"/clockIcons/3.bin",
+	"/clockIcons/4.bin",
+	"/clockIcons/5.bin",
+	"/clockIcons/6.bin",
+	"/clockIcons/7.bin",
+	"/clockIcons/8.bin",
+	"/clockIcons/9.bin",
+	"/clockIcons/colon.bin",
+	"/clockIcons/space.bin"*/
+
+};
+
 const char* TAG = "FSLVGL";
 std::unordered_set<FSLVGL::FileResource, std::hash<RamFile*>> FSLVGL::cache;
 
 FSLVGL::FSLVGL(char letter){
-	cache.reserve(32);
+	cache.reserve(sizeof(Cached) / sizeof(Cached[0]) + 16);
 
 	esp_vfs_spiffs_conf_t conf = {
 			.base_path = "/spiffs",
@@ -112,6 +163,12 @@ void FSLVGL::removeFromCache(const char* path){
 	if(it == cache.end()) return;
 
 	it->deleteFlag = true;
+}
+
+void FSLVGL::loadCache(){
+	for(const auto& path : Cached){
+		addToCache(path);
+	}
 }
 
 bool FSLVGL::ready_cb(struct _lv_fs_drv_t* drv){

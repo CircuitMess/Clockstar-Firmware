@@ -17,7 +17,6 @@ public:
 	virtual ~LockScreen();
 
 private:
-	lv_obj_t* bg;
 
 	/** Layout:
 	 *
@@ -56,11 +55,7 @@ private:
 	Phone& phone;
 	EventQueue queue;
 
-	struct NotifEl {
-		Notif notif;
-		Item* item;
-	};
-	std::unordered_map<uint32_t, NotifEl> notifs;
+	std::unordered_map<uint32_t, Item*> notifs;
 
 	struct NotifIcon {
 		uint32_t count;
@@ -78,8 +73,8 @@ private:
 	void notifRem(uint32_t id);
 	void notifsClear();
 
-	void addNotifIcon(const Notif& notif);
-	void removeNotifIcon(const Notif& notif);
+	void addNotifIcon(const char* path);
+	void removeNotifIcon(const char* path);
 
 	void loop() override;
 	void processEvt(const Phone::Event& evt);

@@ -40,6 +40,10 @@ std::vector<Notif> Phone::getNotifs(){
 	return notifs;
 }
 
+uint32_t Phone::getNotifsCount() const{
+	return notifs.size();
+}
+
 void Phone::doPos(uint32_t id){
 	if(current == nullptr || findNotif(id) == notifs.end()) return;
 	current->actionPos(id);
@@ -72,6 +76,8 @@ void Phone::onDisconnect(NotifSource* src){
 }
 
 void Phone::onAdd(Notif notif){
+	if(notif.title.empty() && notif.message.empty()) return;
+
 	if(findNotif(notif.uid) != notifs.end()) return;
 	if(notifs.size() + 1 == notifs.capacity()){
 		notifs.reserve(notifs.capacity() * 2);

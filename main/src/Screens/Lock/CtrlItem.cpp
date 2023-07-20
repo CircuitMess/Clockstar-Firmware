@@ -14,13 +14,21 @@ CtrlItem::CtrlItem(lv_obj_t* parent, const char* desel, const char* sel) : LVObj
 	lv_obj_set_size(icon, 10, 10);
 	lv_img_set_src(icon, desel);
 
-	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
-		auto item = static_cast<CtrlItem*>(evt->user_data);
-		lv_img_set_src(item->icon, item->sel);
-	}, LV_EVENT_FOCUSED, this);
+	lv_obj_add_event_cb(*this, cbFocus, LV_EVENT_FOCUSED, this);
+	lv_obj_add_event_cb(*this, cbDefocus, LV_EVENT_DEFOCUSED, this);
+}
 
-	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
-		auto item = static_cast<CtrlItem*>(evt->user_data);
-		lv_img_set_src(item->icon, item->desel);
-	}, LV_EVENT_DEFOCUSED, this);
+CtrlItem::~CtrlItem(){
+	lv_obj_remove_event_cb(*this, cbFocus);
+	lv_obj_remove_event_cb(*this, cbDefocus);
+}
+
+void CtrlItem::cbFocus(lv_event_t* evt){
+	auto item = static_cast<CtrlItem*>(evt->user_data);
+	lv_img_set_src(item->icon, item->sel);
+}
+
+void CtrlItem::cbDefocus(lv_event_t* evt){
+	auto item = static_cast<CtrlItem*>(evt->user_data);
+	lv_img_set_src(item->icon, item->desel);
 }

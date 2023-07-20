@@ -14,7 +14,7 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 
 	bg = lv_obj_create(*this);
 	lv_obj_add_flag(bg, LV_OBJ_FLAG_FLOATING);
-	lv_obj_set_size(bg, 128, 256);
+	lv_obj_set_size(bg, 128, 128);
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);

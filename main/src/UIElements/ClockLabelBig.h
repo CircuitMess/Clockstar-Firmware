@@ -7,9 +7,6 @@ class ClockLabelBig : public ClockLabel {
 public:
 	explicit ClockLabelBig(lv_obj_t* parent);
 
-	static void loadCache();
-	static void unloadCache();
-
 private:
 	void updateUI(const char* clockText) override;
 

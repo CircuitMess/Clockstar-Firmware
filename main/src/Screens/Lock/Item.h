@@ -13,10 +13,16 @@ public:
 	Item(lv_obj_t* parent, std::function<void()> dismiss);
 
 	void update(const Notif& notif);
+	const char* iconPath();
 
 private:
-	LVStyle standard;
-	LVStyle focused;
+	static LVStyle standard;
+	static LVStyle focused;
+
+	static bool styleInited;
+	static void initStyle();
+
+	const char* iPath = nullptr;
 
 	lv_obj_t* top;
 	lv_obj_t* icon;
@@ -25,9 +31,12 @@ private:
 	lv_obj_t* bot;
 	lv_obj_t* body;
 
-	lv_obj_t* ctrl;
-	CtrlItem* del;
-	CtrlItem* canc;
+	lv_obj_t* ctrl = nullptr;
+	CtrlItem* del = nullptr;
+	CtrlItem* canc = nullptr;
+
+	void createControls();
+	void delControls();
 
 	const std::function<void()> onDismiss;
 
