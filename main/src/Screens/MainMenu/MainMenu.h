@@ -35,6 +35,13 @@ private:
 	static constexpr uint8_t AltItemCount = sizeof(AltItems) / sizeof(AltItems[0]);
 
 	bool findPhoneRinging = false;
+	void startPhoneRing();
+	void stopPhoneRing();
+	void handleRing();
+
+	bool findPhoneState = false;
+	uint32_t findPhoneCounter = 0;
+	static constexpr uint32_t FindPhonePeriod = 1000; //1 second
 
 	Phone& phone;
 
@@ -44,6 +51,7 @@ private:
 	MenuItem* items[ItemCount];
 
 	void onStarting() override;
+	void onStop() override;
 	void loop() override;
 	EventQueue queue;
 

@@ -5,6 +5,7 @@
 #include "Screens/Level.h"
 #include "Screens/Theremin/Theremin.h"
 #include "Screens/Settings/SettingsScreen.h"
+#include "Util/stdafx.h"
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
@@ -45,15 +46,17 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	//find my phone
 	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
 		auto menu = static_cast<MainMenu*>(evt->user_data);
-		menu->findPhoneRinging = !menu->findPhoneRinging;
-		menu->findPhoneRinging ? menu->phone.findPhoneStart() : menu->phone.findPhoneStop();
+		if(menu->findPhoneRinging){
+			menu->stopPhoneRing();
+		}else{
+			menu->startPhoneRing();
+		}
 	}, LV_EVENT_CLICKED, this);
 
 	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
 		auto menu = static_cast<MainMenu*>(evt->user_data);
 		if(menu->findPhoneRinging){
-			menu->findPhoneRinging = false;
-			menu->phone.findPhoneStop();
+			menu->stopPhoneRing();
 		}
 	}, LV_EVENT_DEFOCUSED, this);
 
@@ -83,8 +86,14 @@ void MainMenu::onStarting(){
 	lv_group_focus_obj(*items[0]);
 }
 
+void MainMenu::onStop(){
+	stopPhoneRing();
+}
+
 void MainMenu::loop(){
 	statusBar->loop();
+
+	handleRing();
 
 	Event evt;
 	if(queue.get(evt, 0)){
@@ -147,3 +156,30 @@ void MainMenu::handleInput(Input::Data& event){
 		transition([](){ return std::make_unique<LockScreen>(); });
 	}
 }
+
+void MainMenu::startPhoneRing(){
+	if(findPhoneRinging) return;
+
+	findPhoneRinging = true;
+	phone.findPhoneStart();
+	findPhoneCounter = millis();
+	findPhoneState = true;
+}
+
+void MainMenu::stopPhoneRing(){
+	if(!findPhoneRinging) return;
+
+	findPhoneRinging = false;
+	phone.findPhoneStop();
+}
+
+void MainMenu::handleRing(){
+	if(!findPhoneRinging) return;
+
+	if(millis() - findPhoneCounter >= FindPhonePeriod){
+		findPhoneCounter = millis();
+		findPhoneState = !findPhoneState;
+		findPhoneState ? phone.findPhoneStart() : phone.findPhoneStop();
+	}
+}
+
