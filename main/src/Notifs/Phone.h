@@ -30,6 +30,7 @@ public:
 
 	Notif getNotif(uint32_t uid);
 	std::vector<Notif> getNotifs();
+	[[nodiscard]] uint32_t getNotifsCount() const;
 
 	void doPos(uint32_t id);
 	void doNeg(uint32_t id);
