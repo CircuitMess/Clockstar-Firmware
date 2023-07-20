@@ -6,8 +6,8 @@
 
 static const char* TAG = "IMU";
 
-IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(1 /*MaxReads*/), thread1([this](){ thread1Func(); }, "IMU1", 4 * 1024),
-					 thread2([this](){ thread2Func(); }, "IMU2", 4 * 1024){
+IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(1 /*MaxReads*/), thread1([this](){ thread1Func(); }, "IMU1", 2 * 1024),
+					 thread2([this](){ thread2Func(); }, "IMU2", 2 * 1024){
 	sem1 = xSemaphoreCreateBinary();
 	sem2 = xSemaphoreCreateBinary();
 
@@ -168,63 +168,61 @@ void IRAM_ATTR IMU::isr2(void* arg){
 	xSemaphoreGiveFromISR(imu->sem2, nullptr);
 }
 
-[[noreturn]] void IMU::thread1Func(){
-	for(;;){
-		if(xSemaphoreTake(sem1, portMAX_DELAY) != pdTRUE) continue;
+void IMU::thread1Func(){
+	if(xSemaphoreTake(sem1, portMAX_DELAY) != pdTRUE) return;
 
-		lsm6ds3tr_c_all_sources_t src;
-		lsm6ds3tr_c_all_sources_get(&ctx, &src);
+	lsm6ds3tr_c_all_sources_t src;
+	lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
-		uint8_t fifoThresh = 0;
-		lsm6ds3tr_c_fifo_wtm_flag_get(&ctx, &fifoThresh);
+	uint8_t fifoThresh = 0;
+	lsm6ds3tr_c_fifo_wtm_flag_get(&ctx, &fifoThresh);
 
-		if(fifoThresh){
-			uint16_t numReadings;
-			lsm6ds3tr_c_fifo_data_level_get(&ctx, &numReadings);
-			const auto numDataSets = numReadings / 6;
+	if(fifoThresh){
+		uint16_t numReadings;
+		lsm6ds3tr_c_fifo_data_level_get(&ctx, &numReadings);
+		const auto numDataSets = numReadings / 6;
 
-			struct RawSample {
-				uint16_t gX, gY, gZ, aX, aY, aZ;
-			} buf{};
-			for(int i = 0; i < numDataSets; ++i){
-				lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(&buf), sizeof(RawSample));
-			}
-
-			/*
-			struct RawSample {
-				uint16_t gX, gY, gZ, aX, aY, aZ;
-			} buf[numDataSets];
-			lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(buf), numReadings * 2);
-
-			for(auto& read : buf){
-				Sample sample = {
-						gyConv(read.gX),
-						gyConv(read.gY),
-						gyConv(read.gZ),
-						xlConv(read.aX),
-						xlConv(read.aY),
-						xlConv(read.aZ)
-				};
-
-				fifoSamples.post(sample);
-			}
-
-			Event evt = { .action = Event::FIFO };
-			Events::post(Facility::Motion, &evt, sizeof(evt));
-			 */
+		struct RawSample {
+			uint16_t gX, gY, gZ, aX, aY, aZ;
+		} buf{};
+		for(int i = 0; i < numDataSets; ++i){
+			lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(&buf), sizeof(RawSample));
 		}
 
-		if(src.func_src1.sign_motion_ia){
-			Event evt = { .action = Event::SignMotion };
-			Events::post(Facility::Motion, &evt, sizeof(evt));
+		/*
+		struct RawSample {
+			uint16_t gX, gY, gZ, aX, aY, aZ;
+		} buf[numDataSets];
+		lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(buf), numReadings * 2);
+
+		for(auto& read : buf){
+			Sample sample = {
+					gyConv(read.gX),
+					gyConv(read.gY),
+					gyConv(read.gZ),
+					xlConv(read.aX),
+					xlConv(read.aY),
+					xlConv(read.aZ)
+			};
+
+			fifoSamples.post(sample);
 		}
 
-		if(src.tap_src.single_tap){
-			Event evt = { .action = Event::SingleTap };
-			Events::post(Facility::Motion, &evt, sizeof(evt));
-		}
-
+		Event evt = { .action = Event::FIFO };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
+		 */
 	}
+
+	if(src.func_src1.sign_motion_ia){
+		Event evt = { .action = Event::SignMotion };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
+	}
+
+	if(src.tap_src.single_tap){
+		Event evt = { .action = Event::SingleTap };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
+	}
+
 }
 
 [[noreturn]] void IMU::thread2Func(){

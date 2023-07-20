@@ -112,7 +112,7 @@ private:
 	static void IRAM_ATTR isr2(void* arg);
 	ThreadedClosure thread1;
 	ThreadedClosure thread2;
-	[[noreturn]] void thread1Func();
+	void thread1Func();
 	[[noreturn]] void thread2Func();
 
 	static double xlConv(int16_t raw);
