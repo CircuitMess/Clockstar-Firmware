@@ -1,6 +1,6 @@
 #include "UART.h"
 
-BLE::UART::UART(BLE::Server* server) : Threaded("BLE UART", 1024), server(server), rxQueue(12){
+BLE::UART::UART(BLE::Server* server) : Threaded("BLE UART", 2 * 1024), server(server), rxQueue(12){
 	service = server->addService(ServiceUID);
 
 	// Creation order is important due to char shenanigans: When any char creates a descriptor,
