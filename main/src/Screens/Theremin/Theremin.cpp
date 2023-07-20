@@ -23,6 +23,8 @@ Theremin::~Theremin(){
 }
 
 void Theremin::setOrientation(float pitch, float roll){
+	roll = -roll;
+
 	pitch = std::clamp(pitch, -AngleConstraint, AngleConstraint);
 	roll = std::clamp(roll, -AngleConstraint, AngleConstraint);
 
