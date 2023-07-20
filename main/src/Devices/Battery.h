@@ -7,6 +7,7 @@
 #include "Periph/ADC.h"
 #include "Util/Hysteresis.h"
 #include "Periph/Timer.h"
+#include <mutex>
 
 class Battery : private Threaded {
 public:
@@ -52,7 +53,7 @@ private:
 	void shortMeasureReset();
 
 	bool longMeasure = false;
-	SemaphoreHandle_t mut;
+	std::mutex mut;
 	SemaphoreHandle_t sem;
 	Timer timer;
 	static void isr(void* arg);

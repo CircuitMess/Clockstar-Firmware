@@ -7,7 +7,7 @@
 #include <driver/gpio.h>
 
 Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05), hysteresis(HysteresisThresholds),
-					 mut(xSemaphoreCreateMutex()), sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
+					sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 	gpio_config_t cfg_gpio = {};
 	cfg_gpio.mode = GPIO_MODE_INPUT;
 	cfg_gpio.pull_down_en = GPIO_PULLDOWN_ENABLE;
@@ -55,8 +55,7 @@ void Battery::loop(){
 
 	if(abortFlag) return;
 
-	while(!xSemaphoreTake(mut, portMAX_DELAY));
-
+	std::unique_lock lock(mut);
 
 	// TODO: send evt on chrg
 	if(isCharging()){
@@ -81,6 +80,7 @@ void Battery::loop(){
 
 		if(longMeasure){
 			quickSample();
+			level = hysteresis.update(getPercentage());
 			measureDone = true;
 		}else{
 			measureDone = longSample();
@@ -104,7 +104,7 @@ void Battery::loop(){
 
 	timer.setPeriod(longMeasure ? LongMeasureIntverval : ShortMeasureIntverval);
 
-	xSemaphoreGive(mut);
+	lock.unlock();
 
 	timer.reset();
 	timer.start();
@@ -139,14 +139,15 @@ int16_t Battery::getVoltOffset(){
 }
 
 void Battery::setLongMeasure(bool enable){
-	while(!xSemaphoreTake(mut, portMAX_DELAY));
+	std::unique_lock lock(mut);
+
 
 	if(longMeasure == enable) return;
 
 	timer.stop();
 	longMeasure = enable;
 
-	xSemaphoreGive(mut);
+	lock.unlock();
 
 	if(!longMeasure){
 		shortMeasureReset();
