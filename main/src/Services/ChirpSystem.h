@@ -65,7 +65,7 @@ private:
 	bool pwmPersistence = false;
 
 	static constexpr long freqMap(long val, long fromLow, long fromHigh, long toLow, long toHigh);
-	static constexpr uint32_t DRAM_ATTR MaxLength = 10000; //10s
+	static constexpr uint32_t DRAM_ATTR MaxLength = 2000; //2s
 	static constexpr uint32_t DRAM_ATTR MinimumLength = 5; //5ms
 	static constexpr uint32_t DRAM_ATTR QueueLength = MaxLength / MinimumLength;
 
