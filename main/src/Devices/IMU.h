@@ -45,26 +45,12 @@ public:
 		FaceUp, FaceDown
 	};
 
-	/**
-	 * Sets the watch wear position for tilt detection. Default is face-up.
-	 * @param wristPosition Face-up or face-down position
-	 */
-	void setWristPosition(WatchPosition wristPosition);
-
-	/**
-	 * Sets the tilt direction that should trigger tilt detection. Default is lifted.
-	 * @param direction Lifting it towards you or lowering it away from you
-	 */
-	void setTiltDirection(TiltDirection direction);
 
 	/**
 	 * Enable/Disable significant motion detection events. OFF by default
 	 * @param enable
 	 */
 	void enableMotionDetection(bool enable);
-
-	bool pollFIFO(Sample& sample, TickType_t wait = portMAX_DELAY);
-	void enableFIFO(bool enable);
 
 	Sample getSample();
 
@@ -73,6 +59,31 @@ private:
 	I2C& i2c;
 
 	bool init();
+
+	/**
+	 * !DELETED FUNCTION!
+	 * Sets the watch wear position for tilt detection. Default is face-up.
+	 * @param wristPosition Face-up or face-down position
+	 */
+	void setWristPosition(WatchPosition wristPosition);
+
+	/**
+	 * !DELETED FUNCTION!
+	 * Sets the tilt direction that should trigger tilt detection. Default is lifted.
+	 * @param direction Lifting it towards you or lowering it away from you
+	 */
+	void setTiltDirection(TiltDirection direction);
+
+	/**
+	 * !DELETED FUNCTION!
+	 */
+	bool pollFIFO(Sample& sample, TickType_t wait = portMAX_DELAY);
+
+	/**
+	 * !DELETED FUNCTION!
+	 */
+	void enableFIFO(bool enable);
+
 
 	static int32_t platform_write(void* hndl, uint8_t reg, const uint8_t* data, uint16_t len);
 	static int32_t platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len);

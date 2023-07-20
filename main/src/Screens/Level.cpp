@@ -82,7 +82,6 @@ void Level::onStart(){
 		ESP_LOGE("Level", "IMU service error\n");
 		return;
 	}
-	imu->enableFIFO(false);
 	reader.start();
 	Events::listen(Facility::Input, &queue);
 }

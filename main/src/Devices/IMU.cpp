@@ -6,12 +6,13 @@
 
 static const char* TAG = "IMU";
 
-IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(MaxReads), thread1([this](){ thread1Func(); }, "IMU1", 4 * 1024), thread2([this](){ thread2Func(); }, "IMU2", 4 * 1024){
+IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(1 /*MaxReads*/), thread1([this](){ thread1Func(); }, "IMU1", 4 * 1024),
+					 thread2([this](){ thread2Func(); }, "IMU2", 4 * 1024){
 	sem1 = xSemaphoreCreateBinary();
 	sem2 = xSemaphoreCreateBinary();
 
 	thread1.start();
-	thread2.start();
+//	thread2.start();
 
 	init();
 }
@@ -21,7 +22,7 @@ IMU::~IMU(){
 	vSemaphoreDelete(sem2);
 
 	thread1.stop();
-	thread2.stop();
+//	thread2.stop();
 }
 
 bool IMU::init(){
@@ -55,7 +56,7 @@ bool IMU::init(){
 	lsm6ds3tr_c_fifo_xl_batch_set(&ctx, LSM6DS3TR_C_FIFO_XL_NO_DEC);
 	lsm6ds3tr_c_fifo_gy_batch_set(&ctx, LSM6DS3TR_C_FIFO_GY_NO_DEC);
 	lsm6ds3tr_c_fifo_data_rate_set(&ctx, LSM6DS3TR_C_FIFO_104Hz);
-	enableFIFO(false);
+	lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_BYPASS_MODE); //disable fifo buffering
 
 	//wrist tilt interrupt setup
 	lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 1);
@@ -83,8 +84,8 @@ bool IMU::init(){
 	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
 
 
-	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0 });
-	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
+	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0 });
+	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }); //wrist tilt to INT2
 
 	gpio_config_t io_conf = {};
 	io_conf.intr_type = GPIO_INTR_POSEDGE;
@@ -114,6 +115,9 @@ int32_t IMU::platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len)
 }
 
 bool IMU::pollFIFO(Sample& sample, TickType_t wait){
+	ESP_LOGE(TAG, "Function pollFIFO is removed from use.");
+	return false;
+
 	return fifoSamples.get(sample, wait);
 }
 
@@ -179,7 +183,17 @@ void IRAM_ATTR IMU::isr2(void* arg){
 			lsm6ds3tr_c_fifo_data_level_get(&ctx, &numReadings);
 			const auto numDataSets = numReadings / 6;
 
-			struct RawSample { uint16_t gX, gY, gZ, aX, aY, aZ; } buf[numDataSets];
+			struct RawSample {
+				uint16_t gX, gY, gZ, aX, aY, aZ;
+			} buf{};
+			for(int i = 0; i < numDataSets; ++i){
+				lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(&buf), sizeof(RawSample));
+			}
+
+			/*
+			struct RawSample {
+				uint16_t gX, gY, gZ, aX, aY, aZ;
+			} buf[numDataSets];
 			lsm6ds3tr_c_fifo_raw_data_get(&ctx, reinterpret_cast<uint8_t*>(buf), numReadings * 2);
 
 			for(auto& read : buf){
@@ -197,6 +211,7 @@ void IRAM_ATTR IMU::isr2(void* arg){
 
 			Event evt = { .action = Event::FIFO };
 			Events::post(Facility::Motion, &evt, sizeof(evt));
+			 */
 		}
 
 		if(src.func_src1.sign_motion_ia){
@@ -228,6 +243,9 @@ void IRAM_ATTR IMU::isr2(void* arg){
 }
 
 void IMU::enableFIFO(bool enable){
+	ESP_LOGE(TAG, "Function enableFIFO is removed from use.");
+	return;
+
 	clearFifo();
 	fifoSamples.reset();
 
@@ -239,6 +257,9 @@ void IMU::enableFIFO(bool enable){
 }
 
 void IMU::setTiltDirection(IMU::TiltDirection direction){
+	ESP_LOGE(TAG, "Function setTiltDirection is removed from use.");
+	return;
+
 	this->tiltDirection = direction;
 	//XOR - tilt logic is inverted if WristPosition is FaceUp
 	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
@@ -247,6 +268,9 @@ void IMU::setTiltDirection(IMU::TiltDirection direction){
 }
 
 void IMU::setWristPosition(WatchPosition wristPosition){
+	ESP_LOGE(TAG, "Function setWristPosition is removed from use.");
+	return;
+
 	this->position = wristPosition;
 	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
 	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };

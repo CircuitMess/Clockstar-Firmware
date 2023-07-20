@@ -50,7 +50,6 @@ void Theremin::onStart(){
 	status->blockAudio(true);
 
 	audio.setPersistentAttach(true);
-	imu->enableFIFO(false);
 
 	const IMU::Sample reading = imu->getSample();
 	const PitchRoll pitchRoll = { -(float) reading.accelY, -(float) reading.accelX };
