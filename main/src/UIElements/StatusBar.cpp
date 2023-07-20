@@ -16,6 +16,7 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone
 	lv_obj_set_flex_flow(left, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(left, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
+	phoneIcon = lv_img_create(left);
 
 	if(showExtra){
 		clock = new ClockLabelSmall(*this);
@@ -26,8 +27,6 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone
 		lv_img_set_src(notifIcon, "S:/icon/cat_other.bin");
 		setNotifIcon();
 	}
-
-	phoneIcon = lv_img_create(left);
 
 	batDevice = new BatteryElement(*this);
 
