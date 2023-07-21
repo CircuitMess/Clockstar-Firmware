@@ -11,7 +11,7 @@ static const char* Cached[] = {
 	"/bg.bin",
 	"/bg_bot.bin",
 
-	/*"/icons/batteryFull.bin",
+	"/icons/batteryFull.bin",
 	"/icons/batteryLow.bin",
 	"/icons/batteryMid.bin",
 	"/icons/phone.bin",
@@ -54,7 +54,7 @@ static const char* Cached[] = {
 	"/clockIcons/8.bin",
 	"/clockIcons/9.bin",
 	"/clockIcons/colon.bin",
-	"/clockIcons/space.bin"*/
+	"/clockIcons/space.bin"
 
 };
 
