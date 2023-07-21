@@ -10,6 +10,7 @@
 class Level : public LVScreen {
 public:
 	Level();
+	virtual ~Level();
 
 	void setOrientation(double pitch, double roll);
 

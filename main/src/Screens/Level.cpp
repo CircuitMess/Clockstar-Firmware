@@ -6,9 +6,12 @@
 #include "../Util/Services.h"
 #include "Devices/Input.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "LV_Interface/FSLVGL.h"
 
 Level::Level() : imu((IMU*) Services.get(Service::IMU)), reader([this](){ readerFunc(); }, "reader", 2048, 5, 1), data(QueueSize),
 				 pitchFilter(filterStrength), rollFilter(filterStrength), queue(4){
+	FSLVGL::addToCache("/level/bg.bin");
+
 	bg = lv_obj_create(*this);
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_size(bg, 128, 128);
@@ -33,6 +36,10 @@ Level::Level() : imu((IMU*) Services.get(Service::IMU)), reader([this](){ reader
 	markingsVertical = lv_img_create(bg);
 	lv_img_set_src(markingsVertical, "S:/level/markingsVertical.bin");
 	lv_obj_set_pos(markingsVertical, 99, 34);
+}
+
+Level::~Level(){
+	FSLVGL::removeFromCache("/level/bg.bin");
 }
 
 void Level::setOrientation(double pitch, double roll){
