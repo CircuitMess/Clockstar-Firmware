@@ -55,7 +55,7 @@ private:
 	Phone& phone;
 	EventQueue queue;
 
-	static constexpr uint8_t MaxNotifs = 24;
+	static constexpr uint8_t MaxNotifs = 20;
 	std::unordered_map<uint32_t, Item*> notifs;
 
 	struct NotifIcon {
