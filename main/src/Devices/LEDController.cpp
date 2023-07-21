@@ -1,9 +1,14 @@
 #include "LEDController.h"
-#include "Util/stdafx.h"
 
 template <typename T>
-LEDController<T>::LEDController() : Threaded("LEDController", 2048, 6){
+LEDController<T>::LEDController() : Threaded("LEDController", 2048, 6), timerSem(xSemaphoreCreateBinary()),
+									timer(1 /*placeholder*/, isr, timerSem){
 
+}
+
+template <typename T>
+LEDController<T>::~LEDController(){
+	end();
 }
 
 template <typename T>
@@ -11,166 +16,233 @@ void LEDController<T>::begin(){
 	init();
 	clear();
 	start();
+	timer.start();
 }
 
 template <typename T>
 void LEDController<T>::end(){
-	stop();
+	timer.stop();
 	clear();
+	stop(0);
+	abortFlag = true;
+	xSemaphoreGive(timerSem);
+	while(running()){
+		vTaskDelay(1);
+	}
 	deinit();
 }
 
 template <typename T>
-void LEDController<T>::setValue(T color){
-	LEDcolor = color;
-
-	if(LEDstate == Solid){
-		write(color);
-	}
-}
-
-template <typename T>
 void LEDController<T>::clear(){
-	LEDstate = Solid;
-	blinkState = false;
-	blinkColor = T();
-	blinkStartTime = 0;
-	LEDcolor = T();
-	breatheQueued = false;
+	timer.stop();
+	std::unique_lock lock(mut);
 
-	write(LEDcolor);
+	shortAction = {};
+	shortAction.type = ShortAction::None;
+	continuousAction = {};
+	continuousAction.type = ContinuousAction::None;
+	write(T());
 }
 
 template <typename T>
 void LEDController<T>::setSolid(T color){
-	LEDstate = Solid;
-	setValue(color);
-}
-
-template <typename T>
-void LEDController<T>::blink(T color){
-	LEDstate = Once;
-	blinkColor = color;
-	blinkStartTime = millis();
-	blinkState = true;
-
-	write(color);
-}
-
-template <typename T>
-void LEDController<T>::blinkTwice(T color){
-	blink(color);
-	LEDstate = Twice;
-}
-
-template <typename T>
-void LEDController<T>::blinkContinuous(T color, uint32_t onTime, uint32_t offTime){
-	if(LEDstate == Continuous && blinkColor == color && blinkContinuousOnTime == onTime && blinkContinuousOffTime == offTime){
-		return;
+	std::unique_lock lock(mut);
+	continuousAction = { .type = ContinuousAction::Solid, .state = ContinuousAction::Pending, .data = { .solidColor = color } };
+	if(shortAction.type == ShortAction::None){
+		xSemaphoreGive(timerSem);
 	}
-
-	blink(color);
-	blinkContinuousOnTime = onTime;
-	blinkContinuousOffTime = offTime;
-	LEDstate = Continuous;
 }
 
 template <typename T>
-void LEDController<T>::breathe(T start, T end, size_t period, int16_t loops){
-	if(loops == 0) return;
+void LEDController<T>::blink(T color, uint32_t onTime, uint32_t offTime){
+	std::unique_lock lock(mut);
+	shortAction = { ShortAction::BlinkOnce, ShortAction::Pending, onTime, offTime, color };
+	xSemaphoreGive(timerSem);
 
-	if(LEDstate == Breathe && breathePeriod == period && breatheStart == start && breatheEnd == end && breatheLoops == loops){
+}
+
+template <typename T>
+void LEDController<T>::blinkTwice(T color, uint32_t onTime, uint32_t offTime){
+	std::unique_lock lock(mut);
+	shortAction = { ShortAction::BlinkTwice, ShortAction::Pending, onTime, offTime, color };
+	xSemaphoreGive(timerSem);
+
+}
+
+template <typename T>
+void LEDController<T>::blinkContinuous(T color, int32_t loops, uint32_t onTime, uint32_t offTime){
+	std::unique_lock lock(mut);
+
+	if(continuousAction.type == ContinuousAction::ContinuousBlink &&
+	   continuousAction.data.continuousBlink.onTime == onTime &&
+	   continuousAction.data.continuousBlink.onTime == offTime &&
+	   continuousAction.data.continuousBlink.loops == loops)
 		return;
+
+	continuousAction = { ContinuousAction::ContinuousBlink, ContinuousAction::Pending, { .continuousBlink = { color, onTime, offTime, loops, 0 } } };
+	if(shortAction.type == ShortAction::None){
+		xSemaphoreGive(timerSem);
 	}
+}
 
-	breathePeriod = period;
-	breatheLoops = loops;
-	breatheStart = start;
-	breatheEnd = end;
-	breatheLoopCounter = 0;
-	breatheMillis = millis();
+template <typename T>
+void LEDController<T>::breathe(T start, T end, size_t period, int32_t loops){
+	std::unique_lock lock(mut);
 
-	if(LEDstate == Once || LEDstate == Twice){
-		//can't interrupt blinking with breathe command
-		breatheQueued = true;
+	if(continuousAction.type == ContinuousAction::Breathe &&
+	   continuousAction.data.breathe.start == start && continuousAction.data.breathe.end == end &&
+	   continuousAction.data.breathe.period == period &&
+	   continuousAction.data.breathe.loops == loops)
 		return;
-	}
 
-	LEDstate = Breathe;
-	write(breatheStart);
+	continuousAction = { ContinuousAction::Breathe, ContinuousAction::Pending, { .breathe = { start, end, period, loops, 0, 0 } } };
+	if(shortAction.type == ShortAction::None){
+		xSemaphoreGive(timerSem);
+	}
 }
 
 template <typename T>
 void LEDController<T>::loop(){
-	vTaskDelay(1);
-	if(LEDstate == Solid) return;
-	else if(LEDstate == Twice || LEDstate == Once){
-		if(millis() - blinkStartTime < blinkDuration) return;
-	}else if(LEDstate == Continuous){
-		if(blinkState && millis() - blinkStartTime < blinkContinuousOnTime) return;
-		else if(!blinkState && millis() - blinkStartTime < blinkContinuousOffTime) return;
+	while(!xSemaphoreTake(timerSem, portMAX_DELAY));
+
+	if(abortFlag) return;
+
+	timer.stop();
+
+	std::unique_lock lock(mut);
+
+	auto timerPeriod = handleShortAction();
+	if(timerPeriod == 0){
+		timerPeriod = handleContinuousAction();
 	}
+	lock.unlock();
 
-	bool push = false;
-	T pushVal{};
+	if(timerPeriod == 0) return;
 
-	if(LEDstate == Continuous){
-		blinkState = !blinkState;
-		blinkStartTime = millis();
-		pushVal = blinkState ? blinkColor : T();
-		push = true;
-	}else if(LEDstate == Twice && blinkState){
-		blinkState = false;
-		blinkStartTime = millis();
-		pushVal = T();
-		push = true;
-	}else if(LEDstate == Twice && !blinkState){
-		blinkState = true;
-		blinkStartTime = millis();
-		LEDstate = Once;
-		pushVal = blinkColor;
-		push = true;
-	}else if(LEDstate == Once){
-		blinkState = false;
-		blinkStartTime = 0;
-		blinkColor = T();
+	timer.setPeriod(timerPeriod);
+	timer.reset();
+	timer.start();
+}
 
-		if(breatheQueued){
-			LEDstate = Breathe;
-		}else{
-			LEDstate = Solid;
+template <typename T>
+uint32_t LEDController<T>::handleContinuousAction(){
+	auto timerVal = 0;
+
+	if(continuousAction.type == ContinuousAction::None){
+		return 0;
+	}else if(continuousAction.type == ContinuousAction::Solid){
+		if(continuousAction.state == ContinuousAction::Pending || continuousAction.state == ContinuousAction::On){
+			write(continuousAction.data.solidColor);
+			continuousAction.state = ContinuousAction::On;
 		}
-
-		pushVal = LEDcolor;
-		push = true;
-	}else if(LEDstate == Breathe){
-		if(millis() - breatheMillis >= breathePeriod){
-			breatheMillis = millis();
-			if(breatheLoops != -1){
-				breatheLoopCounter++;
-				if(breatheLoopCounter >= breatheLoops){
-					LEDstate = Solid;
-					pushVal = LEDcolor;
-					write(pushVal);
-					return;
+	}else if(continuousAction.type == ContinuousAction::ContinuousBlink){
+		switch(continuousAction.state){
+			case ContinuousAction::Pending:
+				write(continuousAction.data.continuousBlink.color);
+				timerVal = continuousAction.data.continuousBlink.onTime;
+				break;
+			case ContinuousAction::On:
+				write(T());
+				timerVal = continuousAction.data.continuousBlink.offTime;
+				break;
+			case ContinuousAction::Off:
+				continuousAction.data.continuousBlink.currLoops++;
+				if(continuousAction.data.continuousBlink.loops == -1 ||
+				   continuousAction.data.continuousBlink.currLoops < continuousAction.data.continuousBlink.loops){
+					write(continuousAction.data.continuousBlink.color);
+					timerVal = continuousAction.data.continuousBlink.onTime;
+				}else{
+					timerVal = 0;
+					continuousAction.type = ContinuousAction::None;
 				}
-			}
+				break;
 		}
-		push = true;
-
-		float t = 0.5 * cos(2 * M_PI * (millis() - breatheMillis) / breathePeriod) + 0.5;
-
-		T startPart = breatheStart;
-		startPart *= t;
-		T endPart = breatheEnd;
-		endPart *= (1.0f - t);
-		pushVal = startPart + endPart;
+	}else if(continuousAction.type == ContinuousAction::Breathe){
+		switch(continuousAction.state){
+			case ContinuousAction::Pending:
+				write(continuousAction.data.breathe.start);
+				timerVal = BreatheDeltaT;
+				continuousAction.data.breathe.t += BreatheDeltaT;
+				continuousAction.state = ContinuousAction::On;
+				break;
+			case ContinuousAction::On:
+				continuousAction.data.breathe.currLoops++;
+				if(continuousAction.data.breathe.loops == -1 ||
+				   continuousAction.data.breathe.currLoops < continuousAction.data.breathe.loops){
+					float t = 0.5 * cos(2 * M_PI * continuousAction.data.breathe.t / continuousAction.data.breathe.period) + 0.5;
+					T startPart = continuousAction.data.breathe.start;
+					startPart *= t;
+					T endPart = continuousAction.data.breathe.end;
+					endPart *= (1.0f - t);
+					write(startPart + endPart);
+					timerVal = BreatheDeltaT;
+					continuousAction.data.breathe.t += BreatheDeltaT;
+				}else{
+					timerVal = 0;
+					continuousAction.type = ContinuousAction::None;
+				}
+				break;
+			case ContinuousAction::Off:
+				continuousAction.type = ContinuousAction::None;
+				timerVal = 0;
+		}
 
 	}
 
-	if(push){
-		write(pushVal);
+	return timerVal;
+}
+
+template <typename T>
+uint32_t LEDController<T>::handleShortAction(){
+	auto timerVal = 0;
+
+	if(shortAction.type == ShortAction::None) return 0;
+
+	else if(shortAction.type == ShortAction::BlinkOnce){
+		switch(shortAction.state){
+			case ShortAction::Pending:
+				write(shortAction.color);
+				timerVal = shortAction.onTime;
+				shortAction.state = ShortAction::On;
+				break;
+			case ShortAction::On:
+				write(T());
+				timerVal = shortAction.offTime;
+				shortAction.state = ShortAction::Off;
+				break;
+			case ShortAction::Off:
+				timerVal = 0;
+				shortAction.type = ShortAction::None;
+				break;
+		}
+	}else if(shortAction.type == ShortAction::BlinkTwice){
+		switch(shortAction.state){
+			case ShortAction::Pending:
+				timerVal = shortAction.onTime;
+				write(shortAction.color);
+				shortAction.state = ShortAction::On;
+				break;
+			case ShortAction::On:
+				write(T());
+				timerVal = shortAction.offTime;
+				shortAction.state = ShortAction::Off;
+				break;
+			case ShortAction::Off:
+				write(shortAction.color);
+				timerVal = shortAction.onTime;
+				shortAction.type = ShortAction::BlinkOnce;
+				shortAction.state = ShortAction::On;
+				break;
+		}
 	}
+
+	return timerVal;
+}
+
+template <typename T>
+void LEDController<T>::isr(void* arg){
+	BaseType_t priority = pdFALSE;
+	xSemaphoreGiveFromISR(arg, &priority);
 }
 
 
@@ -190,6 +262,7 @@ void SingleLEDController::write(uint8_t val){
 	double fVal = (float) val / 255.0f;
 	fVal = std::pow(fVal, 2);
 	fVal = std::round(fVal * 255.0f);
+	fVal = fVal * 100.0 / 255.0;
 	pwm.setDuty((uint8_t) fVal);
 }
 
@@ -209,6 +282,9 @@ void RGBLEDController::deinit(){
 }
 
 void RGBLEDController::write(glm::vec3 val){
+	val *= 100;
+	val /= 255.0;
+
 	pwmR.setDuty(val.x);
 	pwmG.setDuty(val.y);
 	pwmB.setDuty(val.z);
