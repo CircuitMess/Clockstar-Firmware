@@ -1,5 +1,5 @@
-#include <esp_log.h>
 #include "Timer.h"
+#include <esp_log.h>
 
 static const char* TAG = "Timer";
 
@@ -7,7 +7,7 @@ Timer::Timer(uint32_t period, TimerCallback ISR, void* dataPtr) : ISR(ISR), data
 	esp_timer_create_args_t args = {
 			.callback = interrupt,
 			.arg = this,
-			.dispatch_method = ESP_TIMER_TASK,
+			.dispatch_method = ESP_TIMER_ISR,
 			.name = "Timer",
 			.skip_unhandled_events = true
 	};
@@ -19,7 +19,6 @@ Timer::~Timer(){
 	stop();
 	esp_timer_delete(timer);
 }
-
 
 void IRAM_ATTR Timer::start(){
 	if(state == Running) return;
@@ -35,7 +34,7 @@ void IRAM_ATTR Timer::stop(){
 
 void Timer::reset(){
 	if(state == Stopped) return;
-
+	esp_timer_restart(timer, period);
 }
 
 void IRAM_ATTR Timer::setPeriod(uint32_t period){
