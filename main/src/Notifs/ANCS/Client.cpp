@@ -148,11 +148,11 @@ void ANCS::Client::processData(bool sendIncomplete){
 		Notif notif = {
 				.uid = nd.uid,
 				.title = get(Title),
-				.subtitle = get(Subtitle),
+				//.subtitle = get(Subtitle),
 				.message = get(Message),
 				.appID = get(AppIdentifier),
-				.time = {}, // TODO
-				.label = { .pos = get(PositiveActionLabel), .neg = get(NegativeActionLabel) },
+				//.time = {}, // TODO
+				//.label = { .pos = get(PositiveActionLabel), .neg = get(NegativeActionLabel) },
 				.category = (Notif::Category) nd.category // TODO: Currently, Notif categories map 1:1 to ANCS categories. In the future, mapping will be needed
 		};
 
