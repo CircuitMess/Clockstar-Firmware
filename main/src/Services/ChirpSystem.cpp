@@ -185,7 +185,6 @@ void ChirpSystem::loop(){
 		}
 
 		timer.setPeriod(tone.length);
-		timer.reset();
 		timer.start();
 	}
 }

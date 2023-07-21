@@ -1,8 +1,8 @@
 #ifndef CLOCKSTAR_FIRMWARE_TIMER_H
 #define CLOCKSTAR_FIRMWARE_TIMER_H
 
-#include <driver/gptimer.h>
 #include <esp_attr.h>
+#include <esp_timer.h>
 
 /**
  * ESP Timer HAL takes care of HW allocation when Timers are created. (No need to specify timerID and timerGroup)
@@ -27,23 +27,17 @@ public:
 	void setPeriod(uint32_t period);
 
 private:
-	static bool interrupt(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx);
+	static void interrupt(void* arg);
+	esp_timer_handle_t timer;
+
+	uint64_t period;
+	const TimerCallback ISR;
+	void* dataPtr;
 
 	enum {
 		Stopped, Running
 	} state = Stopped;
 
-	gptimer_handle_t gptimer = nullptr;
-
-	static constexpr gptimer_config_t timer_config = {
-			.clk_src = GPTIMER_CLK_SRC_DEFAULT,
-			.direction = GPTIMER_COUNT_UP,
-			.resolution_hz = 1000000, // 1MHz, 1 tick=1us
-			.flags = { .intr_shared = 0 }
-	};
-
-	TimerCallback ISR = nullptr;
-	void* dataPtr;
 };
 
 

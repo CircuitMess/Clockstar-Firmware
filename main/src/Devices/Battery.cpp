@@ -107,7 +107,6 @@ void Battery::loop(){
 
 	lock.unlock();
 
-	timer.reset();
 	timer.start();
 }
 
@@ -155,7 +154,6 @@ void Battery::setLongMeasure(bool enable){
 	}
 
 	timer.setPeriod(longMeasure ? LongMeasureIntverval : ShortMeasureIntverval);
-	timer.reset();
 	timer.start();
 }
 
