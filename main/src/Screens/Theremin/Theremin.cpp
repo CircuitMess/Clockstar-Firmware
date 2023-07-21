@@ -43,7 +43,9 @@ void Theremin::setOrientation(float pitch, float roll){
 
 	if(mappedSize != sequence.getSize()){
 		sequence.setSize(mappedSize);
+		timer.stop();
 		timer.setPeriod(getToneDuration(sequence.getSize()));
+		timer.start();
 	}
 }
 
@@ -110,6 +112,7 @@ void IRAM_ATTR Theremin::timerCB(void* arg){
 
 void Theremin::audioThreadFunc(){
 	while(!xSemaphoreTake(sem, portMAX_DELAY));
+	timer.stop();
 
 	if(abortFlag) return;
 
@@ -128,6 +131,7 @@ void Theremin::audioThreadFunc(){
 						  { 0,    0,    toneDuration } };
 
 	audio.play(sound);
+	timer.start();
 
 	sequenceIndex++;
 }

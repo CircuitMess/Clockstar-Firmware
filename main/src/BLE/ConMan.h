@@ -46,8 +46,8 @@ private:
 	};
 
 	static constexpr esp_ble_conn_update_params_t ConLowPow = {
-			.min_int = 960, // min_int = 480*1.25ms = 600ms
-			.max_int = 1200, // max_int = 600*1.25ms = 750ms
+			.min_int = 720, // min_int = 720*1.25ms = 900ms
+			.max_int = 960, // max_int = 960*1.25ms = 1125ms
 			.latency = 0,
 			.timeout = 600 // timeout = 500*10ms = 5000ms
 	};

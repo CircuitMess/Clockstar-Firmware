@@ -8,16 +8,16 @@ struct Notif {
 	uint32_t uid;
 
 	std::string title;
-	std::string subtitle;
+	//std::string subtitle;
 	std::string message;
 
 	std::string appID;
-	std::tm time;
+	//std::tm time;
 
-	struct {
+	/*struct {
 		std::string pos;
 		std::string neg;
-	} label;
+	} label;*/
 
 	enum class Category {
 		Other,

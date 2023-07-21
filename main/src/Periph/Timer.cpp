@@ -1,54 +1,53 @@
 #include "Timer.h"
+#include <esp_log.h>
+
+static const char* TAG = "Timer";
 
 Timer::Timer(uint32_t period, TimerCallback ISR, void* dataPtr) : ISR(ISR), dataPtr(dataPtr){
-
-	gptimer_new_timer(&timer_config, &gptimer);
-	gptimer_event_callbacks_t cbs = {
-			.on_alarm = interrupt,
+	esp_timer_create_args_t args = {
+			.callback = interrupt,
+			.arg = this,
+			.dispatch_method = ESP_TIMER_ISR,
+			.name = "Timer",
+			.skip_unhandled_events = true
 	};
-	gptimer_register_event_callbacks(gptimer, &cbs, this);
-	gptimer_enable(gptimer);
+	ESP_ERROR_CHECK(esp_timer_create(&args, &timer));
 	setPeriod(period);
 }
 
 Timer::~Timer(){
 	stop();
-	gptimer_disable(gptimer);
-	gptimer_del_timer(gptimer);
+	esp_timer_delete(timer);
 }
-
 
 void IRAM_ATTR Timer::start(){
 	if(state == Running) return;
-
 	state = Running;
-	gptimer_start(gptimer);
+	esp_timer_start_once(timer, period);
 }
 
 void IRAM_ATTR Timer::stop(){
 	if(state == Stopped) return;
-
 	state = Stopped;
-	gptimer_stop(gptimer);
+	esp_timer_stop(timer);
 }
 
-void IRAM_ATTR Timer::reset(){
-	gptimer_set_raw_count(gptimer, 0);
+void Timer::reset(){
+	if(state == Stopped) return;
+	esp_timer_restart(timer, period);
 }
 
 void IRAM_ATTR Timer::setPeriod(uint32_t period){
-	gptimer_alarm_config_t alarm_config = {
-			.alarm_count = period * 1000, // period in us
-			.reload_count = 0,
-			.flags = { .auto_reload_on_alarm = 1 }
-	};
-	gptimer_set_alarm_action(gptimer, &alarm_config);
+	if(state == Running){
+		ESP_LOGE(TAG, "setPeriod called while timer is running");
+		return;
+	}
+
+	this->period = period*1000;
 }
 
-bool IRAM_ATTR Timer::interrupt(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx){
-	auto timerObject = (Timer*) user_ctx;
-	TimerCallback cb = timerObject->ISR;
-	if(cb != nullptr) cb(timerObject->dataPtr);
-
-	return false;
+void IRAM_ATTR Timer::interrupt(void* arg){
+	auto timer = (Timer*) arg;
+	timer->state = Stopped;
+	timer->ISR(timer->dataPtr);
 }
