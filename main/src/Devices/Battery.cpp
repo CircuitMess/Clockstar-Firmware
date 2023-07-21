@@ -16,7 +16,8 @@ Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
 	quickSample();
-	level = hysteresis.update(getPercentage());
+	hysteresis.reset(getPercentage());
+	level = hysteresis.get();
 	start();
 	timer.setPeriod(longMeasure ? LongMeasureIntverval : ShortMeasureIntverval);
 	timer.start();
@@ -167,6 +168,7 @@ void Battery::shortMeasureReset(){
 	adc.resetEma();
 	quickSample();
 	hysteresis.reset(getPercentage());
+	level = hysteresis.get();
 	measureSum = 0;
 	measureCount = 0;
 }
