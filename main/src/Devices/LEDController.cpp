@@ -75,8 +75,9 @@ void LEDController<T>::blinkContinuous(T color, int32_t loops, uint32_t onTime, 
 
 	if(continuousAction.type == ContinuousAction::ContinuousBlink &&
 	   continuousAction.data.continuousBlink.onTime == onTime &&
-	   continuousAction.data.continuousBlink.onTime == offTime &&
-	   continuousAction.data.continuousBlink.loops == loops)
+	   continuousAction.data.continuousBlink.offTime == offTime &&
+	   continuousAction.data.continuousBlink.loops == loops &&
+	   continuousAction.data.continuousBlink.color == color)
 		return;
 
 	continuousAction = { ContinuousAction::ContinuousBlink, ContinuousAction::Pending, { .continuousBlink = { color, onTime, offTime, loops, 0 } } };
@@ -140,10 +141,12 @@ uint32_t LEDController<T>::handleContinuousAction(){
 			case ContinuousAction::Pending:
 				write(continuousAction.data.continuousBlink.color);
 				timerVal = continuousAction.data.continuousBlink.onTime;
+				continuousAction.state = ContinuousAction::On;
 				break;
 			case ContinuousAction::On:
 				write(T());
 				timerVal = continuousAction.data.continuousBlink.offTime;
+				continuousAction.state = ContinuousAction::Off;
 				break;
 			case ContinuousAction::Off:
 				continuousAction.data.continuousBlink.currLoops++;
@@ -151,6 +154,7 @@ uint32_t LEDController<T>::handleContinuousAction(){
 				   continuousAction.data.continuousBlink.currLoops < continuousAction.data.continuousBlink.loops){
 					write(continuousAction.data.continuousBlink.color);
 					timerVal = continuousAction.data.continuousBlink.onTime;
+					continuousAction.state = ContinuousAction::On;
 				}else{
 					timerVal = 0;
 					continuousAction.type = ContinuousAction::None;
