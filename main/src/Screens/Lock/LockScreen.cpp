@@ -7,8 +7,8 @@
 #include "Services/Sleep.h"
 #include "LV_Interface/FSLVGL.h"
 
-LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(12){
-	notifs.reserve(32);
+LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(24){
+	notifs.reserve(MaxNotifs);
 	notifIcons.reserve(MaxIconsCount);
 
 	buildUI();
@@ -149,6 +149,8 @@ void LockScreen::updateNotifs(){
 }
 
 void LockScreen::notifAdd(const Notif& notif){
+	if(notifs.size() >= MaxNotifs) return;
+
 	if(notifs.count(notif.uid) == 0){
 		auto uid = notif.uid;
 		auto item = new Item(rest, [this, uid](){
