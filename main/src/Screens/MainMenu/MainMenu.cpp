@@ -89,7 +89,8 @@ void MainMenu::onStarting(){
 }
 
 void MainMenu::onStop(){
-	stopPhoneRing();
+	findPhoneRinging = false;
+	phone.findPhoneStop();
 }
 
 void MainMenu::loop(){
