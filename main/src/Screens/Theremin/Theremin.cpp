@@ -23,6 +23,8 @@ Theremin::~Theremin(){
 }
 
 void Theremin::setOrientation(float pitch, float roll){
+	roll = -roll;
+
 	pitch = std::clamp(pitch, -AngleConstraint, AngleConstraint);
 	roll = std::clamp(roll, -AngleConstraint, AngleConstraint);
 
@@ -41,7 +43,9 @@ void Theremin::setOrientation(float pitch, float roll){
 
 	if(mappedSize != sequence.getSize()){
 		sequence.setSize(mappedSize);
+		timer.stop();
 		timer.setPeriod(getToneDuration(sequence.getSize()));
+		timer.start();
 	}
 }
 
@@ -50,7 +54,6 @@ void Theremin::onStart(){
 	status->blockAudio(true);
 
 	audio.setPersistentAttach(true);
-	imu->enableFIFO(false);
 
 	const IMU::Sample reading = imu->getSample();
 	const PitchRoll pitchRoll = { -(float) reading.accelY, -(float) reading.accelX };
@@ -109,6 +112,7 @@ void IRAM_ATTR Theremin::timerCB(void* arg){
 
 void Theremin::audioThreadFunc(){
 	while(!xSemaphoreTake(sem, portMAX_DELAY));
+	timer.stop();
 
 	if(abortFlag) return;
 
@@ -127,6 +131,7 @@ void Theremin::audioThreadFunc(){
 						  { 0,    0,    toneDuration } };
 
 	audio.play(sound);
+	timer.start();
 
 	sequenceIndex++;
 }

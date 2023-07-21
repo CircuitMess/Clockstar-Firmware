@@ -9,7 +9,7 @@
 
 static const char* TAG = "Sleep";
 
-Sleep::Sleep(Input& input, Time& time, BacklightBrightness& bl) : input(input), time(time), bl(bl){
+Sleep::Sleep(Input& input, Time& time, BacklightBrightness& bl, Battery& battery) : input(input), time(time), bl(bl), battery(battery){
 	confPM(false);
 	wakeSem = xSemaphoreCreateBinary();
 }
@@ -19,6 +19,7 @@ void Sleep::sleep(std::function<void()> preWake){
 
 	input.pause();
 	time.pause();
+	battery.setLongMeasure(true);
 
 	bl.fadeOut();
 	ConMan.goLowPow();
@@ -30,6 +31,7 @@ void Sleep::sleep(std::function<void()> preWake){
 	ConMan.goHiPow();
 	input.resume();
 	time.resume();
+	battery.setLongMeasure(false);
 
 	preWake();
 	bl.fadeIn();

@@ -55,6 +55,7 @@ private:
 	Phone& phone;
 	EventQueue queue;
 
+	static constexpr uint8_t MaxNotifs = 20;
 	std::unordered_map<uint32_t, Item*> notifs;
 
 	struct NotifIcon {
@@ -62,7 +63,7 @@ private:
 		lv_obj_t* icon;
 	};
 	std::unordered_map<const char*, NotifIcon> notifIcons;
-	static constexpr uint8_t MaxIconsCount = 8;
+	static constexpr uint8_t MaxIconsCount = MaxNotifs;
 	static constexpr const char* EtcIconPath = "S:/icon/etc.bin";
 
 	void onStarting() override;

@@ -6,7 +6,8 @@
 #include <cmath>
 #include <driver/gpio.h>
 
-Battery::Battery() : Threaded("Battery", 1024, 4), adc((gpio_num_t) PIN_BATT, 0.05), hysteresis(HysteresisThresholds){
+Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05), hysteresis(HysteresisThresholds),
+					sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 	gpio_config_t cfg_gpio = {};
 	cfg_gpio.mode = GPIO_MODE_INPUT;
 	cfg_gpio.pull_down_en = GPIO_PULLDOWN_ENABLE;
@@ -15,12 +16,21 @@ Battery::Battery() : Threaded("Battery", 1024, 4), adc((gpio_num_t) PIN_BATT, 0.
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
 	quickSample();
-	level = hysteresis.update(getPercentage());
+	hysteresis.reset(getPercentage());
+	level = hysteresis.get();
 	start();
+	timer.setPeriod(longMeasure ? LongMeasureIntverval : ShortMeasureIntverval);
+	timer.start();
 }
 
 Battery::~Battery(){
-	stop();
+	timer.stop();
+	stop(0);
+	abortFlag = true;
+	xSemaphoreGive(sem);
+	while(running()){
+		vTaskDelay(1);
+	}
 }
 
 void Battery::quickSample(){
@@ -40,7 +50,13 @@ bool Battery::isCritical() const{
 }
 
 void Battery::loop(){
-	vTaskDelay(MeasureInverval);
+	while(!xSemaphoreTake(sem, portMAX_DELAY));
+
+	timer.stop();
+
+	if(abortFlag) return;
+
+	std::unique_lock lock(mut);
 
 	// TODO: send evt on chrg
 	if(isCharging()){
@@ -49,34 +65,49 @@ void Battery::loop(){
 			batteryLowAlert = false;
 		}
 		wasCharging = true;
-		return;
 	}else if(wasCharging){
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = false });
 
 		wasCharging = false;
-		adc.resetEma();
-		quickSample();
-		hysteresis.reset(getPercentage());
-		measureSum = 0;
-		measureCount = 0;
+
+		if(!longMeasure){
+			shortMeasureReset();
+		}
 	}
 
-	measureSum += adc.sample();
-	measureCount++;
 
-	if(measureCount < MeasureCount) return;
+	if(!isCharging()){
+		bool measureDone = false;
 
-	voltage = mapReading(measureSum / MeasureCount);
-	measureSum = 0;
-	measureCount = 0;
-	level = hysteresis.update(getPercentage());
+		if(longMeasure){
+			quickSample();
+			level = hysteresis.update(getPercentage());
+			measureDone = true;
+		}else{
+			measureDone = longSample();
+			if(measureDone){
+				voltage = mapReading(measureSum / MeasureCount);
+				measureSum = 0;
+				measureCount = 0;
+				level = hysteresis.update(getPercentage());
+			}
+		}
 
-	if(isCritical() && !batteryLowAlert){
-		batteryLowAlert = true;
-		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow });
-	}else if(!isCritical() && batteryLowAlert){
-		batteryLowAlert = false;
+		if(measureDone){
+			if(isCritical() && !batteryLowAlert){
+				batteryLowAlert = true;
+				Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow, .chargeStatus = isCharging() });
+			}else if(!isCritical() && batteryLowAlert){
+				batteryLowAlert = false;
+			}
+		}
 	}
+
+	timer.setPeriod(longMeasure ? LongMeasureIntverval : ShortMeasureIntverval);
+
+	lock.unlock();
+
+	timer.start();
 }
 
 uint16_t Battery::mapReading(uint16_t reading){
@@ -105,4 +136,46 @@ int16_t Battery::getVoltOffset(){
 	uint32_t upper = REG_GET_FIELD(EFUSE_BLK3_RDATA3_REG, EFUSE_RD_ADC1_TP_HIGH);
 	uint32_t lower = REG_GET_FIELD(EFUSE_BLK3_RDATA3_REG, EFUSE_RD_ADC1_TP_LOW);
 	return (upper << 7) | lower;
+}
+
+void Battery::setLongMeasure(bool enable){
+	std::unique_lock lock(mut);
+
+
+	if(longMeasure == enable) return;
+
+	timer.stop();
+	longMeasure = enable;
+
+	lock.unlock();
+
+	if(!longMeasure){
+		shortMeasureReset();
+	}
+
+	timer.setPeriod(longMeasure ? LongMeasureIntverval : ShortMeasureIntverval);
+	timer.start();
+}
+
+void IRAM_ATTR Battery::isr(void* arg){
+	BaseType_t priority = pdFALSE;
+	xSemaphoreGiveFromISR(arg, &priority);
+}
+
+void Battery::shortMeasureReset(){
+	adc.resetEma();
+	quickSample();
+	hysteresis.reset(getPercentage());
+	level = hysteresis.get();
+	measureSum = 0;
+	measureCount = 0;
+}
+
+bool Battery::longSample(){
+	measureSum += adc.sample();
+	measureCount++;
+
+	if(measureCount < MeasureCount) return false;
+
+	return true;
 }

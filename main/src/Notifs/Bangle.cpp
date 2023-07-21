@@ -216,7 +216,7 @@ void Bangle::handle_notify(const std::string& line){
 	Notif notif = {
 			.uid = (uint32_t) id,
 			.title = get("title"),
-			.subtitle = get("subject"),
+			//.subtitle = get("subject"),
 			.message = get("body"),
 			.appID = get("src"),
 			.category = Notif::Category::Other,
