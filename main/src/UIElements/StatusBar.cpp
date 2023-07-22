@@ -36,7 +36,7 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone
 	setPhoneConnected();
 	if(battery.isCharging()){
 		batDevice->set(BatteryElement::Charging);
-	}else if(battery.getPercentage() < 5){
+	}else if(battery.isLow()){
 		batDevice->set(BatteryElement::Empty);
 	}else{
 		setDeviceBattery();
