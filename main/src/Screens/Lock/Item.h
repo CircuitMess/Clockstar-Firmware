@@ -40,6 +40,7 @@ private:
 
 	const std::function<void()> onDismiss;
 
+	static constexpr uint8_t LabelHeight = 8;
 };
 
 

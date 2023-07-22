@@ -35,6 +35,9 @@ public:
 	void doPos(uint32_t id);
 	void doNeg(uint32_t id);
 
+	void findPhoneStart();
+	void findPhoneStop();
+
 private:
 	ANCS::Client ancs;
 	CurrentTime cTime;
