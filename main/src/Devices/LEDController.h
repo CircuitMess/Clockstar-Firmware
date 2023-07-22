@@ -3,27 +3,32 @@
 
 #include <glm.hpp>
 #include <vector>
+#include <mutex>
+#include <atomic>
 #include "Util/Threaded.h"
 #include "Periph/PWM.h"
+#include "Periph/Timer.h"
 
 template <typename T>
 class LEDController : private Threaded {
 public:
 	LEDController();
 
+	~LEDController() override;
+
 	void begin();
 	void end();
 
 	void clear();
 	void setSolid(T color);
-	void blink(T color);
-	void blinkTwice(T color);
+	void blink(T color, uint32_t onTime = DefaultBlinkDuration, uint32_t offTime = DefaultBlinkDuration);
+	void blinkTwice(T color, uint32_t onTime = DefaultBlinkDuration, uint32_t offTime = DefaultBlinkDuration);
 	/**
 	 * Starts a continuous blinking in the selected color.
 	 * @param color Selected color
 	 * @param duration Duration of LED on/off cycle. LED will stay the same color for 'duration' ms, then turn off for 'duration' ms.
 	 */
-	void blinkContinuous(T color, uint32_t onTime = 500, uint32_t offTime = 500);
+	void blinkContinuous(T color, int32_t loops = -1, uint32_t onTime = 500, uint32_t offTime = 500);
 
 	/**
 	 * Breathes an LED from specified start value to end value.
@@ -33,7 +38,7 @@ public:
 	 * @param period Duration of 1 period, going from start to end and back, in milliseconds.
 	 * @param loops Number of loops, -1 for infinite looping.
 	 */
-	void breathe(T start, T end, size_t period, int16_t loops = -1);
+	void breathe(T start, T end, size_t period, int32_t loops = -1);
 
 protected:
 	virtual void init() = 0;
@@ -43,29 +48,60 @@ protected:
 private:
 	void loop() override;
 
-	enum {
-		Solid, Once, Twice, Continuous, Breathe
-	} LEDstate = Solid;
+	struct ShortAction {
+		enum {
+			BlinkOnce, BlinkTwice, None
+		} type;
+		enum {
+			Pending, On, Off
+		} state;
 
-	T LEDcolor{};
+		uint32_t onTime;
+		uint32_t offTime;
+		T color;
+	} shortAction;
 
-	T blinkColor{};
-	uint32_t blinkStartTime = 0;
-	bool blinkState = false;
-	uint32_t blinkContinuousOnTime = 0; //[ms]
-	uint32_t blinkContinuousOffTime = 0; //[ms]
+	struct ContinuousAction {
+		enum {
+			Solid, ContinuousBlink, Breathe, None
+		} type;
+		enum {
+			Pending, On, Off
+		} state;
+		union {
+			T solidColor;
 
-	bool breatheQueued = false; // used to prevent breathe command from interrupting blink/doubleBlink
-	T breatheStart{};
-	T breatheEnd{};
-	size_t breathePeriod = 0;
-	size_t breatheMillis = 0;
-	int16_t breatheLoops = 0;
-	uint16_t breatheLoopCounter = 0;
+			struct {
+				T color;
+				uint32_t onTime;
+				uint32_t offTime;
+				int32_t loops;
+				uint32_t currLoops;
 
-	static constexpr uint32_t blinkDuration = 100; //[ms]
+			} continuousBlink;
 
-	void setValue(T color);
+			struct {
+				T start, end;
+				uint32_t period;
+				int32_t loops;
+				uint32_t currLoops;
+				uint32_t t;
+			} breathe;
+		} data;
+	} continuousAction;
+
+
+	SemaphoreHandle_t timerSem;
+	Timer timer;
+
+	uint32_t handleShortAction();
+	uint32_t handleContinuousAction();
+
+	std::mutex mut;
+	std::atomic_bool abortFlag = false;
+
+	static constexpr uint32_t DefaultBlinkDuration = 100; //[ms]
+	static constexpr uint32_t BreatheDeltaT = 20;
 };
 
 
