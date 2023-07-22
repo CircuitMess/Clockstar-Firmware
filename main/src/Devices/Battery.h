@@ -7,6 +7,7 @@
 #include "Periph/ADC.h"
 #include "Util/Hysteresis.h"
 #include "Periph/Timer.h"
+#include "Util/TimeHysteresis.h"
 #include <mutex>
 
 class Battery : private Threaded {
@@ -47,6 +48,7 @@ private:
 
 	std::mutex mut;
 
+	TimeHysteresis<bool> chargeHyst;
 	bool wasCharging = false;
 	bool sleep = false;
 

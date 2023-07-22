@@ -10,7 +10,7 @@
 #define MIN_READ 3050 // 3.6V
 
 Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()), hysteresis(HysteresisThresholds),
-					 sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
+					 chargeHyst(500, false), sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 
 	gpio_config_t cfg_gpio = {};
 	cfg_gpio.mode = GPIO_MODE_INPUT;
@@ -53,6 +53,14 @@ int16_t Battery::getVoltOffset(){
 }
 
 void Battery::checkCharging(){
+	// Detecting high immediately sends us into charging state
+	// Switch to not-charging if pin is low for longer than some time period
+	if(gpio_get_level((gpio_num_t) PIN_CHARGE) == 1){
+		chargeHyst.reset(true);
+	}else{
+		chargeHyst.update(false);
+	}
+
 	if(isCharging()){
 		if(!wasCharging){
 			wasCharging = true;
@@ -131,7 +139,7 @@ uint8_t Battery::getLevel() const{
 }
 
 bool Battery::isCharging() const{
-	return gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
+	return chargeHyst.get();
 }
 
 bool Battery::isCritical() const{
