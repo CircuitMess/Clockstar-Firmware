@@ -1,10 +1,11 @@
 #ifndef CIRCUITMESS_AUDIO_AUDIOSYSTEM_H
 #define CIRCUITMESS_AUDIO_AUDIOSYSTEM_H
 
-#include "../Util/Threaded.h"
 #include <mutex>
-#include "../Periph/PWM.h"
+#include "Periph/PWM.h"
 #include "Periph/Timer.h"
+#include "Util/Threaded.h"
+#include "Util/SleepLock.h"
 #include <array>
 
 /**
@@ -63,6 +64,11 @@ private:
 	static void isr(void* arg);
 
 	bool pwmPersistence = false;
+	SleepLock sleepLock;
+	bool attached = false;
+
+	void attach();
+	void detach();
 
 	static constexpr long freqMap(long val, long fromLow, long fromHigh, long toLow, long toHigh);
 	static constexpr uint32_t DRAM_ATTR MaxLength = 2000; //2s

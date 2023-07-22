@@ -5,10 +5,11 @@
 static const char* TAG = "ChirpSystem";
 
 ChirpSystem::ChirpSystem(PWM& pwm) : Threaded("ChirpSystem", 2048, UINT8_MAX, 0), pwm(pwm), queue(xQueueCreate(QueueLength, sizeof(QueueItem))),
-									 timerSem(xSemaphoreCreateBinary()), timer(MinimumLength * 1000, isr, timerSem){
-	start();
-	xSemaphoreGive(timerSem);
+timerSem(xSemaphoreCreateBinary()), timer(MinimumLength * 1000, isr, timerSem), sleepLock(ESP_PM_APB_FREQ_MAX){
+
 	pwm.detach();
+	xSemaphoreGive(timerSem);
+	start();
 }
 
 ChirpSystem::~ChirpSystem(){
@@ -16,6 +17,7 @@ ChirpSystem::~ChirpSystem(){
 	Threaded::stop();
 	vSemaphoreDelete(timerSem);
 	vQueueDelete(queue);
+	detach();
 }
 
 void ChirpSystem::play(std::initializer_list<Chirp> sound){
@@ -26,8 +28,7 @@ void ChirpSystem::play(const Sound& sound){
 	if(mute) return;
 
 	if(!pwmPersistence){
-		pwm.attach();
-		pwm.setDuty(50);
+		attach();
 	}
 
 	uint32_t totalLength = 0;
@@ -126,7 +127,7 @@ void IRAM_ATTR ChirpSystem::stopFromISR(){
 void ChirpSystem::stop(){
 	xQueueReset(queue);
 	pwm.stop();
-	pwm.detach();
+	detach();
 }
 
 void ChirpSystem::setMute(bool mute){
@@ -143,11 +144,25 @@ bool ChirpSystem::isMuted() const{
 void ChirpSystem::setPersistentAttach(bool persistent){
 	this->pwmPersistence = persistent;
 	if(persistent){
-		pwm.attach();
-		pwm.setDuty(100);
+		attach();
 	}else if(uxQueueMessagesWaiting(queue) <= 0){
-		pwm.detach();
+		detach();
 	}
+}
+
+void ChirpSystem::attach(){
+	if(attached) return;
+	attached = true;
+	pwm.attach();
+	pwm.setDuty(50);
+	sleepLock.acquire();
+}
+
+void ChirpSystem::detach(){
+	if(!attached) return;
+	attached = false;
+	pwm.detach();
+	sleepLock.release();
 }
 
 void IRAM_ATTR ChirpSystem::isr(void* arg){
@@ -169,7 +184,7 @@ void ChirpSystem::loop(){
 				if(item.data.tone.freq == 0){
 					pwm.stop();
 					if(!pwmPersistence){
-						pwm.detach();
+						detach();
 					}
 				}
 			}
