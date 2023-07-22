@@ -19,10 +19,11 @@ public:
 	[[nodiscard]] uint16_t getVoltage() const;
 	[[nodiscard]] bool isCharging() const;
 	[[nodiscard]] bool isCritical() const;
+	bool isLow() const;
 
 	struct Event {
 		enum {
-			Charging, BatteryLow
+			Charging, BatteryLow, BatteryCritical
 		} action;
 		union {
 			bool chargeStatus;
@@ -43,7 +44,7 @@ private:
 
 	Hysteresis hysteresis;
 	//Battery levels will be 0, 1, 2, 3
-	static constexpr std::initializer_list<Hysteresis::Threshold> HysteresisThresholds = { { 4,  12, 1 },
+	static constexpr std::initializer_list<Hysteresis::Threshold> HysteresisThresholds = { { 1,  12, 1 },
 																						   { 15, 25, 2 },
 																						   { 65, 75, 3 } };
 	uint8_t level = 0;
@@ -63,6 +64,7 @@ private:
 	bool wasCharging = false;
 
 	bool batteryLowAlert = false;
+	bool batteryCriticalAlert = false;
 
 	void loop() override;
 

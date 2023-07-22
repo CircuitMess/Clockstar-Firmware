@@ -7,7 +7,7 @@
 #include <driver/gpio.h>
 
 Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05), hysteresis(HysteresisThresholds),
-					sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
+					 sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 	gpio_config_t cfg_gpio = {};
 	cfg_gpio.mode = GPIO_MODE_INPUT;
 	cfg_gpio.pull_down_en = GPIO_PULLDOWN_ENABLE;
@@ -94,10 +94,13 @@ void Battery::loop(){
 		}
 
 		if(measureDone){
-			if(isCritical() && !batteryLowAlert){
+			if(isCritical() && !batteryCriticalAlert){
+				batteryCriticalAlert = true;
+				Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryCritical, .chargeStatus = isCharging() });
+			}else if(isLow() && !batteryLowAlert){
 				batteryLowAlert = true;
 				Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow, .chargeStatus = isCharging() });
-			}else if(!isCritical() && batteryLowAlert){
+			}else if(!isLow() && batteryLowAlert){
 				batteryLowAlert = false;
 			}
 		}
@@ -178,4 +181,8 @@ bool Battery::longSample(){
 	if(measureCount < MeasureCount) return false;
 
 	return true;
+}
+
+bool Battery::isLow() const{
+	return getLevel() <= 1;
 }
