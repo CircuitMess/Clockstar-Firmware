@@ -28,7 +28,7 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	icon = lv_img_create(iconCont);
 
 	label = lv_label_create(top);
-	lv_obj_set_size(label, lv_pct(100), LV_SIZE_CONTENT);
+	lv_obj_set_size(label, lv_pct(100), LabelHeight);
 	lv_obj_set_style_pad_left(label, 4, 0);
 	lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL);
 	lv_obj_set_style_text_color(label, lv_color_make(244, 126, 27), 0);
@@ -37,14 +37,14 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	lv_obj_set_size(bot, lv_pct(100), LV_SIZE_CONTENT);
 
 	body = lv_label_create(bot);
-	lv_obj_set_size(body, lv_pct(100), 8);
+	lv_obj_set_size(body, lv_pct(100), LabelHeight);
 	lv_obj_set_style_max_height(body, 34, 0);
 	lv_obj_set_style_pad_hor(body, 2, 0);
 	lv_label_set_long_mode(body, LV_LABEL_LONG_DOT);
 
 	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);
-		lv_obj_set_size(item->body, lv_pct(100), LV_SIZE_CONTENT);
+		lv_obj_set_size(item->body, lv_pct(100), LabelHeight);
 
 		item->createControls();
 		lv_group_focus_obj(*item->canc);
@@ -53,7 +53,7 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 
 	lv_obj_add_event_cb(*this, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);
-		lv_obj_set_size(item->body, lv_pct(100), 8);
+		lv_obj_set_size(item->body, lv_pct(100), LabelHeight);
 
 		item->delControls();
 	}, LV_EVENT_READY, this);
@@ -142,4 +142,14 @@ void Item::initStyle(){
 	lv_style_set_bg_color(focused, lv_color_white());
 	lv_style_set_bg_opa(focused, 40);
 	lv_style_set_border_opa(focused, LV_OPA_0);
+
+	lv_style_set_radius(focused, 3);
+	lv_style_set_pad_top(focused, 2);
+	lv_style_set_pad_bottom(focused, 3);
+	lv_style_set_pad_hor(focused, 3);
+	lv_style_set_pad_gap(focused, 4);
+
+	lv_style_set_border_width(focused, 1);
+	lv_style_set_border_color(focused, lv_color_white());
+	lv_style_set_border_opa(focused, 40);
 }
