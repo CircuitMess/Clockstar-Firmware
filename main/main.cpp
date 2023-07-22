@@ -97,13 +97,15 @@ void init(){
 	auto fs = new FSLVGL('S');
 	FSLVGL::loadCache();
 
-	audio->play({
-		Chirp{ .startFreq = NOTE_E4, .endFreq = NOTE_GS4, .duration = 100 },
-		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
-		Chirp{ .startFreq = NOTE_GS4, .endFreq = NOTE_B4, .duration = 100 },
-		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
-		Chirp{ .startFreq = NOTE_B4, .endFreq = NOTE_E5, .duration = 100 }
-	});
+	if(settings->get().notificationSounds){
+		audio->play({
+							Chirp{ .startFreq = NOTE_E4, .endFreq = NOTE_GS4, .duration = 100 },
+							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+							Chirp{ .startFreq = NOTE_GS4, .endFreq = NOTE_B4, .duration = 100 },
+							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+							Chirp{ .startFreq = NOTE_B4, .endFreq = NOTE_E5, .duration = 100 }
+					});
+	}
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
