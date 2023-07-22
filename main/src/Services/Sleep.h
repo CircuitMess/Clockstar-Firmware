@@ -26,7 +26,7 @@ private:
 
 	void sleepStart();
 
-	void confPM(bool sleep);
+	void confPM(bool sleep, bool firstTime = false);
 
 };
 

@@ -10,7 +10,7 @@
 static const char* TAG = "Sleep";
 
 Sleep::Sleep(Input& input, Time& time, BacklightBrightness& bl, Battery& battery) : input(input), time(time), bl(bl), battery(battery){
-	confPM(false);
+	confPM(false, true);
 	wakeSem = xSemaphoreCreateBinary();
 }
 
@@ -64,13 +64,15 @@ void IRAM_ATTR Sleep::intr(void* arg){
 	xSemaphoreGive(*sem);
 }
 
-void Sleep::confPM(bool sleep){
+void Sleep::confPM(bool sleep, bool firstTime){
 	if(sleep){
 		esp_sleep_enable_gpio_wakeup();
 		gpio_wakeup_enable(WakePin, GPIO_INTR_HIGH_LEVEL);
 	}else{
 		gpio_wakeup_disable(WakePin);
-		esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
+		if(!firstTime){
+			esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
+		}
 	}
 
 	esp_pm_config_t pm_config = {
