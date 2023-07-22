@@ -39,23 +39,19 @@ void StatusCenter::loop(){
 void StatusCenter::processPhone(const Phone::Event& evt){
 	hasNotifs = !phone.getNotifs().empty();
 
-	if((evt.action == Phone::Event::Added || evt.action == Phone::Event::Changed) && settings.get().notificationSounds && !audioBlocked){
-		chirp.play({
-			Chirp { .startFreq = 800, .endFreq = 1000, .duration = 100 },
-			Chirp { .startFreq = 0, .endFreq = 0, .duration = 100 },
-			Chirp { .startFreq = 1000, .endFreq = 1000, .duration = 100 },
-			Chirp { .startFreq = 0, .endFreq = 0, .duration = 150 },
-			Chirp { .startFreq = 1000, .endFreq = 1000, .duration = 100 },
-			Chirp { .startFreq = 0, .endFreq = 0, .duration = 100 },
-			Chirp { .startFreq = 1000, .endFreq = 800, .duration = 100 }
-		});
+	if((evt.action == Phone::Event::Added || evt.action == Phone::Event::Changed)){
+		if(settings.get().notificationSounds && !audioBlocked){
+			chirp.play({
+				   Chirp{ .startFreq = 400, .endFreq = 600, .duration = 50 },
+				   Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+				   Chirp{ .startFreq = 600, .endFreq = 400, .duration = 50 }
+		   });
+		}
 
 		if(settings.get().ledEnable){
 			blink();
 		}
 	}
-
-	updateLED();
 }
 
 void StatusCenter::processBatt(const Battery::Event& evt){

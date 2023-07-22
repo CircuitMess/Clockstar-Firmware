@@ -42,11 +42,11 @@ void PWM::setFreq(uint16_t freq){
 	ledc_update_duty(group, channel);
 }
 
-void PWM::setDuty(uint8_t duty){
+void PWM::setDuty(uint8_t perc){
 	attach();
-
+	uint32_t duty = (FullDuty * perc) / 100;
 	auto group = getSpeedMode(channel);
-	ledc_set_duty(group, channel, FullDuty * duty / 100);
+	ledc_set_duty(group, channel, duty);
 	ledc_update_duty(group, channel);
 }
 
