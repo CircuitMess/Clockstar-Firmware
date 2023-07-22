@@ -13,6 +13,10 @@ public:
 
 	void sleep(std::function<void()> preWake = {});
 
+	struct Event {
+		enum { SleepOn, SleepOff } action;
+	};
+
 private:
 	Input& input;
 	Time& time;

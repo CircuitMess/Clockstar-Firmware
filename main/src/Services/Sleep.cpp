@@ -1,6 +1,7 @@
 #include "Sleep.h"
 #include "Pins.hpp"
 #include "BLE/ConMan.h"
+#include "Util/Events.h"
 #include <esp_sleep.h>
 #include <esp_pm.h>
 #include <driver/gpio.h>
@@ -21,6 +22,8 @@ void Sleep::sleep(std::function<void()> preWake){
 	time.pause();
 	battery.setLongMeasure(true);
 
+	Events::post(Facility::Sleep, Event { .action = Event::SleepOn });
+
 	bl.fadeOut();
 	ConMan.goLowPow();
 
@@ -32,6 +35,8 @@ void Sleep::sleep(std::function<void()> preWake){
 	input.resume();
 	time.resume();
 	battery.setLongMeasure(false);
+
+	Events::post(Facility::Sleep, Event { .action = Event::SleepOff });
 
 	preWake();
 	bl.fadeIn();
