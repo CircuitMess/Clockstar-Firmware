@@ -143,19 +143,20 @@ uint32_t LEDController<T>::handleContinuousAction(){
 			write(continuousAction.data.solidColor);
 			continuousAction.state = ContinuousAction::On;
 		}
+		sleepLock.release();
 	}else if(continuousAction.type == ContinuousAction::ContinuousBlink){
-		sleepLock.acquire();
-
 		switch(continuousAction.state){
 			case ContinuousAction::Pending:
 				write(continuousAction.data.continuousBlink.color);
 				timerVal = continuousAction.data.continuousBlink.onTime;
 				continuousAction.state = ContinuousAction::On;
+				sleepLock.acquire();
 				break;
 			case ContinuousAction::On:
 				write(T());
 				timerVal = continuousAction.data.continuousBlink.offTime;
 				continuousAction.state = ContinuousAction::Off;
+				sleepLock.acquire();
 				break;
 			case ContinuousAction::Off:
 				continuousAction.data.continuousBlink.currLoops++;
@@ -164,6 +165,7 @@ uint32_t LEDController<T>::handleContinuousAction(){
 					write(continuousAction.data.continuousBlink.color);
 					timerVal = continuousAction.data.continuousBlink.onTime;
 					continuousAction.state = ContinuousAction::On;
+					sleepLock.acquire();
 				}else{
 					timerVal = 0;
 					sleepLock.release();
@@ -172,14 +174,13 @@ uint32_t LEDController<T>::handleContinuousAction(){
 				break;
 		}
 	}else if(continuousAction.type == ContinuousAction::Breathe){
-		sleepLock.acquire();
-
-		switch(continuousAction.state){
+			switch(continuousAction.state){
 			case ContinuousAction::Pending:
 				write(continuousAction.data.breathe.start);
 				timerVal = BreatheDeltaT;
 				continuousAction.data.breathe.t += BreatheDeltaT;
 				continuousAction.state = ContinuousAction::On;
+				sleepLock.acquire();
 				break;
 			case ContinuousAction::On:
 				continuousAction.data.breathe.currLoops++;
@@ -193,9 +194,11 @@ uint32_t LEDController<T>::handleContinuousAction(){
 					write(startPart + endPart);
 					timerVal = BreatheDeltaT;
 					continuousAction.data.breathe.t += BreatheDeltaT;
+					sleepLock.acquire();
 				}else{
 					timerVal = 0;
 					continuousAction.type = ContinuousAction::None;
+					sleepLock.release();
 				}
 				break;
 			case ContinuousAction::Off:
@@ -213,7 +216,10 @@ template <typename T>
 uint32_t LEDController<T>::handleShortAction(){
 	auto timerVal = 0;
 
-	if(shortAction.type == ShortAction::None) return 0;
+	if(shortAction.type == ShortAction::None){
+		sleepLock.release();
+		return 0;
+	}
 
 	else if(shortAction.type == ShortAction::BlinkOnce){
 		switch(shortAction.state){
@@ -221,15 +227,18 @@ uint32_t LEDController<T>::handleShortAction(){
 				write(shortAction.color);
 				timerVal = shortAction.onTime;
 				shortAction.state = ShortAction::On;
+				sleepLock.acquire();
 				break;
 			case ShortAction::On:
 				write(T());
 				timerVal = shortAction.offTime;
 				shortAction.state = ShortAction::Off;
+				sleepLock.acquire();
 				break;
 			case ShortAction::Off:
 				timerVal = 0;
 				shortAction.type = ShortAction::None;
+				sleepLock.release();
 				break;
 		}
 	}else if(shortAction.type == ShortAction::BlinkTwice){
@@ -238,17 +247,20 @@ uint32_t LEDController<T>::handleShortAction(){
 				timerVal = shortAction.onTime;
 				write(shortAction.color);
 				shortAction.state = ShortAction::On;
+				sleepLock.acquire();
 				break;
 			case ShortAction::On:
 				write(T());
 				timerVal = shortAction.offTime;
 				shortAction.state = ShortAction::Off;
+				sleepLock.acquire();
 				break;
 			case ShortAction::Off:
 				write(shortAction.color);
 				timerVal = shortAction.onTime;
 				shortAction.type = ShortAction::BlinkOnce;
 				shortAction.state = ShortAction::On;
+				sleepLock.acquire();
 				break;
 		}
 	}
