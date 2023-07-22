@@ -20,7 +20,7 @@ void Sleep::sleep(std::function<void()> preWake){
 
 	input.pause();
 	time.pause();
-	battery.setLongMeasure(true);
+	battery.setSleep(true);
 
 	Events::post(Facility::Sleep, Event { .action = Event::SleepOn });
 
@@ -34,7 +34,7 @@ void Sleep::sleep(std::function<void()> preWake){
 	ConMan.goHiPow();
 	input.resume();
 	time.resume();
-	battery.setLongMeasure(false);
+	battery.setSleep(false);
 
 	Events::post(Facility::Sleep, Event { .action = Event::SleepOff });
 

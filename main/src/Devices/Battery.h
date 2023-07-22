@@ -14,11 +14,11 @@ public:
 	Battery();
 	~Battery() override;
 
-	[[nodiscard]] uint8_t getLevel() const;
-	[[nodiscard]] uint8_t getPercentage() const;
-	[[nodiscard]] uint16_t getVoltage() const;
-	[[nodiscard]] bool isCharging() const;
-	[[nodiscard]] bool isCritical() const;
+	void setSleep(bool sleep);
+
+	uint8_t getLevel() const;
+	bool isCharging() const;
+	bool isCritical() const;
 	bool isLow() const;
 
 	struct Event {
@@ -31,45 +31,39 @@ public:
 	};
 
 	static int16_t getVoltOffset();
-	static uint16_t mapReading(uint16_t reading);
-
-	void setLongMeasure(bool enable);
+	static uint16_t mapRawReading(uint16_t reading);
 
 private:
 	static constexpr uint32_t ShortMeasureIntverval = 100;
 	static constexpr uint32_t LongMeasureIntverval = 6000;
-	static constexpr uint8_t MeasureCount = 10;
 
 	ADC adc;
 
 	Hysteresis hysteresis;
-	//Battery levels will be 0, 1, 2, 3
+	// Battery levels will be 0, 1, 2, 3 // Critical, Low, Mid, Full
 	static constexpr std::initializer_list<Hysteresis::Threshold> HysteresisThresholds = { { 1,  12, 1 },
 																						   { 15, 25, 2 },
 																						   { 65, 75, 3 } };
-	uint8_t level = 0;
 
-	uint32_t measureSum = 0;
-	uint8_t measureCount = 0;
-	void shortMeasureReset();
-
-	bool longMeasure = false;
 	std::mutex mut;
-	SemaphoreHandle_t sem;
-	Timer timer;
-	static void isr(void* arg);
-	std::atomic_bool abortFlag = false;
 
-	uint16_t voltage = 0;
 	bool wasCharging = false;
+	bool sleep = false;
 
 	bool batteryLowAlert = false;
 	bool batteryCriticalAlert = false;
 
+	std::atomic_bool abortFlag = false;
+
+	SemaphoreHandle_t sem;
+	Timer timer;
+	static void isr(void* arg);
 	void loop() override;
 
-	void quickSample();
-	bool longSample();
+	void checkCharging();
+	void sample(bool fresh = false);
+	void startTimer();
+
 };
 
 #endif //CLOCKSTAR_LIBRARY_SERVICE_H
