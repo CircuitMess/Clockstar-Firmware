@@ -200,10 +200,10 @@ void MainMenu::handleRing(){
 
 constexpr const char* MainMenu::getConnectionDesc(Phone::PhoneType type){
 	if(type == Phone::PhoneType::None){
-		return "Not connected\nto a smartphone.";
+		return "Not connected.\nUse phone to pair";
 	}else if(type == Phone::PhoneType::Android){
-		return "Connected to\nan Android device.";
+		return "Connected to\nAndroid device";
 	}else{
-		return "Connected to\nan iPhone.";
+		return "Connected to\niOS device";
 	}
 }
