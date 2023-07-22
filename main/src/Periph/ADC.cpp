@@ -5,7 +5,7 @@
 
 static const char* TAG = "ADC";
 
-ADC::ADC(gpio_num_t pin, float ema_a, int min, int max) : pin(pin), ema_a(ema_a), min(min), max(max){
+ADC::ADC(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin(pin), ema_a(ema_a), min(min), max(max), offset(readingOffset){
 	if(pin != GPIO_NUM_36){
 		ESP_LOGE(TAG, "Only GPIO 36 is supported for ADC");
 		valid = false;
@@ -50,7 +50,7 @@ float ADC::getVal(){
 	}
 
 	if(max == 0 && min == 0){
-		return val;
+		return val + offset;
 	}
 
 	float min = this->min;
@@ -60,7 +60,7 @@ float ADC::getVal(){
 		std::swap(min, max);
 	}
 
-	float val = std::clamp(this->val, min, max);
+	float val = std::clamp(this->val + offset, min, max);
 	val = (val - min) / (max - min);
 	val = std::clamp(val*100.0f, 0.0f, 100.0f);
 
