@@ -101,7 +101,7 @@ private:
 	std::atomic_bool abortFlag = false;
 
 	static constexpr uint32_t DefaultBlinkDuration = 100; //[ms]
-	static constexpr uint32_t BreatheDeltaT = 2;
+	static constexpr uint32_t BreatheDeltaT = 20;
 };
 
 
