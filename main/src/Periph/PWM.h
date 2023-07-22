@@ -34,7 +34,7 @@ public:
 	virtual ~PWM();
 
 	void setFreq(uint16_t freq);
-	void setDuty(uint8_t duty); //duty in percentage (0 - 100%)
+	void setDuty(uint8_t perc); //duty in percentage (0 - 100%)
 	void stop();
 
 	void attach();
@@ -42,7 +42,7 @@ public:
 
 	static constexpr bool IRAM_ATTR checkFrequency(uint16_t freq){
 		uint64_t divParam = 0;
-		uint32_t precision = (0x1 << DutyResDefault); // 2**depth
+		uint32_t precision = FullDuty;
 
 		divParam = (((uint64_t) src_clk_freq << 8) + ((freq * precision) / 2)) / (freq * precision);
 
@@ -61,7 +61,7 @@ private:
 	static constexpr uint32_t DefaultFreq = 5000;    //placeholder, usually changed before attaching to a channel or pin
 
 	static constexpr ledc_timer_bit_t DRAM_ATTR DutyResDefault = LEDC_TIMER_10_BIT;
-	static constexpr uint32_t DRAM_ATTR FullDuty = (1 << (DutyResDefault - 1)) - 1;
+	static constexpr uint32_t DRAM_ATTR FullDuty = 1 << DutyResDefault;
 
 	static constexpr ledc_mode_t getSpeedMode(ledc_channel_t channel);
 	static constexpr ledc_timer_t getTimer(ledc_channel_t channel);

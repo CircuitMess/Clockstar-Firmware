@@ -27,7 +27,7 @@ void ChirpSystem::play(const Sound& sound){
 
 	if(!pwmPersistence){
 		pwm.attach();
-		pwm.setDuty(100);
+		pwm.setDuty(50);
 	}
 
 	uint32_t totalLength = 0;
