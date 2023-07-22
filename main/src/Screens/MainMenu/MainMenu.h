@@ -8,6 +8,7 @@
 #include "MenuItem.h"
 #include "Notifs/Phone.h"
 #include "Devices/Input.h"
+#include "MenuItemAlt.h"
 
 class MainMenu : public LVScreen {
 public:
@@ -34,6 +35,8 @@ private:
 	};
 	static constexpr uint8_t AltItemCount = sizeof(AltItems) / sizeof(AltItems[0]);
 
+	static constexpr const char* getConnectionDesc(Phone::PhoneType type);
+
 	bool findPhoneRinging = false;
 	void startPhoneRing();
 	void stopPhoneRing();
@@ -51,6 +54,7 @@ private:
 
 	lv_obj_t* bg;
 	MenuItem* items[ItemCount];
+	MenuItemAlt* phoneConnection;
 
 	void onStarting() override;
 	void onStop() override;

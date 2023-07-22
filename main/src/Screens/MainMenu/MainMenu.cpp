@@ -26,7 +26,12 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	for(int i = 0; i < ItemCount; i++){
 		// TODO: connected/disconnected alt labels for phone connection
 		// TODO: add "Press to stop" to ringing alt label
-		if(i < AltItemCount){
+		if(i == 0){
+			auto item = new MenuItemAlt(*this, ItemInfos[i].iconPath, ItemInfos[i].labelPath);
+			item->setAltLabel(AltItems[i].iconPath, getConnectionDesc(phone.getPhoneType()));
+			items[i] = item;
+			phoneConnection = item;
+		}else if(i < AltItemCount){
 			auto item = new MenuItemAlt(*this, ItemInfos[i].iconPath, ItemInfos[i].labelPath);
 			item->setAltPaths(AltItems[i].iconPath, AltItems[i].labelPath);
 			items[i] = item;
@@ -139,6 +144,7 @@ void MainMenu::handlePhoneChange(Phone::Event& event){
 		}else{
 			lv_obj_add_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
 		}
+		phoneConnection->setAltLabel(AltItems[0].iconPath, getConnectionDesc(phone.getPhoneType()));
 	}
 
 	if(hiddenBefore != lv_obj_has_flag(findPhone, LV_OBJ_FLAG_HIDDEN)){
@@ -189,3 +195,12 @@ void MainMenu::handleRing(){
 	}
 }
 
+constexpr const char* MainMenu::getConnectionDesc(Phone::PhoneType type){
+	if(type == Phone::PhoneType::None){
+		return "Not connected\nto a smartphone.";
+	}else if(type == Phone::PhoneType::Android){
+		return "Connected to\nan Android device.";
+	}else{
+		return "Connected to\nan iPhone.";
+	}
+}
