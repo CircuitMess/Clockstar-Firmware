@@ -1,5 +1,10 @@
 #include "LEDController.h"
 
+static void IRAM_ATTR isr(void* arg){
+	BaseType_t priority = pdFALSE;
+	xSemaphoreGiveFromISR(arg, &priority);
+}
+
 template <typename T>
 LEDController<T>::LEDController() : Threaded("LEDController", 2048, 6), timerSem(xSemaphoreCreateBinary()),
 									timer(1 /*placeholder*/, isr, timerSem){
@@ -242,13 +247,6 @@ uint32_t LEDController<T>::handleShortAction(){
 
 	return timerVal;
 }
-
-template <typename T>
-void LEDController<T>::isr(void* arg){
-	BaseType_t priority = pdFALSE;
-	xSemaphoreGiveFromISR(arg, &priority);
-}
-
 
 template
 class LEDController<uint8_t>;

@@ -93,7 +93,6 @@ private:
 
 	SemaphoreHandle_t timerSem;
 	Timer timer;
-	static void isr(void* arg);
 
 	uint32_t handleShortAction();
 	uint32_t handleContinuousAction();
