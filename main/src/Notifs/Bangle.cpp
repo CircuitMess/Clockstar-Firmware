@@ -30,6 +30,14 @@ void Bangle::actionNeg(uint32_t uid){
 	uart.printf("{t:\"notify\",id:%d,n:\"DISMISS\"} \n", uid);
 }
 
+void Bangle::findPhoneStart(){
+	uart.printf("{t:\"findPhone\",n:true} \n");
+}
+
+void Bangle::findPhoneStop(){
+	uart.printf("{t:\"findPhone\", n:false} \n");
+}
+
 void Bangle::loop(){
 	auto data = uart.scan_nl(portMAX_DELAY);
 	if(!data || data->empty()) return;

@@ -5,6 +5,7 @@
 #include "Screens/Level.h"
 #include "Screens/Theremin/Theremin.h"
 #include "Screens/Settings/SettingsScreen.h"
+#include "Util/stdafx.h"
 
 uint8_t  MainMenu::lastIndex = 0;
 
@@ -44,6 +45,23 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 		lv_obj_clear_flag(*items[i], LV_OBJ_FLAG_CLICK_FOCUSABLE);
 	}
 
+	//find my phone
+	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
+		auto menu = static_cast<MainMenu*>(evt->user_data);
+		if(menu->findPhoneRinging){
+			menu->stopPhoneRing();
+		}else{
+			menu->startPhoneRing();
+		}
+	}, LV_EVENT_CLICKED, this);
+
+	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
+		auto menu = static_cast<MainMenu*>(evt->user_data);
+		if(menu->findPhoneRinging){
+			menu->stopPhoneRing();
+		}
+	}, LV_EVENT_DEFOCUSED, this);
+
 	statusBar = new StatusBar(*this);
 	lv_obj_add_flag(*statusBar, LV_OBJ_FLAG_FLOATING);
 	lv_obj_set_pos(*statusBar, 0, 0);
@@ -70,8 +88,15 @@ void MainMenu::onStarting(){
 	lv_obj_scroll_to_view(*items[lastIndex], LV_ANIM_OFF);
 }
 
+void MainMenu::onStop(){
+	findPhoneRinging = false;
+	phone.findPhoneStop();
+}
+
 void MainMenu::loop(){
 	statusBar->loop();
+
+	handleRing();
 
 	Event evt;
 	if(queue.get(evt, 0)){
@@ -137,3 +162,30 @@ void MainMenu::handleInput(Input::Data& event){
 		lastIndex = 0;
 	}
 }
+
+void MainMenu::startPhoneRing(){
+	if(findPhoneRinging) return;
+
+	findPhoneRinging = true;
+	phone.findPhoneStart();
+	findPhoneCounter = millis();
+	findPhoneState = true;
+}
+
+void MainMenu::stopPhoneRing(){
+	if(!findPhoneRinging) return;
+
+	findPhoneRinging = false;
+	phone.findPhoneStop();
+}
+
+void MainMenu::handleRing(){
+	if(!findPhoneRinging) return;
+
+	if(millis() - findPhoneCounter >= FindPhonePeriod){
+		findPhoneCounter = millis();
+		findPhoneState = !findPhoneState;
+		findPhoneState ? phone.findPhoneStart() : phone.findPhoneStop();
+	}
+}
+
