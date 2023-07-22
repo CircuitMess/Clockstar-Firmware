@@ -40,17 +40,21 @@ void init(){
 
 	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
 
+	auto battery = new Battery();
+	Services.set(Service::Battery, battery);
+	// TODO: turn off if battery critical
+
+	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
+	blPwm->detach();
+	auto bl = new BacklightBrightness(blPwm);
+	Services.set(Service::Backlight, bl);
+
 	auto ret = nvs_flash_init();
 	if(ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND){
 		ESP_ERROR_CHECK(nvs_flash_erase());
 		ret = nvs_flash_init();
 	}
 	ESP_ERROR_CHECK(ret);
-
-	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
-	blPwm->detach();
-	auto bl = new BacklightBrightness(blPwm);
-	Services.set(Service::Backlight, bl);
 
 	auto settings = new Settings();
 	Services.set(Service::Settings, settings);
@@ -71,9 +75,6 @@ void init(){
 	auto phone = new Phone(server, client);
 	server->start();
 	Services.set(Service::Phone, phone);
-
-	auto battery = new Battery();
-	Services.set(Service::Battery, battery);
 
 	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
 	auto audio = new ChirpSystem(*buzzPwm);
