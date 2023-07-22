@@ -48,11 +48,7 @@ void StatusCenter::processPhone(const Phone::Event& evt){
 
 	if((evt.action == Phone::Event::Added || evt.action == Phone::Event::Changed)){
 		if(settings.get().notificationSounds && !audioBlocked){
-			chirp.play({
-				   Chirp{ .startFreq = 400, .endFreq = 600, .duration = 50 },
-				   Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
-				   Chirp{ .startFreq = 600, .endFreq = 400, .duration = 50 }
-		   });
+			beep();
 		}
 
 		if(settings.get().ledEnable){
@@ -96,4 +92,12 @@ void StatusCenter::blockAudio(bool block){
 
 void StatusCenter::blink(){
 	led->blinkTwice({ 0, 0, 255 });
+}
+
+void StatusCenter::beep(){
+	chirp.play({
+		Chirp{ .startFreq = 400, .endFreq = 600, .duration = 50 },
+		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+		Chirp{ .startFreq = 600, .endFreq = 400, .duration = 50 }
+	});
 }

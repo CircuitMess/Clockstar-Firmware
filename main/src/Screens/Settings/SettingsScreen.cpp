@@ -36,7 +36,8 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 
 	audioSwitch = new BoolElement(container, "Sound", [this](bool value){
 		if(value){
-			audio.play({ { 523, 523, 50 } });
+			auto status = (StatusCenter*) Services.get(Service::Status);
+			status->beep();
 		}
 	}, startingSettings.notificationSounds);
 	lv_group_add_obj(inputGroup, *audioSwitch);
