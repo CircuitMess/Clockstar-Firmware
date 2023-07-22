@@ -263,9 +263,8 @@ void SingleLEDController::deinit(){
 void SingleLEDController::write(uint8_t val){
 	double fVal = (float) val / 255.0f;
 	fVal = std::pow(fVal, 2);
-	fVal = std::round(fVal * 255.0f);
-	fVal = fVal * 100.0 / 255.0;
-	pwm.setDuty((uint8_t) fVal);
+	fVal = std::round(fVal * 100.0f);
+	pwm.setDuty(fVal);
 }
 
 
@@ -284,8 +283,9 @@ void RGBLEDController::deinit(){
 }
 
 void RGBLEDController::write(glm::vec3 val){
-	val *= 100;
 	val /= 255.0;
+	val = glm::pow(val, { 2.0, 2.0, 2.0 });
+	val = glm::round(val * 100.0f);
 
 	pwmR.setDuty(val.x);
 	pwmG.setDuty(val.y);
