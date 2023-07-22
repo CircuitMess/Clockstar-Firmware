@@ -6,8 +6,9 @@ static void IRAM_ATTR isr(void* arg){
 }
 
 template <typename T>
-LEDController<T>::LEDController() : Threaded("LEDController", 2048, 6), timerSem(xSemaphoreCreateBinary()),
-									timer(1 /*placeholder*/, isr, timerSem){
+LEDController<T>::LEDController() : Threaded("LEDController", 2048, 6), sleepLock(ESP_PM_APB_FREQ_MAX),
+									timerSem(xSemaphoreCreateBinary()), timer(1 /*placeholder*/, isr, timerSem){
+
 
 }
 
@@ -110,10 +111,10 @@ void LEDController<T>::breathe(T start, T end, size_t period, int32_t loops){
 template <typename T>
 void LEDController<T>::loop(){
 	while(!xSemaphoreTake(timerSem, portMAX_DELAY));
-
 	if(abortFlag) return;
 
 	timer.stop();
+	sleepLock.release();
 
 	std::unique_lock lock(mut);
 
@@ -135,6 +136,7 @@ uint32_t LEDController<T>::handleContinuousAction(){
 	auto timerVal = 0;
 
 	if(continuousAction.type == ContinuousAction::None){
+		sleepLock.release();
 		return 0;
 	}else if(continuousAction.type == ContinuousAction::Solid){
 		if(continuousAction.state == ContinuousAction::Pending || continuousAction.state == ContinuousAction::On){
@@ -142,6 +144,8 @@ uint32_t LEDController<T>::handleContinuousAction(){
 			continuousAction.state = ContinuousAction::On;
 		}
 	}else if(continuousAction.type == ContinuousAction::ContinuousBlink){
+		sleepLock.acquire();
+
 		switch(continuousAction.state){
 			case ContinuousAction::Pending:
 				write(continuousAction.data.continuousBlink.color);
@@ -162,11 +166,14 @@ uint32_t LEDController<T>::handleContinuousAction(){
 					continuousAction.state = ContinuousAction::On;
 				}else{
 					timerVal = 0;
+					sleepLock.release();
 					continuousAction.type = ContinuousAction::None;
 				}
 				break;
 		}
 	}else if(continuousAction.type == ContinuousAction::Breathe){
+		sleepLock.acquire();
+
 		switch(continuousAction.state){
 			case ContinuousAction::Pending:
 				write(continuousAction.data.breathe.start);
@@ -193,6 +200,7 @@ uint32_t LEDController<T>::handleContinuousAction(){
 				break;
 			case ContinuousAction::Off:
 				continuousAction.type = ContinuousAction::None;
+				sleepLock.release();
 				timerVal = 0;
 		}
 

@@ -8,6 +8,7 @@
 #include "Util/Threaded.h"
 #include "Periph/PWM.h"
 #include "Periph/Timer.h"
+#include "Util/SleepLock.h"
 
 template <typename T>
 class LEDController : private Threaded {
@@ -90,6 +91,7 @@ private:
 		} data;
 	} continuousAction;
 
+	SleepLock sleepLock;
 
 	SemaphoreHandle_t timerSem;
 	Timer timer;
