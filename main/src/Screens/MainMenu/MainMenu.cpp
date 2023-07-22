@@ -10,6 +10,8 @@
 uint8_t  MainMenu::lastIndex = 0;
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
+	lv_img_cache_set_size(8);
+
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
@@ -82,6 +84,7 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 
 MainMenu::~MainMenu(){
 	Events::unlisten(&queue);
+	lv_img_cache_set_size(LV_IMG_CACHE_DEF_SIZE);
 }
 
 void MainMenu::onStarting(){
