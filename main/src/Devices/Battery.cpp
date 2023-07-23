@@ -99,6 +99,7 @@ void Battery::sample(bool fresh){
 
 void Battery::loop(){
 	while(!xSemaphoreTake(sem, portMAX_DELAY)){
+		timer.stop();
 		startTimer();
 	}
 	timer.stop();
@@ -114,6 +115,7 @@ void Battery::loop(){
 }
 
 void Battery::startTimer(){
+	timer.stop();
 	if(isCharging() || !sleep){
 		timer.setPeriod(ShortMeasureIntverval);
 	}else{
