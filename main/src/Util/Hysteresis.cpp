@@ -10,14 +10,12 @@ int Hysteresis::get() const{
 
 int Hysteresis::update(int val){
 	if(val >= prev_val){
-		discrete_level = 0;
 		for(auto threshold : thresholds){
 			if(val >= threshold.high){
 				discrete_level = threshold.level;
 			}
 		}
 	}else{
-		discrete_level = thresholds[thresholds.size() - 1].level;
 		for(int i = 0; i < thresholds.size(); i++){
 			if(val <= thresholds[thresholds.size() - 1 - i].low){
 				discrete_level = thresholds[thresholds.size() - 1 - i].level - 1;
@@ -32,5 +30,10 @@ int Hysteresis::update(int val){
 
 void Hysteresis::reset(int toVal){
 	prev_val = toVal;
-	update(toVal);
+	discrete_level = 0;
+	for(auto threshold : thresholds){
+		if(toVal >= threshold.high){
+			discrete_level = threshold.level;
+		}
+	}
 }
