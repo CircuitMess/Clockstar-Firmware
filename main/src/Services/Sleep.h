@@ -9,7 +9,7 @@
 
 class Sleep {
 public:
-	Sleep(Input& input, Time& time, BacklightBrightness& bl, Battery& battery);
+	Sleep();
 
 	void sleep(std::function<void()> preWake = {});
 

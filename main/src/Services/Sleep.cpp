@@ -2,6 +2,7 @@
 #include "Pins.hpp"
 #include "BLE/ConMan.h"
 #include "Util/Events.h"
+#include "Util/Services.h"
 #include <esp_sleep.h>
 #include <esp_pm.h>
 #include <driver/gpio.h>
@@ -10,7 +11,12 @@
 
 static const char* TAG = "Sleep";
 
-Sleep::Sleep(Input& input, Time& time, BacklightBrightness& bl, Battery& battery) : input(input), time(time), bl(bl), battery(battery){
+Sleep::Sleep() :
+input(*((Input*) Services.get(Service::Input))),
+time(*((Time*) Services.get(Service::Time))),
+bl(*((BacklightBrightness*) Services.get(Service::Backlight))),
+battery(*((Battery*) Services.get(Service::Battery)))
+{
 	confPM(false, true);
 	wakeSem = xSemaphoreCreateBinary();
 }

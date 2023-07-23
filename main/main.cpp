@@ -21,7 +21,7 @@
 #include "Screens/Lock/LockScreen.h"
 #include "Services/ChirpSystem.h"
 #include "Settings/Settings.h"
-#include "Services/Sleep.h"
+#include "Services/SleepMan.h"
 #include "UIElements/ClockLabelBig.h"
 #include "Devices/Battery.h"
 #include "Services/BacklightBrightness.h"
@@ -76,14 +76,15 @@ void init(){
 
 	auto disp = new Display();
 	auto input = new Input();
-
-	auto sleep = new Sleep(*input, *time, *bl, *battery);
-	Services.set(Service::Sleep, sleep);
-	//TODO - apply sleepTime from Settings
+	Services.set(Service::Input, input);
 
 	auto lvgl = new LVGL(*disp);
 	auto theme = theme_init(lvgl->disp());
 	lv_disp_set_theme(lvgl->disp(), theme);
+
+	auto sleep = new SleepMan(*lvgl);
+	Services.set(Service::Sleep, sleep);
+	//TODO - apply sleepTime from Settings
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');

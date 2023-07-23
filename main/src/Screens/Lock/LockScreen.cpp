@@ -4,7 +4,7 @@
 #include "Services/Time.h"
 #include "Util/stdafx.h"
 #include "Screens/MainMenu/MainMenu.h"
-#include "Services/Sleep.h"
+#include "Services/SleepMan.h"
 #include "LV_Interface/FSLVGL.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(24){
@@ -12,22 +12,41 @@ LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((
 	notifIcons.reserve(MaxIconsCount);
 
 	buildUI();
-	Events::listen(Facility::Phone, &queue);
-	Events::listen(Facility::Time, &queue);
-	Events::listen(Facility::Input, &queue);
 
 	lv_obj_add_event_cb(main, [](lv_event_t* evt){
 		auto scr = static_cast<LockScreen*>(evt->user_data);
+		scr->setSleep(true);
+	}, LV_EVENT_FOCUSED, this);
+
+	lv_obj_add_event_cb(main, [](lv_event_t* evt){
+		auto scr = static_cast<LockScreen*>(evt->user_data);
+		scr->setSleep(false);
 		scr->locker->stop();
 	}, LV_EVENT_DEFOCUSED, this);
 }
 
-LockScreen::~LockScreen(){
-	Events::unlisten(&queue);
-}
-
 void LockScreen::onStarting(){
 	prepare();
+}
+
+void LockScreen::onStart(){
+	queue.reset();
+	Events::listen(Facility::Phone, &queue);
+	Events::listen(Facility::Time, &queue);
+	Events::listen(Facility::Input, &queue);
+	wakeTime = millis();
+	setSleep(true);
+}
+
+void LockScreen::onStop(){
+	Events::unlisten(&queue);
+	setSleep(false);
+}
+
+void LockScreen::setSleep(bool en){
+	auto sleep = (SleepMan*) Services.get(Service::Sleep);
+	if(!sleep) return;
+	sleep->enAltLock(en);
 }
 
 void LockScreen::prepare(){
@@ -86,27 +105,11 @@ void LockScreen::processInput(const Input::Data& evt){
 	}
 
 	if(evt.action == Input::Data::Press){
-		if(millis() - wakeTime <= 200){
-			wakeTime = 0;
-			return;
-		}
+		if(millis() - wakeTime < 500) return;
 
 		locker->start();
-		altPress = millis();
 	}else if(evt.action == Input::Data::Release){
 		locker->stop();
-
-		if(altPress != 0 && millis() - altPress < 200){
-			altPress = 0;
-
-			auto sleep = (Sleep*) Services.get(Service::Sleep);
-			sleep->sleep([this](){
-				prepare();
-				lv_timer_handler();
-			});
-
-			wakeTime = millis();
-		}
 	}
 }
 

@@ -2,6 +2,8 @@
 #include <lvgl.h>
 #include "LVScreen.h"
 #include "InputLVGL.h"
+#include "Util/Services.h"
+#include "Services/SleepMan.h"
 
 LVGL::LVGL(Display& display) : Threaded("LVGL", 4 * 1024, 6, 1), display(display){
 	lv_init();
@@ -36,6 +38,11 @@ void LVGL::flush(lv_disp_drv_t* dispDrv, const lv_area_t* area, lv_color_t* pixe
 }
 
 void LVGL::loop(){
+	auto sleep = (SleepMan*) Services.get(Service::Sleep);
+	if(sleep){
+		sleep->loop();
+	}
+
 	if(currentScreen){
 		currentScreen->loop();
 	}

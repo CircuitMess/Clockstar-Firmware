@@ -14,7 +14,6 @@
 class LockScreen : public LVScreen {
 public:
 	LockScreen();
-	virtual ~LockScreen();
 
 private:
 
@@ -67,6 +66,8 @@ private:
 	static constexpr const char* EtcIconPath = "S:/icon/etc.bin";
 
 	void onStarting() override;
+	void onStart() override;
+	void onStop() override;
 	void prepare();
 
 	void updateNotifs();
@@ -85,10 +86,10 @@ private:
 	static constexpr uint32_t TimeUpdateInterval = 200;
 	uint64_t lastTimeUpdate = 0;
 
-	uint32_t altPress = 0;
-	uint32_t wakeTime = 0;
-
 	void buildUI();
+
+	uint32_t wakeTime = 0;
+	void setSleep(bool sleep);
 
 };
 
