@@ -30,7 +30,8 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 		// TODO: add "Press to stop" to ringing alt label
 		if(i == 0){
 			auto item = new MenuItemAlt(*this, ItemInfos[i].iconPath, ItemInfos[i].labelPath);
-			item->setAltLabel(AltItems[i].iconPath, getConnectionDesc(phone.getPhoneType()));
+			const auto altPath = phone.getPhoneType() == Phone::PhoneType::None ? AltItems[i].iconPath : ItemInfos[i].iconPath;
+			item->setAltLabel(altPath, getConnectionDesc(phone.getPhoneType()));
 			items[i] = item;
 			phoneConnection = item;
 		}else if(i < AltItemCount){
@@ -147,7 +148,8 @@ void MainMenu::handlePhoneChange(Phone::Event& event){
 		}else{
 			lv_obj_add_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
 		}
-		phoneConnection->setAltLabel(AltItems[0].iconPath, getConnectionDesc(phone.getPhoneType()));
+		const auto altPath = phone.getPhoneType() == Phone::PhoneType::None ? AltItems[0].iconPath : ItemInfos[0].iconPath;
+		phoneConnection->setAltLabel(altPath, getConnectionDesc(phone.getPhoneType()));
 	}
 
 	if(hiddenBefore != lv_obj_has_flag(findPhone, LV_OBJ_FLAG_HIDDEN)){
