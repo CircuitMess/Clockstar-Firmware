@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <esp_log.h>
 
-static constexpr char* TAG = "LVScreen";
+static constexpr const char* TAG = "LVScreen";
 
 LVScreen::LVScreen() : LVObject(nullptr){
 

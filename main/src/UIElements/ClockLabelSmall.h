@@ -6,7 +6,7 @@
 class ClockLabelSmall : public ClockLabel {
 public:
 	explicit ClockLabelSmall(lv_obj_t* parent);
-
+	~ClockLabelSmall() override = default;
 private:
 	void updateUI(const char* clockText) override;
 	lv_obj_t* clock;
