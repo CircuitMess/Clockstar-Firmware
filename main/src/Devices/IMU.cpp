@@ -9,7 +9,7 @@
 
 static const char* TAG = "IMU";
 
-IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(1 /*MaxReads*/), thread1([this](){ thread1Func(); }, "IMU1", 2 * 1024),
+IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(1 /*MaxReads*/), thread1([this](){ thread1Func(); }, "IMU1", 2 * 1024, 8),
 					 thread2([this](){ thread2Func(); }, "IMU2", 2 * 1024){
 	sem1 = xSemaphoreCreateBinary();
 	sem2 = xSemaphoreCreateBinary();
