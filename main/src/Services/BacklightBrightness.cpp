@@ -16,11 +16,12 @@ void BacklightBrightness::setBrightness(uint8_t level){
 
 constexpr uint8_t BacklightBrightness::mapDuty(uint8_t level){
 	level = std::clamp(level, (uint8_t) 0, (uint8_t) 100);
-	level = map(level, 0, 100, MinDuty, 100);
 
 	double fVal = (float) level / 100.0f;
 	fVal = std::pow(fVal, 2);
 	fVal = std::round(fVal * 100.0f);
+
+	fVal = map(fVal, 0, 100, MinDuty, 100);
 
 	return (uint8_t)fVal;
 }
