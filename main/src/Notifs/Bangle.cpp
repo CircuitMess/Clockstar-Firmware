@@ -97,7 +97,7 @@ void Bangle::loop(){
 void Bangle::setTime(){
 	if(timeUnix == 0) return;
 
-	auto time = timeUnix + timeOffset * 60 * 60;
+	auto time = timeUnix + timeOffset * 60 * 60 + 20;
 
 	auto ts = static_cast<Time*>(Services.get(Service::Time));
 	ts->setTime((time_t) time);
