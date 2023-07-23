@@ -33,6 +33,8 @@ void I2C::scan(TickType_t timeout){
 }
 
 esp_err_t I2C::probe(uint8_t addr, TickType_t timeout){
+	std::lock_guard lock(mut);
+
 	auto cmd = i2c_cmd_link_create();
 	i2c_master_start(cmd);
 	i2c_master_write_byte(cmd, (addr << 1) | I2C_MASTER_WRITE, true);
@@ -43,6 +45,7 @@ esp_err_t I2C::probe(uint8_t addr, TickType_t timeout){
 }
 
 esp_err_t I2C::write(uint8_t addr, const uint8_t* data, size_t size, TickType_t wait){
+	std::lock_guard lock(mut);
 	return i2c_master_write_to_device(port, addr, data, size, wait);
 }
 
@@ -56,6 +59,7 @@ esp_err_t I2C::write(uint8_t addr, std::initializer_list<uint8_t> data, TickType
 }
 
 esp_err_t I2C::read(uint8_t addr, uint8_t* data, size_t size, TickType_t wait){
+	std::lock_guard lock(mut);
 	return i2c_master_read_from_device(port, addr, data, size, wait);
 }
 
@@ -64,6 +68,7 @@ esp_err_t I2C::read(uint8_t addr, uint8_t& data, TickType_t wait){
 }
 
 esp_err_t I2C::write_read(uint8_t addr, const uint8_t* wbuf, size_t wsize, uint8_t* rbuf, size_t rsize, TickType_t wait){
+	std::lock_guard lock(mut);
 	return i2c_master_write_read_device(port, addr, wbuf, wsize, rbuf, rsize, wait);
 }
 

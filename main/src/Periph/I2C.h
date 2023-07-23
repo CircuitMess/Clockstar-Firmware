@@ -6,6 +6,7 @@
 #include <esp_err.h>
 #include <freertos/portmacro.h>
 #include <initializer_list>
+#include <mutex>
 
 class I2C {
 public:
@@ -36,6 +37,7 @@ public:
 
 private:
 	const i2c_port_t port;
+	std::mutex mut;
 
 };
 
