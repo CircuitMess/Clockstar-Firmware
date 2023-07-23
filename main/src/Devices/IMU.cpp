@@ -100,7 +100,7 @@ bool IMU::init(){
 	io_conf.intr_type = GPIO_INTR_POSEDGE;
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+	io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
 
 	io_conf.pin_bit_mask = (1ULL << IMU_INT1);
 	gpio_config(&io_conf);
