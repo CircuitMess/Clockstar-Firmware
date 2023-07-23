@@ -160,7 +160,14 @@ void LockScreen::notifAdd(const Notif& notif){
 			notifRem(uid);
 			phone.doNeg(uid);
 		});
-		lv_group_add_obj(inputGroup, *item);
+
+		lv_obj_move_to_index(*item, 0);
+		lv_group_remove_all_objs(inputGroup);
+		lv_group_add_obj(inputGroup, main);
+		for(int j = 0; j < lv_obj_get_child_cnt(rest); ++j){
+			lv_group_add_obj(inputGroup, lv_obj_get_child(rest, j));
+		}
+
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
 
