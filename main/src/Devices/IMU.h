@@ -21,8 +21,21 @@ public:
 	IMU(I2C& i2c);
 	virtual ~IMU();
 
+	enum class TiltDirection {
+		Lifted, Lowered
+	};
+	enum class HandSide {
+		Left, Right
+	};
+	enum class WatchPosition {
+		FaceUp, FaceDown
+	};
+
 	struct Event {
 		enum { SignMotion, SingleTap, WristTilt, FIFO } action;
+		union {
+			TiltDirection wristTiltDir;
+		};
 	};
 
 	// Linear acceleration is in m/s^2, angular velocity is in rad/s
@@ -35,24 +48,15 @@ public:
 		double accelZ;
 	};
 
-	enum class TiltDirection {
-		Lifted, Lowered
-	};
-	enum class HandSide {
-		Left, Right
-	};
-	enum class WatchPosition {
-		FaceUp, FaceDown
-	};
-
-
 	/**
-	 * Enable/Disable significant motion detection events. OFF by default
-	 * @param enable
+	 * Sets the tilt direction that should trigger tilt detection. Default is lifted.
+	 * @param direction Lifting it towards you or lowering it away from you
 	 */
-	void enableMotionDetection(bool enable);
+	void setTiltDirection(TiltDirection direction);
 
 	Sample getSample();
+
+	void clearSources();
 
 private:
 	static constexpr uint8_t Addr = 0x6A;
@@ -62,17 +66,10 @@ private:
 
 	/**
 	 * !DELETED FUNCTION!
-	 * Sets the watch wear position for tilt detection. Default is face-up.
-	 * @param wristPosition Face-up or face-down position
+	 * Enable/Disable significant motion detection events. OFF by default
+	 * @param enable
 	 */
-	void setWristPosition(WatchPosition wristPosition);
-
-	/**
-	 * !DELETED FUNCTION!
-	 * Sets the tilt direction that should trigger tilt detection. Default is lifted.
-	 * @param direction Lifting it towards you or lowering it away from you
-	 */
-	void setTiltDirection(TiltDirection direction);
+	void enableMotionDetection(bool enable);
 
 	/**
 	 * !DELETED FUNCTION!
@@ -84,6 +81,11 @@ private:
 	 */
 	void enableFIFO(bool enable);
 
+	/**
+	 * Sets the watch wear position for tilt detection. Default is face-up.
+	 * @param wristPosition Face-up or face-down position
+	 */
+	void setWristPosition(WatchPosition wristPosition);
 
 	static int32_t platform_write(void* hndl, uint8_t reg, const uint8_t* data, uint16_t len);
 	static int32_t platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len);
@@ -113,7 +115,7 @@ private:
 	ThreadedClosure thread1;
 	ThreadedClosure thread2;
 	void thread1Func();
-	[[noreturn]] void thread2Func();
+	void thread2Func();
 
 	static double xlConv(int16_t raw);
 	static double gyConv(int16_t raw);

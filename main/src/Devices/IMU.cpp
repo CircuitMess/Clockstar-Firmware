@@ -3,6 +3,7 @@
 #include <driver/gpio.h>
 #include <esp_log.h>
 #include "Pins.hpp"
+#include "Services/Sleep.h"
 
 static const char* TAG = "IMU";
 
@@ -12,7 +13,7 @@ IMU::IMU(I2C& i2c) : i2c(i2c), fifoSamples(1 /*MaxReads*/), thread1([this](){ th
 	sem2 = xSemaphoreCreateBinary();
 
 	thread1.start();
-//	thread2.start();
+	// thread2.start();
 
 	init();
 }
@@ -52,28 +53,28 @@ bool IMU::init(){
 	lsm6ds3tr_c_gy_band_pass_set(&ctx, LSM6DS3TR_C_HP_65mHz_LP1_NORMAL);
 
 	//FIFO setup
-	lsm6ds3tr_c_fifo_watermark_set(&ctx, ReadingsWatermark);
+/*	lsm6ds3tr_c_fifo_watermark_set(&ctx, ReadingsWatermark);
 	lsm6ds3tr_c_fifo_xl_batch_set(&ctx, LSM6DS3TR_C_FIFO_XL_NO_DEC);
 	lsm6ds3tr_c_fifo_gy_batch_set(&ctx, LSM6DS3TR_C_FIFO_GY_NO_DEC);
-	lsm6ds3tr_c_fifo_data_rate_set(&ctx, LSM6DS3TR_C_FIFO_104Hz);
+	lsm6ds3tr_c_fifo_data_rate_set(&ctx, LSM6DS3TR_C_FIFO_104Hz);*/
 	lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_BYPASS_MODE); //disable fifo buffering
 
 	//wrist tilt interrupt setup
 	lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 1);
-	uint8_t tiltLatency = 1; // total latency is tiltLatency * 40ms
+	uint8_t tiltLatency = 8; // total latency is tiltLatency * 40ms
 	lsm6ds3tr_c_tilt_latency_set(&ctx, &tiltLatency);
-	uint8_t tiltThresh = 32; // total thresh is tiltThresh * 15.625mg
+	uint8_t tiltThresh = 16; // total thresh is tiltThresh * 15.625mg
 	lsm6ds3tr_c_tilt_threshold_set(&ctx, &tiltThresh);
 	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, 0, 0, 0, 0 };
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 
 	//significant motion setup
-	lsm6ds3tr_c_motion_sens_set(&ctx, 0);
+/*	lsm6ds3tr_c_motion_sens_set(&ctx, 0);
 	uint8_t motionSenseThresh = SignificantMotionSens;
-	lsm6ds3tr_c_motion_threshold_set(&ctx, &motionSenseThresh);
+	lsm6ds3tr_c_motion_threshold_set(&ctx, &motionSenseThresh);*/
 
 	//tap setup
-	lsm6ds3tr_c_tap_detection_on_x_set(&ctx, 0);
+/*	lsm6ds3tr_c_tap_detection_on_x_set(&ctx, 0);
 	lsm6ds3tr_c_tap_detection_on_y_set(&ctx, 0);
 	lsm6ds3tr_c_tap_detection_on_z_set(&ctx, 1);
 	lsm6ds3tr_c_tap_threshold_x_set(&ctx, 0x01);
@@ -81,11 +82,13 @@ bool IMU::init(){
 	lsm6ds3tr_c_tap_quiet_set(&ctx, 3);
 	lsm6ds3tr_c_tap_shock_set(&ctx, 3);
 	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);
-	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
+	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);*/
 
+	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
 
-	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }); //wrist tilt to INT2
+	setWristPosition(IMU::WatchPosition::FaceDown);
+	setTiltDirection(TiltDirection::Lowered);
 
 	gpio_config_t io_conf = {};
 	io_conf.intr_type = GPIO_INTR_POSEDGE;
@@ -104,68 +107,16 @@ bool IMU::init(){
 	return true;
 }
 
-int32_t IMU::platform_write(void* hndl, uint8_t reg, const uint8_t* data, uint16_t len){
-	auto imu = (IMU*) hndl;
-	return imu->i2c.writeReg(Addr, reg, data, len, 10);
-}
-
-int32_t IMU::platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len){
-	auto imu = (IMU*) hndl;
-	return imu->i2c.readReg(Addr, reg, data, len, 10);
-}
-
-bool IMU::pollFIFO(Sample& sample, TickType_t wait){
-	ESP_LOGE(TAG, "Function pollFIFO is removed from use.");
-	return false;
-
-	return fifoSamples.get(sample, wait);
-}
-
-void IMU::clearFifo(){
-	//setting to bypass mode resets the fifo buffer
-	lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_BYPASS_MODE);
-	vTaskDelay(5);
-	lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_STREAM_MODE);
-}
-
-void IMU::printInterruptInfo(){
-	lsm6ds3tr_c_all_sources_t src;
-	lsm6ds3tr_c_all_sources_get(&ctx, &src);
-/*	printf("wrist tilt mask:\n");
-	printf("zneg: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_zneg);
-	printf("zpos: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_zpos);
-	printf("yneg: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_yneg);
-	printf("ypos: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_ypos);
-	printf("xneg: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_xneg);
-	printf("xpos: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_xpos);*/
-
-	printf("wrist tilt interrupt source:\n");
-	printf("zneg: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_zneg);
-	printf("zpos: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_zpos);
-	printf("yneg: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_yneg);
-	printf("ypos: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_ypos);
-	printf("xneg: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_xneg);
-	printf("xpos: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_xpos);
-
-	printf("TILT_IA flag: %d\n", src.func_src1.tilt_ia);
-	printf("WRIST_TILT_IA flag: %d\n", src.func_src2.wrist_tilt_ia);
-	printf("SIGN_MOTION: %d\n", src.func_src1.sign_motion_ia);
-	printf("SINGLE TAP: %d\n", src.tap_src.single_tap);
-	printf("DOUBLE_TAP: %d\n", src.tap_src.double_tap);
-	printf("x_tap: %d\n", src.tap_src.x_tap);
-	printf("y_tap: %d\n", src.tap_src.y_tap);
-	printf("z_tap: %d\n", src.tap_src.z_tap);
-
-}
-
 void IRAM_ATTR IMU::isr1(void* arg){
+	gpio_set_intr_type((gpio_num_t) IMU_INT1, GPIO_INTR_POSEDGE);
 	auto imu = static_cast<IMU*>(arg);
 	xSemaphoreGiveFromISR(imu->sem1, nullptr);
 }
 
 void IRAM_ATTR IMU::isr2(void* arg){
+	gpio_set_intr_type((gpio_num_t) IMU_INT2, GPIO_INTR_POSEDGE);
 	auto imu = static_cast<IMU*>(arg);
-	xSemaphoreGiveFromISR(imu->sem2, nullptr);
+	xSemaphoreGiveFromISR(imu->sem1, nullptr);
 }
 
 void IMU::thread1Func(){
@@ -223,60 +174,32 @@ void IMU::thread1Func(){
 		Events::post(Facility::Motion, &evt, sizeof(evt));
 	}
 
+
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
+		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
+	}
+
+	clearSources();
 }
 
-[[noreturn]] void IMU::thread2Func(){
-	for(;;){
-		if(xSemaphoreTake(sem2, portMAX_DELAY) != pdTRUE) continue;
+void IMU::thread2Func(){
+	if(xSemaphoreTake(sem2, portMAX_DELAY) != pdTRUE) return;
 
-		lsm6ds3tr_c_all_sources_t src;
-		lsm6ds3tr_c_all_sources_get(&ctx, &src);
+	lsm6ds3tr_c_all_sources_t src;
+	lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
-		bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
-		if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
-			Event evt = { .action = Event::WristTilt };
-			Events::post(Facility::Motion, &evt, sizeof(evt));
-		}
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
+		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
 	}
 }
 
-void IMU::enableFIFO(bool enable){
-	ESP_LOGE(TAG, "Function enableFIFO is removed from use.");
-	return;
-
-	clearFifo();
-	fifoSamples.reset();
-
-	if(enable){
-		lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_STREAM_MODE);
-	}else{
-		lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_BYPASS_MODE);
-	}
-}
-
-void IMU::setTiltDirection(IMU::TiltDirection direction){
-	ESP_LOGE(TAG, "Function setTiltDirection is removed from use.");
-	return;
-
-	this->tiltDirection = direction;
-	//XOR - tilt logic is inverted if WristPosition is FaceUp
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
-	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
-	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
-}
-
-void IMU::setWristPosition(WatchPosition wristPosition){
-	ESP_LOGE(TAG, "Function setWristPosition is removed from use.");
-	return;
-
-	this->position = wristPosition;
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
-	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
-	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
-}
-
-void IMU::enableMotionDetection(bool enable){
-	lsm6ds3tr_c_motion_sens_set(&ctx, enable);
+void IMU::clearSources(){
+	lsm6ds3tr_c_all_sources_t src;
+	lsm6ds3tr_c_all_sources_get(&ctx, &src);
 }
 
 IMU::Sample IMU::getSample(){
@@ -298,10 +221,115 @@ IMU::Sample IMU::getSample(){
 	return sample;
 }
 
+void IMU::enableFIFO(bool enable){
+	ESP_LOGE(TAG, "Function enableFIFO is removed from use.");
+	return;
+
+	clearFifo();
+	fifoSamples.reset();
+
+	if(enable){
+		lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_STREAM_MODE);
+	}else{
+		lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_BYPASS_MODE);
+	}
+}
+
+bool IMU::pollFIFO(Sample& sample, TickType_t wait){
+	ESP_LOGE(TAG, "Function pollFIFO is removed from use.");
+	return false;
+
+	return fifoSamples.get(sample, wait);
+}
+
+void IMU::clearFifo(){
+	//setting to bypass mode resets the fifo buffer
+	lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_BYPASS_MODE);
+	vTaskDelay(5);
+	lsm6ds3tr_c_fifo_mode_set(&ctx, LSM6DS3TR_C_STREAM_MODE);
+}
+
+void IMU::setTiltDirection(IMU::TiltDirection direction){
+	this->tiltDirection = direction;
+	//XOR - tilt logic is inverted if WristPosition is FaceUp
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
+	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
+
+
+	uint8_t tiltThresh; // total thresh is tiltThresh * 15.625mg
+	if(direction == TiltDirection::Lifted){
+		tiltThresh = 8;
+	}else{
+		tiltThresh = 16;
+	}
+	lsm6ds3tr_c_tilt_threshold_set(&ctx, &tiltThresh);
+
+	uint8_t tiltLatency = 8; // total latency is tiltLatency * 40ms
+	lsm6ds3tr_c_tilt_latency_set(&ctx, &tiltLatency);
+
+	lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 1);
+	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
+
+	clearSources();
+}
+
+void IMU::setWristPosition(WatchPosition wristPosition){
+	this->position = wristPosition;
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
+	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
+}
+
+void IMU::enableMotionDetection(bool enable){
+	ESP_LOGE(TAG, "Function enableMotionDetection is removed from use.");
+	lsm6ds3tr_c_motion_sens_set(&ctx, enable);
+}
+
+int32_t IMU::platform_write(void* hndl, uint8_t reg, const uint8_t* data, uint16_t len){
+	auto imu = (IMU*) hndl;
+	return imu->i2c.writeReg(Addr, reg, data, len, 10);
+}
+
+int32_t IMU::platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len){
+	auto imu = (IMU*) hndl;
+	return imu->i2c.readReg(Addr, reg, data, len, 10);
+}
+
 double IMU::xlConv(int16_t raw){
 	return (double) lsm6ds3tr_c_from_fs16g_to_mg(raw) / 1000.0;
 }
 
 double IMU::gyConv(int16_t raw){
 	return ((double) lsm6ds3tr_c_from_fs2000dps_to_mdps(raw) * M_PI / 180.0) / 1000.0;
+}
+
+void IMU::printInterruptInfo(){
+	lsm6ds3tr_c_all_sources_t src;
+	lsm6ds3tr_c_all_sources_get(&ctx, &src);
+/*	printf("wrist tilt mask:\n");
+	printf("zneg: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_zneg);
+	printf("zpos: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_zpos);
+	printf("yneg: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_yneg);
+	printf("ypos: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_ypos);
+	printf("xneg: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_xneg);
+	printf("xpos: %d\n", src.a_wrist_tilt_mask.wrist_tilt_mask_xpos);*/
+
+	printf("wrist tilt interrupt source:\n");
+	printf("zneg: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_zneg);
+	printf("zpos: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_zpos);
+	printf("yneg: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_yneg);
+	printf("ypos: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_ypos);
+	printf("xneg: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_xneg);
+	printf("xpos: %d\n", src.wrist_tilt_ia.wrist_tilt_ia_xpos);
+
+	printf("TILT_IA flag: %d\n", src.func_src1.tilt_ia);
+	printf("WRIST_TILT_IA flag: %d\n", src.func_src2.wrist_tilt_ia);
+	printf("SIGN_MOTION: %d\n", src.func_src1.sign_motion_ia);
+	printf("SINGLE TAP: %d\n", src.tap_src.single_tap);
+	printf("DOUBLE_TAP: %d\n", src.tap_src.double_tap);
+	printf("x_tap: %d\n", src.tap_src.x_tap);
+	printf("y_tap: %d\n", src.tap_src.y_tap);
+	printf("z_tap: %d\n", src.tap_src.z_tap);
+
 }
