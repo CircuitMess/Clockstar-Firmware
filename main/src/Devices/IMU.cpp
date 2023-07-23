@@ -4,6 +4,8 @@
 #include <esp_log.h>
 #include "Pins.hpp"
 #include "Services/Sleep.h"
+#include "Util/Services.h"
+#include "Services/SleepMan.h"
 
 static const char* TAG = "IMU";
 
@@ -179,6 +181,11 @@ void IMU::thread1Func(){
 	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
 		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
 		Events::post(Facility::Motion, &evt, sizeof(evt));
+
+		if(tiltDirection == TiltDirection::Lifted){
+			auto sleep = (SleepMan*) Services.get(Service::Sleep);
+			xSemaphoreGive(sleep->sleep.wakeSem);
+		}
 	}
 
 	clearSources();

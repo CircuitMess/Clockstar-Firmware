@@ -16,18 +16,25 @@ public:
 	void enAltLock(bool altLock);
 
 private:
-	LVGL& lvgl;
+friend IMU;
+
 	Sleep sleep;
 	EventQueue events;
+
+	LVGL& lvgl;
+	IMU& imu;
+
+	void goSleep();
 
 	void handleInput(const Input::Data& evt);
 	void handleMotion(const IMU::Event& evt);
 
+	static constexpr uint32_t WakeCooldown = 100;
+	uint32_t wakeTime = 0;
+
 	bool altLock = false;
 	static constexpr uint32_t AltHoldTime = 300;
 	uint32_t altPress;
-	static constexpr uint32_t AltHoldCooldown = 100;
-	uint32_t wakeTime = 0;
 
 };
 

@@ -7,6 +7,8 @@
 #include "BacklightBrightness.h"
 #include "Pins.hpp"
 
+class IMU;
+
 class Sleep {
 public:
 	Sleep();
@@ -18,6 +20,8 @@ public:
 	};
 
 private:
+friend IMU;
+
 	Input& input;
 	Time& time;
 	BacklightBrightness& bl;
