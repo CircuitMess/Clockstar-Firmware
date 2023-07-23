@@ -36,6 +36,8 @@ void LEDController<T>::end(){
 		vTaskDelay(1);
 	}
 	deinit();
+	sleepLock.release();
+	write(T());
 }
 
 template <typename T>
@@ -48,6 +50,7 @@ void LEDController<T>::clear(){
 	continuousAction = {};
 	continuousAction.type = ContinuousAction::None;
 	write(T());
+	sleepLock.release();
 }
 
 template <typename T>
