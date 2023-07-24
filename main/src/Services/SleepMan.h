@@ -18,6 +18,8 @@ public:
 
 	static constexpr uint32_t ShutdownTime = 3000; //3s
 
+	void shutdown();
+
 private:
 friend IMU;
 
@@ -29,7 +31,6 @@ friend IMU;
 	BacklightBrightness& bl;
 
 	void goSleep();
-	void shutdown();
 
 	uint32_t actTime = 0;
 	bool autoSleep = true;
