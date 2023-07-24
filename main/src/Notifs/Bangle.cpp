@@ -27,12 +27,7 @@ const std::unordered_map<Bangle::CallState, Bangle::CallInfo> Bangle::CallInfoMa
 
 
 Bangle::Bangle(BLE::Server* server) : Threaded("Bangle", 4 * 1024), server(server), uart(server){
-	server->setOnDisconnectCb([this](const esp_bd_addr_t addr){
-		disconnect();
-		currentCallState = CallState::None;
-		currentCallId = -1;
-		missedCalls.clear();
-	});
+	server->setOnDisconnectCb([this](const esp_bd_addr_t addr){ onDisconnect(); });
 	start();
 }
 
@@ -51,6 +46,9 @@ void Bangle::onConnect(){
 void Bangle::onDisconnect(){
 	if(!connected) return;
 	connected = false;
+	currentCallState = CallState::None;
+	currentCallId = -1;
+	missedCalls.clear();
 	disconnect();
 }
 
@@ -62,6 +60,8 @@ void Bangle::actionPos(uint32_t uid){
 void Bangle::actionNeg(uint32_t uid){
 	if(!connected) return;
 	// TODO: pos & neg for call
+
+	if(uid == currentCallId) return;
 
 	if(missedCalls.count(uid)){
 		missedCalls.erase(uid);
@@ -298,6 +298,8 @@ void Bangle::handle_call(const std::string& line){
 			}else if(command == CallCmd::Outgoing){
 				currentCallState = CallState::None;
 			}
+		}else{
+			return; //treat all other cases as invalid, keep old call as the one "active"
 		}
 	}
 
@@ -306,9 +308,11 @@ void Bangle::handle_call(const std::string& line){
 
 	if(CallTransitions.count({ currentCallState, command })){
 		currentCallState = CallTransitions.at({ currentCallState, command });
+	}else{
+		currentCallState = CallState::None;
 	}
 
-	if(!CallInfoMap.count(currentCallState)){
+	if(!CallInfoMap.count(currentCallState) && !missedCalls.count(uid)){
 		notifRemove(uid);
 		return;
 	}
