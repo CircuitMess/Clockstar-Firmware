@@ -76,6 +76,8 @@ void SleepMan::handleInput(const Input::Data& evt){
 }
 
 void SleepMan::handleMotion(const IMU::Event& evt){
+	if(!autoSleep) return;
+
 	if(evt.action != IMU::Event::WristTilt || evt.wristTiltDir != IMU::TiltDirection::Lowered) return;
 	goSleep();
 }
