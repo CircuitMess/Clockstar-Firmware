@@ -89,6 +89,8 @@ const char* Item::iconPath(){
 }
 
 void Item::createControls(){
+	if(ctrl) return;
+
 	ctrl = lv_obj_create(*this);
 	lv_obj_set_size(ctrl, lv_pct(100), LV_SIZE_CONTENT);
 	lv_obj_set_style_bg_color(ctrl, lv_color_black(), 0);
@@ -121,7 +123,9 @@ void Item::createControls(){
 void Item::delControls(){
 	delete del;
 	delete canc;
-	lv_obj_del(ctrl);
+	if(ctrl){
+		lv_obj_del(ctrl);
+	}
 	ctrl = nullptr;
 	del = canc = nullptr;
 }
