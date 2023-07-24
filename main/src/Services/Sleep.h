@@ -21,12 +21,6 @@ public:
 
 private:
 friend IMU;
-
-	Input& input;
-	Time& time;
-	BacklightBrightness& bl;
-	Battery& battery;
-
 	static constexpr gpio_num_t WakePin = (gpio_num_t) BTN_ALT;
 
 	SemaphoreHandle_t wakeSem;

@@ -11,12 +11,7 @@
 
 static const char* TAG = "Sleep";
 
-Sleep::Sleep() :
-input(*((Input*) Services.get(Service::Input))),
-time(*((Time*) Services.get(Service::Time))),
-bl(*((BacklightBrightness*) Services.get(Service::Backlight))),
-battery(*((Battery*) Services.get(Service::Battery)))
-{
+Sleep::Sleep(){
 	confPM(false, true);
 	wakeSem = xSemaphoreCreateBinary();
 }
@@ -24,13 +19,18 @@ battery(*((Battery*) Services.get(Service::Battery)))
 void Sleep::sleep(std::function<void()> preWake){
 	ESP_LOGI(TAG, "Goint to sleep\n");
 
-	input.pause();
-	time.pause();
-	battery.setSleep(true);
+	auto input = (Input*) Services.get(Service::Input);
+	auto time = (Input*) Services.get(Service::Time);
+	auto battery = (Battery*) Services.get(Service::Battery);
+	auto bl = (BacklightBrightness*) Services.get(Service::Backlight);
+
+	input->pause();
+	time->pause();
+	battery->setSleep(true);
 
 	Events::post(Facility::Sleep, Event { .action = Event::SleepOn });
 
-	bl.fadeOut();
+	bl->fadeOut();
 	ConMan.goLowPow();
 
 	int64_t sleepStartTime = esp_timer_get_time();
@@ -38,14 +38,14 @@ void Sleep::sleep(std::function<void()> preWake){
 	auto sleepTime = esp_timer_get_time() - sleepStartTime;
 
 	ConMan.goHiPow();
-	input.resume();
-	time.resume();
-	battery.setSleep(false);
+	input->resume();
+	time->resume();
+	battery->setSleep(false);
 
 	Events::post(Facility::Sleep, Event { .action = Event::SleepOff });
 
 	preWake();
-	bl.fadeIn();
+	bl->fadeIn();
 
 	ESP_LOGI(TAG, "Slept for %lld us\n", sleepTime);
 }
