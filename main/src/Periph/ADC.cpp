@@ -44,7 +44,7 @@ float ADC::sample(){
 	return getVal();
 }
 
-float ADC::getVal(){
+float ADC::getVal() const{
 	if(!valid){
 		return 0;
 	}

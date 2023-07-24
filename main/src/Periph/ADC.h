@@ -12,7 +12,7 @@ public:
 	float sample();
 
 	// Get current value without sampling
-	float getVal();
+	float getVal() const;
 
 	void resetEma();
 
