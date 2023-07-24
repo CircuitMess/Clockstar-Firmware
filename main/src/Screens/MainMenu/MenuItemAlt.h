@@ -7,15 +7,14 @@
 class MenuItemAlt : public MenuItem {
 public:
 	MenuItemAlt(lv_obj_t* parent, const char* gifPath, const char* labelPath);
-	void setAltPaths(const char* gifPathAlt, const char* labelPathAlt);
-	void setAltLabel(const char* gifPathAlt, const char* labelTextAlt);
+	void setAltParams(const char* gifPathAlt, const char* labelPathAlt);
 
 private:
 	const std::string gifPath;
 	const std::string labelPath;
+
 	std::string gifPathAlt;
-	std::string labelPathAlt;
-	std::string labelTextAlt;
+	std::string labelAlt;
 
 	lv_obj_t* textLabel;
 
@@ -26,6 +25,8 @@ private:
 	void setAlt();
 
 	bool isAlt = false;
+
+	bool altLabelIsText();
 
 };
 
