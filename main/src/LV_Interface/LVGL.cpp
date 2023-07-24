@@ -53,17 +53,22 @@ void LVGL::loop(){
 }
 
 void LVGL::startScreen(std::function<std::unique_ptr<LVScreen>()> create){
-	if(currentScreen){
-		currentScreen->stop();
-		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), nullptr);
-	}
+	stopScreen();
 
 	lv_obj_t* tmp = lv_obj_create(nullptr);
 	lv_scr_load_anim(tmp, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
 
+	currentScreen.reset();
+
 	currentScreen = create();
 	currentScreen->start(this);
 	lv_scr_load_anim(*currentScreen, LV_SCR_LOAD_ANIM_NONE, 0, 0, true);
+}
+
+void LVGL::stopScreen(){
+	if(!currentScreen) return;
+	currentScreen->stop();
+	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), nullptr);
 }
 
 lv_disp_t* LVGL::disp() const{
