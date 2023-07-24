@@ -23,8 +23,10 @@ friend IMU;
 
 	LVGL& lvgl;
 	IMU& imu;
+	BacklightBrightness& bl;
 
 	void goSleep();
+	void shutdown();
 
 	void handleInput(const Input::Data& evt);
 	void handleMotion(const IMU::Event& evt);

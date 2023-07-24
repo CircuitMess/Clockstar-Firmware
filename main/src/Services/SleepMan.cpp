@@ -1,11 +1,11 @@
 #include "SleepMan.h"
 #include "Screens/Lock/LockScreen.h"
 #include "Util/Services.h"
+#include <esp_sleep.h>
 
-SleepMan::SleepMan(LVGL& lvgl) : events(12),
-lvgl(lvgl),
-imu(*((IMU*) Services.get(Service::IMU)))
-{
+SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
+								 imu(*((IMU*) Services.get(Service::IMU))),
+								 bl(*((BacklightBrightness*) Services.get(Service::Backlight))){
 	Events::listen(Facility::Input, &events);
 	Events::listen(Facility::Motion, &events);
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
@@ -20,6 +20,17 @@ void SleepMan::goSleep(){
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
 	wakeTime = millis();
 	events.reset();
+}
+
+void SleepMan::shutdown(){
+	imu.shutdown();
+	bl.fadeOut();
+
+	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
+	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
+	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
+	esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+	esp_deep_sleep_start();
 }
 
 void SleepMan::loop(){
