@@ -17,6 +17,7 @@ public:
 
 	void setSleep(bool sleep);
 
+	uint8_t getPerc() const;
 	uint8_t getLevel() const;
 	bool isCharging() const;
 	bool isCritical() const;

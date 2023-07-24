@@ -140,6 +140,10 @@ void Battery::setSleep(bool sleep){
 	xSemaphoreGive(sem);
 }
 
+uint8_t Battery::getPerc() const{
+	return adc.getVal();
+}
+
 uint8_t Battery::getLevel() const{
 	return hysteresis.get();
 }
