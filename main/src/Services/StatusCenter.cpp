@@ -18,13 +18,6 @@ phone(*((Phone*) Services.get(Service::Phone)))
 	led = new RGBLEDController(*pwmR, *pwmG, *pwmB);
 	led->begin();
 
-	auto batt = (Battery*) Services.get(Service::Battery);
-	if(batt->isCharging()){
-		battState = Charging;
-	}else if(batt->isLow()){
-		battState = Empty;
-	}
-
 	updateLED();
 	start();
 }
