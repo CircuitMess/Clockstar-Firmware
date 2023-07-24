@@ -6,6 +6,7 @@
 #include "Screens/MainMenu/MainMenu.h"
 #include "Services/SleepMan.h"
 #include "LV_Interface/FSLVGL.h"
+#include "LV_Interface/InputLVGL.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(24){
 	notifs.reserve(MaxNotifs);
@@ -100,6 +101,8 @@ void LockScreen::processInput(const Input::Data& evt){
 	if(evt.btn != Input::Alt) return;
 
 	if(evt.action == Input::Data::Press && lv_group_get_focused(inputGroup) != main){
+		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), inputGroup);
+		lv_event_send(lv_group_get_focused(inputGroup), LV_EVENT_READY, 0);
 		lv_group_focus_obj(main);
 		return;
 	}

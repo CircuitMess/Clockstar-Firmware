@@ -119,6 +119,8 @@ void Item::createControls(){
 }
 
 void Item::delControls(){
+	if(!del && !canc) return;
+
 	delete del;
 	delete canc;
 	lv_obj_del(ctrl);
