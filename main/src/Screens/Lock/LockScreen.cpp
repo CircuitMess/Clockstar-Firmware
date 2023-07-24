@@ -197,7 +197,7 @@ void LockScreen::notifRem(uint32_t id){
 	removeNotifIcon(el->iconPath());
 	lv_group_focus_next(inputGroup);
 
-	delete el;
+	lv_obj_del(*el);
 	notifs.erase(it);
 }
 

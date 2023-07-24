@@ -153,13 +153,23 @@ uint32_t LEDController<T>::handleContinuousAction(){
 				write(continuousAction.data.continuousBlink.color);
 				timerVal = continuousAction.data.continuousBlink.onTime;
 				continuousAction.state = ContinuousAction::On;
-				sleepLock.acquire();
+
+				if(timerVal < 500){
+					sleepLock.acquire();
+				}else{
+					sleepLock.release();
+				}
 				break;
 			case ContinuousAction::On:
 				write(T());
 				timerVal = continuousAction.data.continuousBlink.offTime;
 				continuousAction.state = ContinuousAction::Off;
-				sleepLock.acquire();
+
+				if(timerVal < 500){
+					sleepLock.acquire();
+				}else{
+					sleepLock.release();
+				}
 				break;
 			case ContinuousAction::Off:
 				continuousAction.data.continuousBlink.currLoops++;
@@ -168,7 +178,12 @@ uint32_t LEDController<T>::handleContinuousAction(){
 					write(continuousAction.data.continuousBlink.color);
 					timerVal = continuousAction.data.continuousBlink.onTime;
 					continuousAction.state = ContinuousAction::On;
-					sleepLock.acquire();
+
+					if(timerVal < 500){
+						sleepLock.acquire();
+					}else{
+						sleepLock.release();
+					}
 				}else{
 					timerVal = 0;
 					sleepLock.release();

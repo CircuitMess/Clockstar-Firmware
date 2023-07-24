@@ -16,6 +16,9 @@ public:
 
 	void startScreen(std::function<std::unique_ptr<LVScreen>()> create);
 
+	/** startScreen should be called immediately after this function. */
+	void stopScreen();
+
 private:
 	Display& display;
 

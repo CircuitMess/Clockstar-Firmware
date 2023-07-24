@@ -7,6 +7,7 @@
 #include "Devices/Input.h"
 #include "Screens/MainMenu/MainMenu.h"
 #include "LV_Interface/FSLVGL.h"
+#include "Services/SleepMan.h"
 
 Level::Level() : imu((IMU*) Services.get(Service::IMU)), reader([this](){ readerFunc(); }, "reader", 2048, 5, 1), data(QueueSize),
 				 pitchFilter(filterStrength), rollFilter(filterStrength), queue(4){
@@ -85,6 +86,9 @@ void Level::loop(){
 }
 
 void Level::onStart(){
+	auto sleep = (SleepMan*) Services.get(Service::Sleep);
+	sleep->enAutoSleep(false);
+
 	if(imu == nullptr){
 		ESP_LOGE("Level", "IMU service error\n");
 		return;
@@ -112,4 +116,7 @@ void Level::readerFunc(){
 void Level::onStop(){
 	reader.stop();
 	Events::unlisten(&queue);
+
+	auto sleep = (SleepMan*) Services.get(Service::Sleep);
+	sleep->enAutoSleep(true);
 }

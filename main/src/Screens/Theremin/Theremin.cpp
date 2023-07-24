@@ -5,6 +5,7 @@
 #include "Devices/Input.h"
 #include "Screens/MainMenu/MainMenu.h"
 #include "Services/StatusCenter.h"
+#include "Services/SleepMan.h"
 
 
 Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)), sem(xSemaphoreCreateBinary()),
@@ -50,6 +51,9 @@ void Theremin::setOrientation(float pitch, float roll){
 }
 
 void Theremin::onStart(){
+	auto sleep = (SleepMan*) Services.get(Service::Sleep);
+	sleep->enAutoSleep(false);
+
 	auto status = (StatusCenter*) Services.get(Service::Status);
 	status->blockAudio(true);
 
@@ -83,6 +87,9 @@ void Theremin::onStop(){
 
 	auto status = (StatusCenter*) Services.get(Service::Status);
 	status->blockAudio(false);
+
+	auto sleep = (SleepMan*) Services.get(Service::Sleep);
+	sleep->enAutoSleep(true);
 }
 
 void Theremin::loop(){

@@ -11,16 +11,19 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 	Events::listen(Facility::Motion, &events);
 	Events::listen(Facility::Battery, &events);
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
+
+	actTime = millis();
 }
 
 void SleepMan::goSleep(){
+	lvgl.stopScreen();
 	imu.setTiltDirection(IMU::TiltDirection::Lifted);
 	sleep.sleep([this](){
 		lvgl.startScreen([](){ return std::make_unique<LockScreen>(); });
 		lv_timer_handler();
 	});
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
-	wakeTime = millis();
+	wakeTime = actTime = millis();
 	events.reset();
 }
 
@@ -37,6 +40,11 @@ void SleepMan::shutdown(){
 }
 
 void SleepMan::loop(){
+	checkAutoSleep();
+	checkEvents();
+}
+
+void SleepMan::checkEvents(){
 	Event evt;
 	if(!events.get(evt, 0)) return;
 
@@ -54,7 +62,25 @@ void SleepMan::loop(){
 	free(evt.data);
 }
 
+void SleepMan::checkAutoSleep(){
+	if(!autoSleep) return;
+
+	auto settings = (Settings*) Services.get(Service::Settings);
+
+	auto sti = settings->get().sleepTime;
+	if(sti >= Settings::SleepSteps) return;
+
+	auto sleepSeconds = Settings::SleepSeconds[settings->get().sleepTime];
+	if(sleepSeconds == 0) return;
+
+	if((millis() - actTime) / 1000 < sleepSeconds) return;
+
+	goSleep();
+}
+
 void SleepMan::handleInput(const Input::Data& evt){
+	actTime = millis();
+
 	if(evt.btn != Input::Alt || !altLock) return;
 
 	if(evt.action == Input::Data::Press){
@@ -66,6 +92,8 @@ void SleepMan::handleInput(const Input::Data& evt){
 }
 
 void SleepMan::handleMotion(const IMU::Event& evt){
+	if(!autoSleep) return;
+
 	if(evt.action != IMU::Event::WristTilt || evt.wristTiltDir != IMU::TiltDirection::Lowered) return;
 	goSleep();
 }
@@ -82,4 +110,8 @@ void SleepMan::handleBattery(const Battery::Event& evt){
 	vTaskDelay(ShutdownTime);
 
 	shutdown();
+}
+
+void SleepMan::enAutoSleep(bool autoSleep){
+	SleepMan::autoSleep = autoSleep;
 }

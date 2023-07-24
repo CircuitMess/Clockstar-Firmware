@@ -62,7 +62,10 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_group_add_obj(inputGroup, *ledSwitch);
 
 	sleepSlider = new DiscreteSliderElement(container, "Sleep time", [this](uint8_t value){
-		//TODO - apply sleep if necessary
+		if(value >= Settings::SleepSteps) return;
+		auto s = settings.get();
+		s.sleepTime = value;
+		settings.set(s);
 	}, std::vector<const char*>(Settings::SleepText, Settings::SleepText + Settings::SleepSteps), startingSettings.sleepTime);
 	lv_group_add_obj(inputGroup, *sleepSlider);
 
