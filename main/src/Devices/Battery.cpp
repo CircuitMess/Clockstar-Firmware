@@ -91,6 +91,8 @@ void Battery::sample(bool fresh){
 	if(isCritical() && !batteryCriticalAlert){
 		batteryCriticalAlert = true;
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryCritical, .chargeStatus = isCharging() });
+		stop(0);
+		return;
 	}else if(isLow() && !batteryLowAlert){
 		batteryLowAlert = true;
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow, .chargeStatus = isCharging() });
