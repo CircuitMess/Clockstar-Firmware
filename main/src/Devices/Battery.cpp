@@ -22,10 +22,12 @@ Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.
 
 	checkCharging();
 	sample(true);
-	start();
 
-	startTimer();
-	gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
+	if(!isCritical() || isCharging()){
+		start();
+		startTimer();
+		gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
+	}
 }
 
 Battery::~Battery(){
