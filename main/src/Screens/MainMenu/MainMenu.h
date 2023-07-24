@@ -16,26 +16,28 @@ public:
 	virtual ~MainMenu();
 
 private:
+	static constexpr const char* ConnDesc[3] = {
+			"Not connected.\nUse phone to pair",
+			"Connected to\nAndroid device",
+			"Connected to\niOS device"
+	};
+
 	struct ItemInfo {
 		const char* labelPath = nullptr;
+		const char* labelAlt = nullptr;
 		const char* iconPath = nullptr;
+		const char* iconAltPath = nullptr;
 	};
 	static constexpr ItemInfo ItemInfos[] = {
-			{ "S:/menu/labels/connection.bin", "S:/menu/disconnected" },
-			{ "S:/menu/labels/find.bin",       "S:/menu/find" },
-			{ "S:/menu/labels/level.bin",      "S:/menu/level" },
-			{ "S:/menu/labels/theremin.bin",   "S:/menu/theremin" },
-			{ "S:/menu/labels/settings.bin",   "S:/menu/settings" },
+			{ "S:/menu/labels/find.bin",       "S:/menu/labels/ringing.bin",              "S:/menu/find",         "S:/menu/ring" },
+			{ "S:/menu/labels/level.bin",      nullptr,                                "S:/menu/level",        nullptr },
+			{ "S:/menu/labels/theremin.bin",   nullptr,                                "S:/menu/theremin",     nullptr },
+			{ "S:/menu/labels/connection.bin", ConnDesc[(int) Phone::PhoneType::None], "S:/menu/disconnected", "S:/menu/connected" },
+			{ "S:/menu/labels/settings.bin",   nullptr,                                "S:/menu/settings",     nullptr },
 	};
 	static constexpr uint8_t ItemCount = sizeof(ItemInfos) / sizeof(ItemInfos[0]);
 
-	static constexpr ItemInfo AltItems[] = {
-			{ "S:/menu/labels/connection.bin", "S:/menu/connected" },
-			{ "S:/menu/labels/ringing.bin",    "S:/menu/ring" },
-	};
-	static constexpr uint8_t AltItemCount = sizeof(AltItems) / sizeof(AltItems[0]);
-
-	static constexpr const char* getConnectionDesc(Phone::PhoneType type);
+	void setConnAlts();
 
 	bool findPhoneRinging = false;
 	void startPhoneRing();
@@ -54,7 +56,7 @@ private:
 
 	lv_obj_t* bg;
 	MenuItem* items[ItemCount];
-	MenuItemAlt* phoneConnection;
+	// MenuItemAlt* phoneConnection;
 
 	void onStarting() override;
 	void onStop() override;

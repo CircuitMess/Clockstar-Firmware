@@ -28,6 +28,7 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	icon = lv_img_create(iconCont);
 
 	label = lv_label_create(top);
+	lv_obj_set_flex_grow(label, 1);
 	lv_obj_set_size(label, lv_pct(100), LabelHeight);
 	lv_obj_set_style_pad_left(label, 4, 0);
 	lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL);
@@ -68,6 +69,10 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 		auto item = static_cast<Item*>(evt->user_data);
 		lv_label_set_long_mode(item->label, LV_LABEL_LONG_DOT);
 		lv_label_set_long_mode(item->body, LV_LABEL_LONG_DOT);
+
+		if(item->isActive()){
+			item->deselect();
+		}
 	}, LV_EVENT_DEFOCUSED, this);
 }
 
@@ -88,6 +93,8 @@ const char* Item::iconPath(){
 }
 
 void Item::createControls(){
+	if(ctrl) return;
+
 	ctrl = lv_obj_create(*this);
 	lv_obj_set_size(ctrl, lv_pct(100), LV_SIZE_CONTENT);
 	lv_obj_set_style_bg_color(ctrl, lv_color_black(), 0);
@@ -120,7 +127,9 @@ void Item::createControls(){
 void Item::delControls(){
 	delete del;
 	delete canc;
-	lv_obj_del(ctrl);
+	if(ctrl){
+		lv_obj_del(ctrl);
+	}
 	ctrl = nullptr;
 	del = canc = nullptr;
 }

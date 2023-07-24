@@ -15,14 +15,18 @@ LVSelectable::~LVSelectable(){
 }
 
 void LVSelectable::select(){
-	parentGroup = InputLVGL::getInstance()->getIndev()->group;
 	active = true;
 
-	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), inputGroup);
+	if(InputLVGL::getInstance()->getIndev()->group != inputGroup){
+		parentGroup = InputLVGL::getInstance()->getIndev()->group;
+		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), inputGroup);
+	}
 }
 
 void LVSelectable::deselect(){
-	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), parentGroup);
+	if(parentGroup != nullptr){
+		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), parentGroup);
+	}
 
 	parentGroup = nullptr;
 	active = false;

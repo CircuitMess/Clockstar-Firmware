@@ -26,35 +26,32 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	lv_obj_set_style_bg_img_src(bg, "S:/bg.bin", 0);
 
 	for(int i = 0; i < ItemCount; i++){
-		// TODO: connected/disconnected alt labels for phone connection
-		// TODO: add "Press to stop" to ringing alt label
-		if(i == 0){
-			auto item = new MenuItemAlt(*this, ItemInfos[i].iconPath, ItemInfos[i].labelPath);
-			const auto altPath = phone.getPhoneType() == Phone::PhoneType::None ? AltItems[i].iconPath : ItemInfos[i].iconPath;
-			item->setAltLabel(altPath, getConnectionDesc(phone.getPhoneType()));
-			items[i] = item;
-			phoneConnection = item;
-		}else if(i < AltItemCount){
-			auto item = new MenuItemAlt(*this, ItemInfos[i].iconPath, ItemInfos[i].labelPath);
-			item->setAltPaths(AltItems[i].iconPath, AltItems[i].labelPath);
-			items[i] = item;
-		}else{
-			items[i] = new MenuItem(*this, ItemInfos[i].iconPath, ItemInfos[i].labelPath);
+		const auto& info = ItemInfos[i];
 
-			lv_obj_add_event_cb(*items[i], [](lv_event_t* evt){
-				auto menu = static_cast<MainMenu*>(evt->user_data);
-				menu->onClick();
-			}, LV_EVENT_CLICKED, this);
+		MenuItem* item;
+		if(info.iconAltPath || info.labelAlt){
+			auto itemAlt = new MenuItemAlt(*this, info.iconPath, info.labelPath);
+			itemAlt->setAltParams(info.iconAltPath, info.labelAlt);
+			item = itemAlt;
+		}else{
+			item = new MenuItem(*this, info.iconPath, info.labelPath);
 		}
 
-		lv_group_add_obj(inputGroup, *items[i]);
-		lv_obj_add_flag(*items[i], LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-		lv_obj_add_flag(*items[i], LV_OBJ_FLAG_SNAPPABLE);
-		lv_obj_clear_flag(*items[i], LV_OBJ_FLAG_CLICK_FOCUSABLE);
+		lv_obj_add_event_cb(*item, [](lv_event_t* evt){
+			auto menu = static_cast<MainMenu*>(evt->user_data);
+			menu->onClick();
+		}, LV_EVENT_CLICKED, this);
+
+		lv_group_add_obj(inputGroup, *item);
+		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+		lv_obj_add_flag(*item, LV_OBJ_FLAG_SNAPPABLE);
+		lv_obj_clear_flag(*item, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
+		items[i] = item;
 	}
 
 	//find my phone
-	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
+	lv_obj_add_event_cb(*items[0], [](lv_event_t* evt){
 		auto menu = static_cast<MainMenu*>(evt->user_data);
 		if(menu->findPhoneRinging){
 			menu->stopPhoneRing();
@@ -63,7 +60,7 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 		}
 	}, LV_EVENT_CLICKED, this);
 
-	lv_obj_add_event_cb(*items[1], [](lv_event_t* evt){
+	lv_obj_add_event_cb(*items[0], [](lv_event_t* evt){
 		auto menu = static_cast<MainMenu*>(evt->user_data);
 		if(menu->findPhoneRinging){
 			menu->stopPhoneRing();
@@ -89,12 +86,19 @@ MainMenu::~MainMenu(){
 }
 
 void MainMenu::onStarting(){
+	// TODO: place all ring phone stuff into setRingAlts
 	if(phone.getPhoneType() != Phone::PhoneType::Android){
-		lv_obj_add_flag(*items[1], LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(*items[0], LV_OBJ_FLAG_HIDDEN);
+
+		if(lastIndex == 0){
+			lastIndex = 1;
+		}
 	}
 
 	lv_group_focus_obj(*items[lastIndex]);
 	lv_obj_scroll_to_view(*items[lastIndex], LV_ANIM_OFF);
+
+	setConnAlts();
 }
 
 void MainMenu::onStop(){
@@ -122,49 +126,45 @@ void MainMenu::loop(){
 
 void MainMenu::onClick(){
 	auto focused = lv_group_get_focused(inputGroup);
-	auto index = lv_obj_get_index(focused);
-	if(index <= AltItemCount) return;
+	auto index = lv_obj_get_index(focused) - 1; // StatusBar is first
+	if(index >= ItemCount) return;
 
-	lastIndex = index - 1;
+	lastIndex = index;
 
 	std::function<void()> launcher[] = {
+			[](){ },
 			[this](){ transition([](){ return std::make_unique<Level>(); }); },
 			[this](){ transition([](){ return std::make_unique<Theremin>(); }); },
+			[](){ },
 			[this](){ transition([](){ return std::make_unique<SettingsScreen>(); }); }
 	};
 
-	launcher[index - AltItemCount - 1]();
+	launcher[index]();
 }
 
 void MainMenu::handlePhoneChange(Phone::Event& event){
 	auto focused = lv_group_get_focused(inputGroup);
-	auto index = lv_obj_get_index(focused);
-	auto& findPhone = *items[1];
+	auto index = lv_obj_get_index(focused) - 1;
+	auto& findPhone = *items[0];
 	bool hiddenBefore = lv_obj_has_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
 
-	if(event.action == Phone::Event::Connected || event.action == Phone::Event::Disconnected){
-		if(event.data.phoneType == Phone::PhoneType::Android && event.action == Phone::Event::Connected){
-			lv_obj_clear_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
-		}else{
-			lv_obj_add_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
-		}
-		const auto altPath = phone.getPhoneType() == Phone::PhoneType::None ? AltItems[0].iconPath : ItemInfos[0].iconPath;
-		phoneConnection->setAltLabel(altPath, getConnectionDesc(phone.getPhoneType()));
+	if(event.action == Phone::Event::Connected && event.data.phoneType == Phone::PhoneType::Android){
+		lv_obj_clear_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
+	}else{
+		lv_obj_add_flag(findPhone, LV_OBJ_FLAG_HIDDEN);
 	}
 
 	if(hiddenBefore != lv_obj_has_flag(findPhone, LV_OBJ_FLAG_HIDDEN)){
-		if(hiddenBefore && index >= 2){
-			lv_obj_scroll_to_view(*items[index - 1], LV_ANIM_OFF);
-		}else if(!hiddenBefore){
-			if(index == 2){
-				lv_obj_scroll_to_view(*items[0], LV_ANIM_OFF);
-				lv_group_focus_obj(*items[0]);
-			}else if(index > 2){
-				lv_obj_scroll_to_view(*items[index - 1], LV_ANIM_OFF);
-				lv_group_focus_obj(*items[index - 1]);
-			}
+		if(!hiddenBefore && index == 0){
+			lv_obj_scroll_to_view(*items[1], LV_ANIM_OFF);
+			lv_group_focus_obj(*items[1]);
+		}else{
+			lv_obj_scroll_to_view(*items[index], LV_ANIM_OFF);
+			lv_group_focus_obj(*items[index]);
 		}
 	}
+
+	setConnAlts();
 }
 
 void MainMenu::handleInput(Input::Data& event){
@@ -172,6 +172,14 @@ void MainMenu::handleInput(Input::Data& event){
 		transition([](){ return std::make_unique<LockScreen>(); });
 		lastIndex = 0;
 	}
+}
+
+void MainMenu::setConnAlts(){
+	auto connEl = (MenuItemAlt*) items[3];
+
+	const auto connAlt = phone.getPhoneType() == Phone::PhoneType::None
+						 ? ItemInfos[3].iconAltPath : ItemInfos[3].iconPath;
+	connEl->setAltParams(connAlt, ConnDesc[(int) phone.getPhoneType()]);
 }
 
 void MainMenu::startPhoneRing(){
@@ -197,15 +205,5 @@ void MainMenu::handleRing(){
 		findPhoneCounter = millis();
 		findPhoneState = !findPhoneState;
 		findPhoneState ? phone.findPhoneStart() : phone.findPhoneStop();
-	}
-}
-
-constexpr const char* MainMenu::getConnectionDesc(Phone::PhoneType type){
-	if(type == Phone::PhoneType::None){
-		return "Not connected.\nUse phone to pair";
-	}else if(type == Phone::PhoneType::Android){
-		return "Connected to\nAndroid device";
-	}else{
-		return "Connected to\niOS device";
 	}
 }

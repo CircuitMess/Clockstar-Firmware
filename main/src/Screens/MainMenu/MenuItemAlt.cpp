@@ -15,12 +15,12 @@ MenuItemAlt::MenuItemAlt(lv_obj_t* parent, const char* gifPath, const char* labe
 	lv_obj_set_style_text_align(textLabel, LV_TEXT_ALIGN_CENTER, 0);
 }
 
-void MenuItemAlt::setAltPaths(const char* gifPathAlt, const char* labelPathAlt){
+void MenuItemAlt::setAltParams(const char* gifPathAlt, const char* labelPathAlt){
 	lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(textLabel, LV_OBJ_FLAG_HIDDEN);
 
 	this->gifPathAlt = gifPathAlt;
-	this->labelPathAlt = labelPathAlt;
+	this->labelAlt = labelPathAlt;
 
 	if(isAlt){
 		setAlt();
@@ -47,34 +47,27 @@ void MenuItemAlt::onDefocus(){
 }
 
 void MenuItemAlt::setOrig(){
-		if(!labelTextAlt.empty()){
-
+	if(altLabelIsText()){
 		lv_obj_add_flag(textLabel, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
 	}
+
 	constructVis(gifPath.c_str(), labelPath.c_str());
 	isAlt = false;
 }
 
 void MenuItemAlt::setAlt(){
-	if(!labelTextAlt.empty()){
-
+	if(altLabelIsText()){
 		lv_obj_clear_flag(textLabel, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_add_flag(label, LV_OBJ_FLAG_HIDDEN);
 	}
 
-	constructVis(gifPathAlt.c_str(), labelPathAlt.c_str());
-	lv_label_set_text(textLabel, labelTextAlt.c_str());
+	constructVis(gifPathAlt.c_str(), labelAlt.c_str());
+	lv_label_set_text(textLabel, labelAlt.c_str());
 	isAlt = true;
 }
 
-void MenuItemAlt::setAltLabel(const char* gifPathAlt, const char* labelTextAlt){
-	this->gifPathAlt = gifPathAlt;
-	this->labelTextAlt = labelTextAlt;
-
-	if(isAlt){
-		setAlt();
-		MenuItem::onFocus();
-	}
-
+bool MenuItemAlt::altLabelIsText(){
+	bool onSpiffs = labelAlt.find_first_of("S:/") == 0;
+	return !onSpiffs;
 }
