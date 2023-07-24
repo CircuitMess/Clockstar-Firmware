@@ -26,7 +26,6 @@ private:
 
 	ChirpSystem& chirp;
 	Settings& settings;
-	Phone& phone;
 	RGBLEDController* led;
 
 	bool audioBlocked = false;

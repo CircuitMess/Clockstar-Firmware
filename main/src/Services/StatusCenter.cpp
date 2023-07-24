@@ -5,8 +5,7 @@
 
 StatusCenter::StatusCenter() : Threaded("Status", 2048), events(12),
 chirp(*((ChirpSystem*) Services.get(Service::Audio))),
-settings(*((Settings*) Services.get(Service::Settings))),
-phone(*((Phone*) Services.get(Service::Phone)))
+settings(*((Settings*) Services.get(Service::Settings)))
 {
 	Events::listen(Facility::Phone, &events);
 	Events::listen(Facility::Battery, &events);
@@ -38,7 +37,8 @@ void StatusCenter::loop(){
 }
 
 void StatusCenter::processPhone(const Phone::Event& evt){
-	hasNotifs = !phone.getNotifs().empty();
+	auto phone = (Phone*) Services.get(Service::Phone);
+	hasNotifs = !phone->getNotifs().empty();
 
 	if((evt.action == Phone::Event::Added || evt.action == Phone::Event::Changed)){
 		if(settings.get().notificationSounds && !audioBlocked){
