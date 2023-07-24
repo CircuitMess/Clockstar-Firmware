@@ -28,6 +28,7 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 	icon = lv_img_create(iconCont);
 
 	label = lv_label_create(top);
+	lv_obj_set_flex_grow(label, 1);
 	lv_obj_set_size(label, lv_pct(100), LabelHeight);
 	lv_obj_set_style_pad_left(label, 4, 0);
 	lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL);
