@@ -30,5 +30,10 @@ int Hysteresis::update(int val){
 
 void Hysteresis::reset(int toVal){
 	prev_val = toVal;
-	update(toVal);
+	discrete_level = 0;
+	for(auto threshold : thresholds){
+		if(toVal >= threshold.high){
+			discrete_level = threshold.level;
+		}
+	}
 }
