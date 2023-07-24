@@ -16,6 +16,8 @@ public:
 	void enAltLock(bool altLock);
 	void enAutoSleep(bool autoSleep);
 
+	static constexpr uint32_t ShutdownTime = 3000; //3s
+
 private:
 friend IMU;
 
@@ -44,8 +46,6 @@ friend IMU;
 	bool altLock = false;
 	static constexpr uint32_t AltHoldTime = 300;
 	uint32_t altPress;
-
-	static constexpr uint32_t ShutdownTime = 5000; //3s
 
 };
 
