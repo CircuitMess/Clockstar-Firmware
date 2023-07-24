@@ -58,6 +58,8 @@ public:
 
 	void clearSources();
 
+	void shutdown();
+
 private:
 	static constexpr uint8_t Addr = 0x6A;
 	I2C& i2c;

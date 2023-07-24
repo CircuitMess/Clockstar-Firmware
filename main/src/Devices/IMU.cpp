@@ -344,3 +344,15 @@ void IMU::printInterruptInfo(){
 	printf("z_tap: %d\n", src.tap_src.z_tap);
 
 }
+
+void IMU::shutdown(){
+	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+	lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 0);
+
+	gpio_isr_handler_remove((gpio_num_t) IMU_INT1);
+	gpio_isr_handler_remove((gpio_num_t) IMU_INT2);
+
+	lsm6ds3tr_c_xl_data_rate_set(&ctx, LSM6DS3TR_C_XL_ODR_OFF);
+	lsm6ds3tr_c_gy_data_rate_set(&ctx, LSM6DS3TR_C_GY_ODR_OFF);
+}

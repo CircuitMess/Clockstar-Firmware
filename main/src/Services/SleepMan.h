@@ -16,6 +16,8 @@ public:
 	void enAltLock(bool altLock);
 	void enAutoSleep(bool autoSleep);
 
+	static constexpr uint32_t ShutdownTime = 3000; //3s
+
 private:
 friend IMU;
 
@@ -24,8 +26,10 @@ friend IMU;
 
 	LVGL& lvgl;
 	IMU& imu;
+	BacklightBrightness& bl;
 
 	void goSleep();
+	void shutdown();
 
 	uint32_t actTime = 0;
 	bool autoSleep = true;
@@ -34,6 +38,7 @@ friend IMU;
 	void checkEvents();
 	void handleInput(const Input::Data& evt);
 	void handleMotion(const IMU::Event& evt);
+	void handleBattery(const Battery::Event& evt);
 
 	static constexpr uint32_t WakeCooldown = 100;
 	uint32_t wakeTime = 0;

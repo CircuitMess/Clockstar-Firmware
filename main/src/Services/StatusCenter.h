@@ -19,6 +19,7 @@ public:
 	void updateLED();
 	void blink();
 	void beep();
+	void shutdown();
 
 private:
 	EventQueue events;

@@ -1,13 +1,15 @@
 #include "SleepMan.h"
 #include "Screens/Lock/LockScreen.h"
 #include "Util/Services.h"
+#include "Screens/ShutdownScreen.h"
+#include <esp_sleep.h>
 
-SleepMan::SleepMan(LVGL& lvgl) : events(12),
-lvgl(lvgl),
-imu(*((IMU*) Services.get(Service::IMU)))
-{
+SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
+								 imu(*((IMU*) Services.get(Service::IMU))),
+								 bl(*((BacklightBrightness*) Services.get(Service::Backlight))){
 	Events::listen(Facility::Input, &events);
 	Events::listen(Facility::Motion, &events);
+	Events::listen(Facility::Battery, &events);
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
 
 	actTime = millis();
@@ -25,6 +27,18 @@ void SleepMan::goSleep(){
 	events.reset();
 }
 
+void SleepMan::shutdown(){
+	bl.fadeOut();
+	imu.shutdown();
+
+	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
+	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_AUTO);
+	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_AUTO);
+	esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL, ESP_PD_OPTION_AUTO);
+	esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+	esp_deep_sleep_start();
+}
+
 void SleepMan::loop(){
 	checkAutoSleep();
 	checkEvents();
@@ -40,6 +54,9 @@ void SleepMan::checkEvents(){
 	}else if(evt.facility == Facility::Motion){
 		auto param = (IMU::Event*) evt.data;
 		handleMotion(*param);
+	}else if(evt.facility == Facility::Battery){
+		auto param = (Battery::Event*) evt.data;
+		handleBattery(*param);
 	}
 
 	free(evt.data);
@@ -83,6 +100,16 @@ void SleepMan::handleMotion(const IMU::Event& evt){
 
 void SleepMan::enAltLock(bool altLock){
 	SleepMan::altLock = altLock;
+}
+
+void SleepMan::handleBattery(const Battery::Event& evt){
+	if(evt.action != Battery::Event::BatteryCritical) return;
+	lvgl.startScreen([](){ return std::make_unique<ShutdownScreen>(); });
+
+	lv_timer_handler();
+	vTaskDelay(ShutdownTime);
+
+	shutdown();
 }
 
 void SleepMan::enAutoSleep(bool autoSleep){
