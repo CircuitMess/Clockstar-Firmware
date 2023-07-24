@@ -30,6 +30,7 @@ friend IMU;
 
 	void handleInput(const Input::Data& evt);
 	void handleMotion(const IMU::Event& evt);
+	void handleBattery(const Battery::Event& evt);
 
 	static constexpr uint32_t WakeCooldown = 100;
 	uint32_t wakeTime = 0;
@@ -37,6 +38,8 @@ friend IMU;
 	bool altLock = false;
 	static constexpr uint32_t AltHoldTime = 300;
 	uint32_t altPress;
+
+	static constexpr uint32_t ShutdownTime = 5000; //3s
 
 };
 
