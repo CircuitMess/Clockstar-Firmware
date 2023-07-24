@@ -46,20 +46,20 @@ void SleepMan::loop(){
 
 void SleepMan::checkEvents(){
 	Event evt;
-	if(!events.get(evt, 0)) return;
+	while(events.get(evt, 0)){
+		if(evt.facility == Facility::Input){
+			auto param = (Input::Data*) evt.data;
+			handleInput(*param);
+		}else if(evt.facility == Facility::Motion){
+			auto param = (IMU::Event*) evt.data;
+			handleMotion(*param);
+		}else if(evt.facility == Facility::Battery){
+			auto param = (Battery::Event*) evt.data;
+			handleBattery(*param);
+		}
 
-	if(evt.facility == Facility::Input){
-		auto param = (Input::Data*) evt.data;
-		handleInput(*param);
-	}else if(evt.facility == Facility::Motion){
-		auto param = (IMU::Event*) evt.data;
-		handleMotion(*param);
-	}else if(evt.facility == Facility::Battery){
-		auto param = (Battery::Event*) evt.data;
-		handleBattery(*param);
+		free(evt.data);
 	}
-
-	free(evt.data);
 }
 
 void SleepMan::checkAutoSleep(){
