@@ -10,8 +10,7 @@
 static const char* TAG = "Bangle";
 
 Bangle::Bangle(BLE::Server* server) : Threaded("Bangle", 4 * 1024), server(server), uart(server){
-	server->setOnConnectCb([this](const esp_bd_addr_t addr){ connect(); });
-	server->setOnDisconnectCb([this](const esp_bd_addr_t addr){ disconnect(); });
+	server->setOnDisconnectCb([this](const esp_bd_addr_t addr){ onDisconnect(); });
 	start();
 }
 
@@ -21,20 +20,36 @@ Bangle::~Bangle(){
 	server->setOnDisconnectCb({});
 }
 
+void Bangle::onConnect(){
+	if(connected) return;
+	connected = true;
+	connect();
+}
+
+void Bangle::onDisconnect(){
+	if(!connected) return;
+	connected = false;
+	disconnect();
+}
+
 void Bangle::actionPos(uint32_t uid){
+	if(!connected) return;
 	// TODO: pos & neg for call
 }
 
 void Bangle::actionNeg(uint32_t uid){
+	if(!connected) return;
 	// TODO: pos & neg for call
 	uart.printf("{t:\"notify\",id:%d,n:\"DISMISS\"} \n", uid);
 }
 
 void Bangle::findPhoneStart(){
+	if(!connected) return;
 	uart.printf("{t:\"findPhone\",n:true} \n");
 }
 
 void Bangle::findPhoneStop(){
+	if(!connected) return;
 	uart.printf("{t:\"findPhone\", n:false} \n");
 }
 
@@ -101,9 +116,16 @@ void Bangle::setTime(){
 
 	auto ts = static_cast<Time*>(Services.get(Service::Time));
 	ts->setTime((time_t) time);
+
+	// If we receive time from the device, we'll consider this the "connected" event. Might happen
+	// multiple times during session, but since we're already connected, those onConnect calls will
+	// be discarded. Main thing is, we're sure we'll get the time first thing when connected
+	onConnect();
 }
 
 void Bangle::handleCommand(const std::string& line){
+	if(!connected) return;
+
 	int comlen;
 	const char* com;
 	if(mjson_find(line.c_str(), line.size(), "$.t", &com, &comlen) != MJSON_TOK_STRING){

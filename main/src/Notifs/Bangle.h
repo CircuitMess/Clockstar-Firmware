@@ -35,6 +35,10 @@ private:
 
 	void setTime();
 
+	bool connected = false;
+	void onConnect();
+	void onDisconnect();
+
 };
 
 
