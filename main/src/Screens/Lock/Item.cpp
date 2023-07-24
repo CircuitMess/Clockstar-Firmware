@@ -69,6 +69,10 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 		auto item = static_cast<Item*>(evt->user_data);
 		lv_label_set_long_mode(item->label, LV_LABEL_LONG_DOT);
 		lv_label_set_long_mode(item->body, LV_LABEL_LONG_DOT);
+
+		if(item->isActive()){
+			item->deselect();
+		}
 	}, LV_EVENT_DEFOCUSED, this);
 }
 
