@@ -14,6 +14,7 @@ public:
 	void loop();
 
 	void enAltLock(bool altLock);
+	void enAutoSleep(bool autoSleep);
 
 private:
 friend IMU;
@@ -26,6 +27,11 @@ friend IMU;
 
 	void goSleep();
 
+	uint32_t actTime = 0;
+	bool autoSleep = true;
+	void checkAutoSleep();
+
+	void checkEvents();
 	void handleInput(const Input::Data& evt);
 	void handleMotion(const IMU::Event& evt);
 

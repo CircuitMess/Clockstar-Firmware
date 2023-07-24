@@ -9,9 +9,12 @@ imu(*((IMU*) Services.get(Service::IMU)))
 	Events::listen(Facility::Input, &events);
 	Events::listen(Facility::Motion, &events);
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
+
+	actTime = millis();
 }
 
 void SleepMan::goSleep(){
+	lvgl.stopScreen();
 	imu.setTiltDirection(IMU::TiltDirection::Lifted);
 	sleep.sleep([this](){
 		lvgl.startScreen([](){ return std::make_unique<LockScreen>(); });
@@ -23,6 +26,11 @@ void SleepMan::goSleep(){
 }
 
 void SleepMan::loop(){
+	checkAutoSleep();
+	checkEvents();
+}
+
+void SleepMan::checkEvents(){
 	Event evt;
 	if(!events.get(evt, 0)) return;
 
@@ -37,7 +45,26 @@ void SleepMan::loop(){
 	free(evt.data);
 }
 
+void SleepMan::checkAutoSleep(){
+	if(!autoSleep) return;
+
+	auto settings = (Settings*) Services.get(Service::Settings);
+
+	auto sti = settings->get().sleepTime;
+	if(sti >= Settings::SleepSteps) return;
+
+	auto sleepSeconds = Settings::SleepSeconds[settings->get().sleepTime];
+	if(sleepSeconds == 0) return;
+
+	if((millis() - actTime) / 1000 < sleepSeconds) return;
+
+	goSleep();
+	actTime = millis();
+}
+
 void SleepMan::handleInput(const Input::Data& evt){
+	actTime = millis();
+
 	if(evt.btn != Input::Alt || !altLock) return;
 
 	if(evt.action == Input::Data::Press){
@@ -55,4 +82,8 @@ void SleepMan::handleMotion(const IMU::Event& evt){
 
 void SleepMan::enAltLock(bool altLock){
 	SleepMan::altLock = altLock;
+}
+
+void SleepMan::enAutoSleep(bool autoSleep){
+	SleepMan::autoSleep = autoSleep;
 }
