@@ -21,7 +21,7 @@ void SleepMan::goSleep(){
 		lv_timer_handler();
 	});
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
-	wakeTime = millis();
+	wakeTime = actTime = millis();
 	events.reset();
 }
 
@@ -59,7 +59,6 @@ void SleepMan::checkAutoSleep(){
 	if((millis() - actTime) / 1000 < sleepSeconds) return;
 
 	goSleep();
-	actTime = millis();
 }
 
 void SleepMan::handleInput(const Input::Data& evt){
