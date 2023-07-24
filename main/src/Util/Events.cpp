@@ -43,6 +43,7 @@ EventQueue::EventQueue(size_t count){
 }
 
 EventQueue::~EventQueue(){
+	reset();
 	vQueueDelete(queue);
 }
 
@@ -60,5 +61,9 @@ bool EventQueue::post(Facility facility, void* data){
 }
 
 void EventQueue::reset(){
-	xQueueReset(queue);
+	while(uxQueueMessagesWaiting(queue) > 0){
+		Event evt = {};
+		get(evt, 0);
+		free(evt.data);
+	}
 }
