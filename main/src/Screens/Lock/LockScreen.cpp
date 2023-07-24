@@ -152,9 +152,9 @@ void LockScreen::updateNotifs(){
 }
 
 void LockScreen::notifAdd(const Notif& notif){
-	if(notifs.size() >= MaxNotifs) return;
-
 	if(notifs.count(notif.uid) == 0){
+		if(notifs.size() >= MaxNotifs) return;
+
 		auto uid = notif.uid;
 		auto item = new Item(rest, [this, uid](){
 			notifRem(uid);
