@@ -43,7 +43,7 @@ void Bangle::loop(){
 	if(!data || data->empty()) return;
 
 	std::string line(data->cbegin(), data->cend());
-	data.release();
+	data.reset();
 
 	// trimming
 	line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](unsigned char ch) { return !std::isspace(ch); }));
