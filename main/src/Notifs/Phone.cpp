@@ -78,7 +78,11 @@ void Phone::onDisconnect(NotifSource* src){
 void Phone::onAdd(Notif notif){
 	if(notif.title.empty() && notif.message.empty()) return;
 
-	if(findNotif(notif.uid) != notifs.end()) return;
+	if(findNotif(notif.uid) != notifs.end()){
+		onModify(std::move(notif));
+		return;
+	}
+
 	if(notifs.size() + 1 == notifs.capacity()){
 		notifs.reserve(notifs.capacity() * 2);
 	}
