@@ -31,7 +31,8 @@ struct Notif {
 		HealthAndFitness,
 		BusinessAndFinance,
 		Location,
-		Entertainment
+		Entertainment,
+		OutgoingCall
 	} category;
 };
 

@@ -12,6 +12,7 @@ static const std::unordered_map<std::string, const char*> appMap = {
 
 static const std::unordered_map<Notif::Category, const char*> catMap = {
 		{ Notif::Category::Other,              "S:/icon/cat_other.bin" },
+		{ Notif::Category::IncomingCall,       "S:/icon/call_in.bin" },
 		{ Notif::Category::MissedCall,         "S:/icon/call_miss.bin" },
 		{ Notif::Category::Voicemail,          "S:/icon/cat_other.bin" },
 		{ Notif::Category::Social,             "S:/icon/cat_soc.bin" },
@@ -21,7 +22,8 @@ static const std::unordered_map<Notif::Category, const char*> catMap = {
 		{ Notif::Category::HealthAndFitness,   "S:/icon/cat_health.bin" },
 		{ Notif::Category::BusinessAndFinance, "S:/icon/cat_fin.bin" },
 		{ Notif::Category::Location,           "S:/icon/cat_loc.bin" },
-		{ Notif::Category::Entertainment,      "S:/icon/cat_entert.bin" }
+		{ Notif::Category::Entertainment,      "S:/icon/cat_entert.bin" },
+		{ Notif::Category::OutgoingCall,       "S:/icon/call_out.bin" }
 };
 
 const char* iconPath(const Notif& notif){
