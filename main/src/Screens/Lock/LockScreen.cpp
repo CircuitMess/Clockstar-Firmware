@@ -152,8 +152,12 @@ void LockScreen::updateNotifs(){
 }
 
 void LockScreen::notifAdd(const Notif& notif){
+	bool isModify = true;
+
 	if(notifs.count(notif.uid) == 0){
 		if(notifs.size() >= MaxNotifs) return;
+
+		isModify = false;
 
 		auto uid = notif.uid;
 		auto item = new Item(rest, [this, uid](){
@@ -177,6 +181,11 @@ void LockScreen::notifAdd(const Notif& notif){
 	}
 
 	auto el = notifs[notif.uid];
+
+	if(isModify){
+		removeNotifIcon(el->iconPath());
+		addNotifIcon(iconPath(notif));
+	}
 	el->update(notif);
 }
 
