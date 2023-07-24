@@ -1,5 +1,6 @@
 #include "StatusCenter.h"
 #include "Util/Services.h"
+#include "SleepMan.h"
 #include "Pins.hpp"
 
 StatusCenter::StatusCenter() : Threaded("Status", 2048), events(12),
@@ -66,6 +67,10 @@ void StatusCenter::processBatt(const Battery::Event& evt){
 		}else{
 			battState = Ok;
 		}
+	}else if(evt.action == Battery::Event::BatteryCritical){
+		shutdown();
+		stop(0);
+		return;
 	}
 
 	updateLED();
@@ -100,4 +105,14 @@ void StatusCenter::beep(){
 		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
 		Chirp{ .startFreq = 600, .endFreq = 400, .duration = 50 }
 	});
+}
+
+void StatusCenter::shutdown(){
+	led->setSolid({ 150, 0, 0 });
+	vTaskDelay(SleepMan::ShutdownTime-100);
+
+	led->breathe({ 150, 0, 0 }, { 0, 0, 0 }, 1000);
+	vTaskDelay(500);
+
+	led->clear();
 }
