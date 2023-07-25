@@ -18,13 +18,23 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 void SleepMan::goSleep(){
 	lvgl.stopScreen();
 	imu.setTiltDirection(IMU::TiltDirection::Lifted);
+
+	inSleep = true;
 	sleep.sleep([this](){
 		lvgl.startScreen([](){ return std::make_unique<LockScreen>(); });
 		lv_timer_handler();
 	});
+	inSleep = false;
+
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
+
 	wakeTime = actTime = millis();
 	events.reset();
+}
+
+void SleepMan::wake(){
+	if(!inSleep) return;
+	xSemaphoreGive(sleep.wakeSem);
 }
 
 void SleepMan::shutdown(){

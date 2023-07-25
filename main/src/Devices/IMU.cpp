@@ -188,7 +188,7 @@ void IMU::thread1Func(){
 
 		if(tiltDirection == TiltDirection::Lifted){
 			auto sleep = (SleepMan*) Services.get(Service::Sleep);
-			xSemaphoreGive(sleep->sleep.wakeSem);
+			sleep->wake();
 		}
 	}
 

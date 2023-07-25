@@ -18,10 +18,10 @@ public:
 
 	static constexpr uint32_t ShutdownTime = 3000; //3s
 
+	void wake();
 	void shutdown();
 
 private:
-friend IMU;
 
 	Sleep sleep;
 	EventQueue events;
@@ -31,6 +31,8 @@ friend IMU;
 	BacklightBrightness& bl;
 
 	void goSleep();
+
+	bool inSleep = false;
 
 	uint32_t actTime = 0;
 	bool autoSleep = true;
