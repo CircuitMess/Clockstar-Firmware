@@ -18,7 +18,7 @@ public:
 
 	static constexpr uint32_t ShutdownTime = 3000; //3s
 
-	void wake();
+	void wake(bool blockLockScreen = false);
 	void shutdown();
 
 private:
@@ -49,6 +49,8 @@ private:
 	bool altLock = false;
 	static constexpr uint32_t AltHoldTime = 300;
 	uint32_t altPress;
+
+	bool nsBlocked = false;
 
 };
 

@@ -21,10 +21,12 @@ void SleepMan::goSleep(){
 
 	inSleep = true;
 	sleep.sleep([this](){
-		lvgl.startScreen([](){ return std::make_unique<LockScreen>(); });
+		if(!nsBlocked){
+			lvgl.startScreen([](){ return std::make_unique<LockScreen>(); });
+		}
 		lv_timer_handler();
 	});
-	inSleep = false;
+	nsBlocked = inSleep = false;
 
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
 
@@ -32,8 +34,9 @@ void SleepMan::goSleep(){
 	events.reset();
 }
 
-void SleepMan::wake(){
+void SleepMan::wake(bool blockLock){
 	if(!inSleep) return;
+	nsBlocked = blockLock;
 	xSemaphoreGive(sleep.wakeSem);
 }
 
