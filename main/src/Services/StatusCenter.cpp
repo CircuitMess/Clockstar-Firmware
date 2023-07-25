@@ -52,18 +52,22 @@ void StatusCenter::processPhone(const Phone::Event& evt){
 }
 
 void StatusCenter::processBatt(const Battery::Event& evt){
-	if(evt.action == Battery::Event::BatteryLow){
-		battState = Empty;
-	}else if(evt.action == Battery::Event::Charging){
+	if(evt.action == Battery::Event::Charging){
 		if(evt.chargeStatus){
 			battState = Charging;
+		}
+	}else{
+		auto level = evt.level;
+
+		if(level == Battery::Critical){
+			shutdown();
+			stop(0);
+			return;
+		}else if(level == Battery::VeryLow){
+			battState = Empty;
 		}else{
 			battState = Ok;
 		}
-	}else if(evt.action == Battery::Event::BatteryCritical){
-		shutdown();
-		stop(0);
-		return;
 	}
 
 	updateLED();

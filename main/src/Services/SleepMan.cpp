@@ -103,7 +103,8 @@ void SleepMan::enAltLock(bool altLock){
 }
 
 void SleepMan::handleBattery(const Battery::Event& evt){
-	if(evt.action != Battery::Event::BatteryCritical) return;
+	if(evt.action != Battery::Event::LevelChange || evt.level != Battery::Critical) return;
+
 	lvgl.startScreen([](){ return std::make_unique<ShutdownScreen>(); });
 
 	lv_timer_handler();

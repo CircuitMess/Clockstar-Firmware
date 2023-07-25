@@ -74,7 +74,7 @@ void init(){
 	auto battery = new Battery();
 	Services.set(Service::Battery, battery);
 
-	if(battery->isCritical() && !battery->isCharging()){
+	if(battery->getLevel() == Battery::Critical && !battery->isCharging()){
 		lvgl->startScreen([](){ return std::make_unique<ShutdownScreen>(); });
 		lv_timer_handler();
 		bl->fadeIn();

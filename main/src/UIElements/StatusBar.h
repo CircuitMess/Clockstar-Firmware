@@ -38,7 +38,6 @@ private:
 	void setDeviceBattery();
 	void setNotifIcon();
 
-	static BatteryElement::Level getLevel(uint8_t level);
 };
 
 

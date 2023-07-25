@@ -9,7 +9,8 @@
 #define MAX_READ 3550 // 4.2V
 #define MIN_READ 3050 // 3.6V
 
-Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()), hysteresis(HysteresisThresholds),
+Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()),
+					 hysteresis({ 0, 1, 15, 30, 60, 100 }, 5),
 					 chargeHyst(2000, false), sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 
 	gpio_config_t cfg_gpio = {};
@@ -23,7 +24,7 @@ Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.
 	checkCharging();
 	sample(true);
 
-	if(!isCritical() || isCharging()){
+	if(getLevel() != Critical || isCharging()){
 		start();
 		startTimer();
 		gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
@@ -55,32 +56,26 @@ int16_t Battery::getVoltOffset(){
 }
 
 void Battery::checkCharging(){
-	// Detecting high immediately sends us into charging state
-	// Switch to not-charging if pin is low for longer than some time period
-	if(gpio_get_level((gpio_num_t) PIN_CHARGE) == 1){
-		chargeHyst.update(true);
-	}else{
-		chargeHyst.update(false);
-	}
+	chargeHyst.update(gpio_get_level((gpio_num_t) PIN_CHARGE) == 1);
 
 	if(isCharging()){
 		if(!wasCharging){
 			wasCharging = true;
-			batteryLowAlert = false;
-			batteryCriticalAlert = false;
 			Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = true });
 		}
 	}else if(wasCharging){
 		wasCharging = false;
-		Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = false });
 		sample(true);
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = false });
 	}
 }
 
 void Battery::sample(bool fresh){
 	if(isCharging()) return;
 
-	if(fresh || sleep){
+	auto level = getLevel();
+
+	if(fresh){
 		adc.resetEma();
 		hysteresis.reset(adc.getVal());
 	}else{
@@ -88,16 +83,8 @@ void Battery::sample(bool fresh){
 		hysteresis.update(val);
 	}
 
-	if(isCritical() && !batteryCriticalAlert){
-		batteryCriticalAlert = true;
-		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryCritical, .chargeStatus = isCharging() });
-		stop(0);
-		return;
-	}else if(isLow() && !batteryLowAlert){
-		batteryLowAlert = true;
-		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow, .chargeStatus = isCharging() });
-	}else if(!isLow() && batteryLowAlert){
-		batteryLowAlert = false;
+	if(level != getLevel() || fresh){
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::LevelChange, .level = getLevel() });
 	}
 }
 
@@ -144,19 +131,10 @@ uint8_t Battery::getPerc() const{
 	return adc.getVal();
 }
 
-uint8_t Battery::getLevel() const{
-	return hysteresis.get();
+Battery::Level Battery::getLevel() const{
+	return (Level) hysteresis.get();
 }
 
 bool Battery::isCharging() const{
 	return chargeHyst.get();
 }
-
-bool Battery::isCritical() const{
-	return getLevel() == 0;
-}
-
-bool Battery::isLow() const{
-	return getLevel() <= 1;
-}
-

@@ -15,20 +15,21 @@ public:
 	Battery();
 	~Battery() override;
 
+	enum Level { Critical = 0, VeryLow, Low, Mid, Full, COUNT };
+
 	void setSleep(bool sleep);
 
 	uint8_t getPerc() const;
-	uint8_t getLevel() const;
+	Level getLevel() const;
 	bool isCharging() const;
-	bool isCritical() const;
-	bool isLow() const;
 
 	struct Event {
 		enum {
-			Charging, BatteryLow, BatteryCritical
+			Charging, LevelChange
 		} action;
 		union {
 			bool chargeStatus;
+			Level level;
 		};
 	};
 
@@ -42,19 +43,12 @@ private:
 	ADC adc;
 
 	Hysteresis hysteresis;
-	// Battery levels will be 0, 1, 2, 3 // Critical, Low, Mid, Full
-	static constexpr std::initializer_list<Hysteresis::Threshold> HysteresisThresholds = { { 1,  12, 1 },
-																						   { 15, 25, 2 },
-																						   { 65, 75, 3 } };
 
 	std::mutex mut;
 
 	TimeHysteresis<bool> chargeHyst;
 	bool wasCharging = false;
 	bool sleep = false;
-
-	bool batteryLowAlert = false;
-	bool batteryCriticalAlert = false;
 
 	std::atomic_bool abortFlag = false;
 

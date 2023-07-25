@@ -34,13 +34,7 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone
 	Events::listen(Facility::Battery, &queue);
 
 	setPhoneConnected();
-	if(battery.isCharging()){
-		batDevice->set(BatteryElement::Charging);
-	}else if(battery.isLow()){
-		batDevice->set(BatteryElement::Empty);
-	}else{
-		setDeviceBattery();
-	}
+	setDeviceBattery();
 }
 
 StatusBar::~StatusBar(){
@@ -63,27 +57,12 @@ void StatusBar::loop(){
 	Event event{};
 	if(queue.get(event, 0)){
 		if(event.facility == Facility::Battery){
-			auto data = (Battery::Event*) event.data;
-			if(data->action == Battery::Event::BatteryLow){
-				batDevice->set(BatteryElement::Empty);
-			}else if(data->action == Battery::Event::Charging){
-				if(data->chargeStatus){
-					batDevice->set(BatteryElement::Charging);
-				}else{
-					setDeviceBattery();
-				}
-			}
+			setDeviceBattery();
 		}
 		free(event.data);
 	}
 
 	batDevice->loop();
-
-	if(batDevice->getLevel() == BatteryElement::Charging) return;
-
-	if(batDevice->getLevel() != getLevel(battery.getLevel())){
-		setDeviceBattery();
-	}
 }
 
 void StatusBar::setPhoneConnected(){
@@ -99,14 +78,19 @@ void StatusBar::setPhoneConnected(){
 }
 
 void StatusBar::setDeviceBattery(){
-	batDevice->set(getLevel(battery.getLevel()));
-}
+	if(battery.isCharging()){
+		batDevice->set(BatteryElement::Charging);
+		return;
+	}
 
-BatteryElement::Level StatusBar::getLevel(uint8_t level){
-	if(level >= 3) return BatteryElement::Full;
-	else if(level >= 2) return BatteryElement::Mid;
-	else if(level >= 1) return BatteryElement::Low;
-	else return BatteryElement::Empty;
+	auto level = battery.getLevel();
+	if(level >= Battery::COUNT){
+		batDevice->set(BatteryElement::Full);
+	}else if(level < Battery::VeryLow){
+		batDevice->set(BatteryElement::Empty);
+	}else{
+		batDevice->set((BatteryElement::Level) (battery.getLevel()-1));
+	}
 }
 
 void StatusBar::setNotifIcon(){
