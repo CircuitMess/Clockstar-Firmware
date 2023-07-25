@@ -77,9 +77,9 @@ void IRAM_ATTR Sleep::intr(void* arg){
 
 void Sleep::confPM(bool sleep, bool firstTime){
 	if(sleep){
-		esp_sleep_enable_gpio_wakeup();
 		gpio_wakeup_enable(WakePin, GPIO_INTR_HIGH_LEVEL);
 		gpio_wakeup_enable((gpio_num_t) IMU_INT2, GPIO_INTR_HIGH_LEVEL);
+		esp_sleep_enable_gpio_wakeup();
 	}else{
 		gpio_wakeup_disable(WakePin);
 		gpio_wakeup_disable((gpio_num_t) IMU_INT2);
