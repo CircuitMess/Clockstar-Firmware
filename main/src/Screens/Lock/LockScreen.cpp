@@ -97,20 +97,20 @@ void LockScreen::loop(){
 }
 
 void LockScreen::processInput(const Input::Data& evt){
-	if(evt.btn != Input::Alt) return;
-
-	if(evt.action == Input::Data::Press && lv_group_get_focused(inputGroup) != main){
+	if(evt.btn == Input::Alt && evt.action == Input::Data::Press && lv_group_get_focused(inputGroup) != main){
 		lv_group_focus_obj(main);
 		return;
 	}
 
-	if(evt.action == Input::Data::Press){
-		locker->start();
-	}else if(evt.action == Input::Data::Release){
-		bool hide = locker->t() < 0.05;
-		locker->stop();
-		if(hide){
-			locker->hide();
+	if(evt.btn == Input::Select){
+		if(evt.action == Input::Data::Press){
+			locker->start();
+		}else if(evt.action == Input::Data::Release){
+			bool hide = locker->t() < 0.05;
+			locker->stop();
+			if(hide){
+				locker->hide();
+			}
 		}
 	}
 }
