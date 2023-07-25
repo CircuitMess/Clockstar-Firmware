@@ -97,7 +97,7 @@ void ANCS::Client::loopData(){
 		return;
 	}
 
-	auto notif = chr.data->getNextNotif(processingAttrs ? 500 : portMAX_DELAY); // if no data for 500ms
+	auto notif = chr.data->getNextNotif(processingAttrs ? 3500 : portMAX_DELAY); // if no data for 500ms
 	if(notif == nullptr && !processingAttrs) return;
 
 	if(!connected) return;
