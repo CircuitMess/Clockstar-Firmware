@@ -300,12 +300,12 @@ void IMU::enableMotionDetection(bool enable){
 
 int32_t IMU::platform_write(void* hndl, uint8_t reg, const uint8_t* data, uint16_t len){
 	auto imu = (IMU*) hndl;
-	return imu->i2c.writeReg(Addr, reg, data, len, 10);
+	return imu->i2c.writeReg(Addr, reg, data, len);
 }
 
 int32_t IMU::platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len){
 	auto imu = (IMU*) hndl;
-	return imu->i2c.readReg(Addr, reg, data, len, 10);
+	return imu->i2c.readReg(Addr, reg, data, len);
 }
 
 double IMU::xlConv(int16_t raw){
