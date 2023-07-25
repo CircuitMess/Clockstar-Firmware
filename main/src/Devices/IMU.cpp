@@ -80,18 +80,18 @@ bool IMU::init(){
 	lsm6ds3tr_c_motion_threshold_set(&ctx, &motionSenseThresh);*/
 
 	//tap setup
-	lsm6ds3tr_c_tap_detection_on_x_set(&ctx, 0);
+/*	lsm6ds3tr_c_tap_detection_on_x_set(&ctx, 0);
 	lsm6ds3tr_c_tap_detection_on_y_set(&ctx, 0);
 	lsm6ds3tr_c_tap_detection_on_z_set(&ctx, 1);
 	lsm6ds3tr_c_tap_threshold_x_set(&ctx, 1);
 	lsm6ds3tr_c_tap_dur_set(&ctx, 1);
 	lsm6ds3tr_c_tap_quiet_set(&ctx, 1);
 	lsm6ds3tr_c_tap_shock_set(&ctx, 0);
-	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);
+	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);*/
 	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
 	lsm6ds3tr_c_data_ready_mode_set(&ctx, LSM6DS3TR_C_DRDY_LATCHED);
 
-	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 });
+	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
 
 	setWristPosition(IMU::WatchPosition::FaceDown);
@@ -202,7 +202,7 @@ void IMU::fetchEvents(){
 		Events::post(Facility::Motion, &evt, sizeof(evt));
 	}
 
-	if(src.tap_src.double_tap){
+/*	if(src.tap_src.double_tap){
 		Event evt = { .action = Event::DoubleTap };
 		Events::post(Facility::Motion, &evt, sizeof(evt));
 
@@ -210,7 +210,7 @@ void IMU::fetchEvents(){
 			auto sleep = (SleepMan*) Services.get(Service::Sleep);
 			sleep->wake();
 		}
-	}
+	}*/
 
 	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
 	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
