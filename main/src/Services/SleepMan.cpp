@@ -9,7 +9,6 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 								 bl(*((BacklightBrightness*) Services.get(Service::Backlight))){
 	Events::listen(Facility::Input, &events);
 	Events::listen(Facility::Motion, &events);
-	Events::listen(Facility::Battery, &events);
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
 
 	actTime = millis();
@@ -66,9 +65,6 @@ void SleepMan::checkEvents(){
 		}else if(evt.facility == Facility::Motion){
 			auto param = (IMU::Event*) evt.data;
 			handleMotion(*param);
-		}else if(evt.facility == Facility::Battery){
-			auto param = (Battery::Event*) evt.data;
-			handleBattery(*param);
 		}
 
 		free(evt.data);
@@ -113,17 +109,6 @@ void SleepMan::handleMotion(const IMU::Event& evt){
 
 void SleepMan::enAltLock(bool altLock){
 	SleepMan::altLock = altLock;
-}
-
-void SleepMan::handleBattery(const Battery::Event& evt){
-	if(evt.action != Battery::Event::LevelChange || evt.level != Battery::Critical) return;
-
-	lvgl.startScreen([](){ return std::make_unique<ShutdownScreen>(); });
-
-	lv_timer_handler();
-	vTaskDelay(ShutdownTime);
-
-	shutdown();
 }
 
 void SleepMan::enAutoSleep(bool autoSleep){

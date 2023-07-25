@@ -22,13 +22,11 @@ Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
 	checkCharging(true);
-	sample(true);
+	sample(true); // this will initiate shutdown if battery is critical
 
-	if(getLevel() != Critical || isCharging()){
-		start();
-		startTimer();
-		gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
-	}
+	start();
+	startTimer();
+	gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
 }
 
 Battery::~Battery(){
@@ -90,6 +88,11 @@ void Battery::sample(bool fresh){
 
 	if(level != getLevel() || fresh){
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::LevelChange, .level = getLevel() });
+	}
+
+	if(level == Critical){
+		extern void shutdown();
+		shutdown();
 	}
 }
 

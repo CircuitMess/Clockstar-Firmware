@@ -41,7 +41,6 @@ private:
 	void checkEvents();
 	void handleInput(const Input::Data& evt);
 	void handleMotion(const IMU::Event& evt);
-	void handleBattery(const Battery::Event& evt);
 
 	static constexpr uint32_t WakeCooldown = 100;
 	uint32_t wakeTime = 0;

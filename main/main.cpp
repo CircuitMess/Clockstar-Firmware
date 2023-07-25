@@ -28,6 +28,18 @@
 #include "Screens/Lock/LockScreen.h"
 #include "Util/Notes.h"
 
+LVGL* lvgl;
+BacklightBrightness* bl;
+SleepMan* sleepMan;
+
+void shutdown(){
+	lvgl->stop();
+	lvgl->startScreen([](){ return std::make_unique<ShutdownScreen>(); });
+	sleepMan->wake(true);
+	vTaskDelay(SleepMan::ShutdownTime-1000);
+	sleepMan->shutdown();
+}
+
 void init(){
 	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
 
@@ -43,7 +55,7 @@ void init(){
 
 	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
 	blPwm->detach();
-	auto bl = new BacklightBrightness(blPwm);
+	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
 
 	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
@@ -58,29 +70,21 @@ void init(){
 	auto input = new Input();
 	Services.set(Service::Input, input);
 
-	auto lvgl = new LVGL(*disp);
+	lvgl = new LVGL(*disp);
 	auto theme = theme_init(lvgl->disp());
 	lv_disp_set_theme(lvgl->disp(), theme);
 
 	auto lvglInput = new InputLVGL();
 	auto fs = new FSLVGL('S');
 
-	auto sleep = new SleepMan(*lvgl);
-	Services.set(Service::Sleep, sleep);
+	sleepMan = new SleepMan(*lvgl);
+	Services.set(Service::Sleep, sleepMan);
 
 	auto status = new StatusCenter();
 	Services.set(Service::Status, status);
 
-	auto battery = new Battery();
+	auto battery = new Battery(); // Battery is doing shutdown
 	Services.set(Service::Battery, battery);
-
-	if(battery->getLevel() == Battery::Critical && !battery->isCharging()){
-		lvgl->startScreen([](){ return std::make_unique<ShutdownScreen>(); });
-		lv_timer_handler();
-		bl->fadeIn();
-		vTaskDelay(SleepMan::ShutdownTime-1000);
-		sleep->shutdown();
-	}
 
 	auto rtc = new RTC(*i2c);
 	auto time = new Time(*rtc);
