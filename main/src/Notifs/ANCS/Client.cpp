@@ -204,36 +204,54 @@ void ANCS::Client::processData(bool sendIncomplete){
 				// Matched whole header
 				processingAttrs = true;
 				ESP_LOGI(TAG, "Found header for notif 0x%lx\n", uid);
+
+				// We've entered the notification processing state, notif at the front of needData is the notif we're processing from now on
+				// Erase the found header from data buffer
+				dataQueue.erase(dataQueue.begin(), dataQueue.begin() + 5);
 			}else{
 				// No header found => data is incomplete
 				err();
 			}
 		}
 
-		// We've entered the notification processing state, notif at the front of needData is the notif we're processing from now on
-		dataQueue.erase(dataQueue.begin(), dataQueue.begin() + 5);
-
 		while(dataQueue.size()){
-			// Waiting for attr ID and length
-			if(dataQueue.size() < 3){
-				err();
+			std::unique_lock lock(needDataMut);
+			auto attrID = needData.front().currAttr;
+			auto attrLen = needData.front().currAttrLen;
+			lock.unlock();
+
+			// Search for next attribute ID and length
+			if(attrID == AttributeID::COUNT){
+				if(dataQueue.size() < 3){
+					err();
+				}
+
+				attrID = (AttributeID) dataQueue[0];
+				attrLen = *((uint16_t*) &dataQueue[1]);
+
+				dataQueue.erase(dataQueue.begin(), dataQueue.begin() + 3);
+
+				lock.lock();
+				needData.front().currAttr = attrID;
+				needData.front().currAttrLen = attrLen;
+				lock.unlock();
 			}
 
 			// Waiting for rest of attr
-			uint16_t len = *((uint16_t*) &dataQueue[1]);
-			if(dataQueue.size() < len + 3){
+			if(dataQueue.size() < attrLen){
 				err();
 			}
 
 			// Extract attribute
-			auto attrID = (AttributeID) dataQueue[0];
-			auto data = &dataQueue[3];
-			auto val = std::string(data, data + len);
-			dataQueue.erase(dataQueue.begin(), dataQueue.begin() + len + 3);
+			const auto data = &dataQueue[0];
+			const auto val = std::string(data, data + attrLen);
+			dataQueue.erase(dataQueue.begin(), dataQueue.begin() + attrLen);
 
 			// Insert new attribute
-			std::unique_lock lock(needDataMut);
-			needData.front().attrs[attrID] = val;
+			lock.lock();
+			needData.front().attrs[attrID].append(val);
+			needData.front().currAttr = AttributeID::COUNT;
+			needData.front().currAttrLen = 0;
 			auto attrCount = needData.front().attrs.size();
 			lock.unlock();
 
