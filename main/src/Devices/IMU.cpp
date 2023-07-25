@@ -87,8 +87,9 @@ bool IMU::init(){
 	lsm6ds3tr_c_tap_dur_set(&ctx, 0);
 	lsm6ds3tr_c_tap_quiet_set(&ctx, 3);
 	lsm6ds3tr_c_tap_shock_set(&ctx, 3);
-	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);
-	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);*/
+	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);*/
+	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
+	lsm6ds3tr_c_data_ready_mode_set(&ctx, LSM6DS3TR_C_DRDY_LATCHED);
 
 	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
