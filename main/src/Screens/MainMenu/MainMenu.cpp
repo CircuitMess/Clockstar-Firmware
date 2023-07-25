@@ -7,7 +7,7 @@
 #include "Screens/Settings/SettingsScreen.h"
 #include "Util/stdafx.h"
 
-uint8_t  MainMenu::lastIndex = 0;
+uint8_t  MainMenu::lastIndex = UINT8_MAX;
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
 	lv_img_cache_set_size(8);
@@ -95,8 +95,11 @@ void MainMenu::onStarting(){
 		}
 	}
 
-	lv_group_focus_obj(*items[lastIndex]);
-	lv_obj_scroll_to_view(*items[lastIndex], LV_ANIM_OFF);
+	if(lastIndex != UINT8_MAX){
+		lv_group_focus_obj(*items[lastIndex]);
+		lv_obj_scroll_to_view(*items[lastIndex], LV_ANIM_OFF);
+	}
+	lastIndex = UINT8_MAX;
 
 	setConnAlts();
 }
@@ -170,7 +173,6 @@ void MainMenu::handlePhoneChange(Phone::Event& event){
 void MainMenu::handleInput(Input::Data& event){
 	if(event.btn == Input::Alt && event.action == Input::Data::Press){
 		transition([](){ return std::make_unique<LockScreen>(); });
-		lastIndex = 0;
 	}
 }
 
