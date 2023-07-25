@@ -16,7 +16,6 @@ SettingsStruct Settings::get(){
 
 void Settings::set(SettingsStruct& settings){
 	settingsStruct = settings;
-	store();
 }
 
 void Settings::store(){

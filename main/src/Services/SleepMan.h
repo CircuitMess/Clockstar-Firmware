@@ -29,6 +29,7 @@ friend IMU;
 	LVGL& lvgl;
 	IMU& imu;
 	BacklightBrightness& bl;
+	Settings& settings;
 
 	void goSleep();
 

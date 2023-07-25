@@ -6,10 +6,12 @@
 
 SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 								 imu(*((IMU*) Services.get(Service::IMU))),
-								 bl(*((BacklightBrightness*) Services.get(Service::Backlight))){
+								 bl(*((BacklightBrightness*) Services.get(Service::Backlight))),
+								 settings(*((Settings*) Services.get(Service::Settings))){
 	Events::listen(Facility::Input, &events);
 	Events::listen(Facility::Motion, &events);
 	Events::listen(Facility::Battery, &events);
+	imu.enableTiltDetection(settings.get().motionDetection);
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
 
 	actTime = millis();
@@ -65,12 +67,10 @@ void SleepMan::checkEvents(){
 void SleepMan::checkAutoSleep(){
 	if(!autoSleep) return;
 
-	auto settings = (Settings*) Services.get(Service::Settings);
-
-	auto sti = settings->get().sleepTime;
+	auto sti = settings.get().sleepTime;
 	if(sti >= Settings::SleepSteps) return;
 
-	auto sleepSeconds = Settings::SleepSeconds[settings->get().sleepTime];
+	auto sleepSeconds = Settings::SleepSeconds[settings.get().sleepTime];
 	if(sleepSeconds == 0) return;
 
 	if((millis() - actTime) / 1000 < sleepSeconds) return;
@@ -93,6 +93,9 @@ void SleepMan::handleInput(const Input::Data& evt){
 
 void SleepMan::handleMotion(const IMU::Event& evt){
 	if(!autoSleep) return;
+
+	const bool wristSleep = settings.get().motionDetection;
+	if(!wristSleep) return;
 
 	if(evt.action != IMU::Event::WristTilt || evt.wristTiltDir != IMU::TiltDirection::Lowered) return;
 	goSleep();

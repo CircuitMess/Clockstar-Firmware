@@ -7,6 +7,7 @@
 #include "UIElements/StatusBar.h"
 #include "Services/BacklightBrightness.h"
 #include "Services/ChirpSystem.h"
+#include "Devices/IMU.h"
 
 class BoolElement;
 
@@ -29,6 +30,7 @@ private:
 	Settings& settings;
 	BacklightBrightness& backlight;
 	ChirpSystem& audio;
+	IMU& imu;
 
 	lv_obj_t* bg;
 	lv_obj_t* container;
@@ -38,6 +40,7 @@ private:
 	StatusBar* statusBar;
 	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
+	BoolElement* motionSwitch;
 
 	static constexpr uint8_t TopPadding = 18;
 

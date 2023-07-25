@@ -261,6 +261,8 @@ void IMU::clearFifo(){
 }
 
 void IMU::setTiltDirection(IMU::TiltDirection direction){
+	if(!tiltEnable) return;
+
 	this->tiltDirection = direction;
 	//XOR - tilt logic is inverted if WristPosition is FaceUp
 	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
@@ -283,6 +285,19 @@ void IMU::setTiltDirection(IMU::TiltDirection direction){
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
 
 	clearSources();
+}
+
+
+void IMU::enableTiltDetection(bool enable){
+	if(tiltEnable == enable) return;
+
+	tiltEnable = enable;
+	if(tiltEnable){
+		setTiltDirection(tiltDirection);
+	}else{
+		lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 0);
+		lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }); //wrist tilt to INT2
+	}
 }
 
 void IMU::setWristPosition(WatchPosition wristPosition){
