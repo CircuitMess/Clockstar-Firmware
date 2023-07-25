@@ -21,7 +21,7 @@ Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.
 	cfg_gpio.intr_type = GPIO_INTR_POSEDGE;
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
-	checkCharging();
+	checkCharging(true);
 	sample(true);
 
 	if(getLevel() != Critical || isCharging()){
@@ -55,8 +55,13 @@ int16_t Battery::getVoltOffset(){
 	return (upper << 7) | lower;
 }
 
-void Battery::checkCharging(){
-	chargeHyst.update(gpio_get_level((gpio_num_t) PIN_CHARGE) == 1);
+void Battery::checkCharging(bool fresh){
+	auto chrg = gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
+	if(fresh){
+		chargeHyst.reset(chrg);
+	}else{
+		chargeHyst.update(chrg);
+	}
 
 	if(isCharging()){
 		if(!wasCharging){

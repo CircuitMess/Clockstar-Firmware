@@ -57,7 +57,7 @@ private:
 	static void isr(void* arg);
 	void loop() override;
 
-	void checkCharging();
+	void checkCharging(bool fresh = false);
 	void sample(bool fresh = false);
 	void startTimer();
 
