@@ -10,7 +10,7 @@
 #define MIN_READ 3050 // 3.6V
 
 Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()),
-					 hysteresis({ 0, 1, 15, 30, 60, 100 }, 5),
+					 hysteresis({ 0, 4, 15, 30, 70, 100 }, 3),
 					 chargeHyst(2000, false), sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 
 	gpio_config_t cfg_gpio = {};
