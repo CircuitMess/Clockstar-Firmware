@@ -6,6 +6,7 @@
 #include "Screens/MainMenu/MainMenu.h"
 #include "Services/SleepMan.h"
 #include "LV_Interface/FSLVGL.h"
+#include "LV_Interface/InputLVGL.h"
 
 LockScreen::LockScreen() : ts(*((Time*) Services.get(Service::Time))), phone(*((Phone*) Services.get(Service::Phone))), queue(24){
 	notifs.reserve(MaxNotifs);
@@ -165,11 +166,22 @@ void LockScreen::notifAdd(const Notif& notif){
 			phone.doNeg(uid);
 		});
 
+		bool itemActive = false;
+		if(InputLVGL::getInstance()->getIndev()->group != inputGroup){
+			itemActive = true;
+		}
+
+		auto focused = lv_group_get_focused(inputGroup);
 		lv_obj_move_to_index(*item, 0);
 		lv_group_remove_all_objs(inputGroup);
 		lv_group_add_obj(inputGroup, main);
 		for(int j = 0; j < lv_obj_get_child_cnt(rest); ++j){
 			lv_group_add_obj(inputGroup, lv_obj_get_child(rest, j));
+		}
+
+		lv_group_focus_obj(focused);
+		if(itemActive){
+			lv_event_send(focused, LV_EVENT_CLICKED, nullptr);
 		}
 
 		lv_obj_add_flag(*item, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
