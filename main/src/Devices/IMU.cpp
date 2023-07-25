@@ -269,15 +269,15 @@ void IMU::setTiltDirection(IMU::TiltDirection direction){
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 
 
-	uint8_t tiltThresh; // total thresh is tiltThresh * 15.625mg
+	uint8_t tiltThresh = 8; // total thresh is tiltThresh * 15.625mg
+	uint8_t tiltLatency = 8; // total latency is tiltLatency * 40ms
 	if(direction == TiltDirection::Lifted){
-		tiltThresh = 8;
+		//tiltThresh = 8;
 	}else{
-		tiltThresh = 16;
+		//tiltThresh = 16;
+		tiltLatency = 6;
 	}
 	lsm6ds3tr_c_tilt_threshold_set(&ctx, &tiltThresh);
-
-	uint8_t tiltLatency = 8; // total latency is tiltLatency * 40ms
 	lsm6ds3tr_c_tilt_latency_set(&ctx, &tiltLatency);
 
 	lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 1);
