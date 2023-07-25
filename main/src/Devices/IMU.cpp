@@ -131,6 +131,25 @@ void IRAM_ATTR IMU::isr2(void* arg){
 void IMU::thread1Func(){
 	if(xSemaphoreTake(sem1, portMAX_DELAY) != pdTRUE) return;
 
+	while(gpio_get_level((gpio_num_t) IMU_INT1) || gpio_get_level((gpio_num_t) IMU_INT2)){
+		fetchEvents();
+	}
+}
+
+void IMU::thread2Func(){
+	if(xSemaphoreTake(sem2, portMAX_DELAY) != pdTRUE) return;
+
+	lsm6ds3tr_c_all_sources_t src;
+	lsm6ds3tr_c_all_sources_get(&ctx, &src);
+
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
+		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
+	}
+}
+
+void IMU::fetchEvents(){
 	lsm6ds3tr_c_all_sources_t src;
 	lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
@@ -202,21 +221,6 @@ void IMU::thread1Func(){
 			auto sleep = (SleepMan*) Services.get(Service::Sleep);
 			sleep->wake();
 		}
-	}
-
-	clearSources();
-}
-
-void IMU::thread2Func(){
-	if(xSemaphoreTake(sem2, portMAX_DELAY) != pdTRUE) return;
-
-	lsm6ds3tr_c_all_sources_t src;
-	lsm6ds3tr_c_all_sources_get(&ctx, &src);
-
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
-	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
-		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
-		Events::post(Facility::Motion, &evt, sizeof(evt));
 	}
 }
 

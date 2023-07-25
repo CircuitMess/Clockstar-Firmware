@@ -119,6 +119,8 @@ private:
 	void thread1Func();
 	void thread2Func();
 
+	void fetchEvents();
+
 	static double xlConv(int16_t raw);
 	static double gyConv(int16_t raw);
 };
