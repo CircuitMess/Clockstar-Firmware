@@ -103,8 +103,9 @@ void SleepMan::handleInput(const Input::Data& evt){
 void SleepMan::handleMotion(const IMU::Event& evt){
 	if(!autoSleep) return;
 
-	if(evt.action != IMU::Event::WristTilt || evt.wristTiltDir != IMU::TiltDirection::Lowered) return;
-	goSleep();
+	if((evt.action == IMU::Event::WristTilt && evt.wristTiltDir == IMU::TiltDirection::Lowered) || evt.action == IMU::Event::DoubleTap){
+		goSleep();
+	}
 }
 
 void SleepMan::enAltLock(bool altLock){

@@ -32,7 +32,7 @@ public:
 	};
 
 	struct Event {
-		enum { SignMotion, SingleTap, WristTilt, FIFO } action;
+		enum { SignMotion, SingleTap, WristTilt, FIFO, DoubleTap } action;
 		union {
 			TiltDirection wristTiltDir;
 		};
