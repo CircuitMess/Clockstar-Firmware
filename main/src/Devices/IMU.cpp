@@ -89,7 +89,7 @@ bool IMU::init(){
 	lsm6ds3tr_c_tap_shock_set(&ctx, 0);
 	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);*/
 	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
-	lsm6ds3tr_c_data_ready_mode_set(&ctx, LSM6DS3TR_C_DRDY_LATCHED);
+	//lsm6ds3tr_c_data_ready_mode_set(&ctx, LSM6DS3TR_C_DRDY_LATCHED);
 
 	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
@@ -134,6 +134,8 @@ void IMU::thread1Func(){
 	while(gpio_get_level((gpio_num_t) IMU_INT1) || gpio_get_level((gpio_num_t) IMU_INT2)){
 		fetchEvents();
 	}
+
+	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
 }
 
 void IMU::thread2Func(){
@@ -301,6 +303,7 @@ void IMU::setTiltDirection(IMU::TiltDirection direction){
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
 
 	clearSources();
+	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
 }
 
 
