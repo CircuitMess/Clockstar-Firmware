@@ -10,6 +10,8 @@
 #include <driver/adc.h>
 #include <driver/gptimer.h>
 #include <driver/ledc.h>
+#include "Devices/Input.h"
+#include "Util/Events.h"
 
 
 JigHWTest* JigHWTest::test = nullptr;
@@ -20,15 +22,15 @@ RTC* JigHWTest::rtc = nullptr;
 
 
 JigHWTest::JigHWTest(){
-
 	gpio_config_t io_conf = {
 			.pin_bit_mask = 1 << JIG_STATUS,
-			.mode = GPIO_MODE_INPUT,
+			.mode = GPIO_MODE_OUTPUT,
 			.pull_up_en = GPIO_PULLUP_DISABLE,
 			.pull_down_en = GPIO_PULLDOWN_DISABLE,
 			.intr_type = GPIO_INTR_DISABLE
 	};
 	gpio_config(&io_conf);
+	gpio_set_level(statusLed, 1);
 
 	display = new Display();
 	canvas = &display->getLGFX();
@@ -39,11 +41,12 @@ JigHWTest::JigHWTest(){
 	test = this;
 
 	tests.push_back({ JigHWTest::RTCTest, "RTC", [](){} });
-	tests.push_back({ JigHWTest::Time, "Time", [](){} });
-	tests.push_back({ JigHWTest::IMUTest, "IMU", [](){} });
+	tests.push_back({ JigHWTest::Time1, "RTC kristal", [](){} });
+	tests.push_back({ JigHWTest::Time2, "RTC kristal", [](){} });
+	tests.push_back({ JigHWTest::IMUTest, "Ziroskop", [](){} });
 	tests.push_back({ JigHWTest::SPIFFSTest, "SPIFFS", [](){} });
-	tests.push_back({ JigHWTest::BatteryCalib, "Bat calib", [](){} });
-	tests.push_back({ JigHWTest::BatteryCheck, "Bat check", [](){} });
+	tests.push_back({ JigHWTest::BatteryCalib, "Batt kalib.", [](){} });
+	tests.push_back({ JigHWTest::BatteryCheck, "Batt provjera", [](){} });
 	//TODO - crystal test
 }
 
@@ -81,10 +84,13 @@ void JigHWTest::start(){
 	esp_efuse_mac_get_default((uint8_t*) (&_chipmacid));
 	printf("\nTEST:begin:%llx\n", _chipmacid);
 
-	canvas->clear(TFT_BLACK);
+	canvas->clear(0);
+	gpio_set_level((gpio_num_t) PIN_BL, 0);
+	rgb();
+
 	canvas->clear(TFT_BLACK);
 	canvas->setTextColor(TFT_GOLD);
-	canvas->setTextWrap(false, false);
+	canvas->setTextWrap(true, true);
 	canvas->setTextDatum(textdatum_t::middle_center);
 
 	canvas->setTextFont(0);
@@ -122,7 +128,8 @@ void JigHWTest::start(){
 
 	if(!pass){
 		printf("TEST:fail:%s\n", currentTest);
-		for(;;) vTaskDelay(1000);
+		gpio_set_level(statusLed, 0);
+		vTaskDelete(nullptr);
 	}
 
 	printf("TEST:passall\n");
@@ -130,37 +137,25 @@ void JigHWTest::start(){
 //------------------------------------------------------
 
 
-	canvas->clear(TFT_BLACK);
-	canvas->setTextColor(TFT_GOLD);
-	canvas->setTextWrap(false, false);
-	canvas->setTextDatum(textdatum_t::middle_center);
-
-	canvas->setTextFont(0);
-	canvas->setTextSize(1);
-	canvas->setCursor(0, 6);
-
-	canvas->print("Clockstar test");
-	canvas->setCursor(canvas->width() / 2, 16);
-	canvas->println();
 	canvas->print("\n\n");
 	canvas->setTextColor(TFT_GREEN);
 	canvas->print("All OK!");
 
-	vTaskDelay(1000);
-
-	canvas->clear(TFT_BLACK);
-
-	gpio_config_t io_conf = {
-		.pin_bit_mask = 1 << JIG_STATUS,
-		.mode = GPIO_MODE_OUTPUT,
-		.pull_up_en = GPIO_PULLUP_DISABLE,
-		.pull_down_en = GPIO_PULLDOWN_DISABLE,
-		.intr_type = GPIO_INTR_DISABLE
-	};
-	gpio_config(&io_conf);
-	gpio_set_level(static_cast<gpio_num_t>(1 << JIG_STATUS), 1); //TODO - change depending on high/low activation
 	AudioVisualTest();
 
+}
+
+void JigHWTest::rgb(){
+	static const char* names[] = { "RED", "GREEN", "BLUE" };
+	static const uint16_t colors[] = { TFT_RED, TFT_GREEN, TFT_BLUE };
+	for(int i = 0; i < 3; i++){
+		canvas->clear(colors[i]);
+		canvas->setCursor(20, 40);
+		canvas->setTextFont(0);
+		canvas->setTextSize(2);
+		canvas->print(names[i]);
+		vTaskDelay(350);
+	}
 }
 
 void JigHWTest::log(const char* property, const char* value){
@@ -212,7 +207,7 @@ bool JigHWTest::BatteryCalib(){
 	reading /= numReadings;
 
 
-	uint32_t mapped = Battery::mapReading(reading);
+	uint32_t mapped = Battery::mapRawReading(reading);
 
 	int16_t offset = referenceVoltage - mapped;
 
@@ -252,10 +247,10 @@ bool JigHWTest::BatteryCheck(){
 	}
 	reading /= numReadings;
 
-	uint32_t voltage = Battery::mapReading(reading) + Battery::getVoltOffset();
+	uint32_t voltage = Battery::mapRawReading(reading) + Battery::getVoltOffset();
 	if(voltage < referenceVoltage - 100 || voltage > referenceVoltage + 100){
 		test->log("raw", reading);
-		test->log("mapped", (int32_t) Battery::mapReading(reading));
+		test->log("mapped", (int32_t) Battery::mapRawReading(reading));
 		test->log("offset", (int32_t) Battery::getVoltOffset());
 		test->log("mapped+offset", voltage);
 		return false;
@@ -312,7 +307,6 @@ uint32_t JigHWTest::calcChecksum(FILE* file){
 }
 
 void JigHWTest::AudioVisualTest(){
-
 	ledc_timer_config_t ledc_timer = {
 			.speed_mode       = LEDC_LOW_SPEED_MODE,
 			.duty_resolution  = LEDC_TIMER_10_BIT,
@@ -321,10 +315,8 @@ void JigHWTest::AudioVisualTest(){
 			.clk_cfg          = LEDC_AUTO_CLK,
 			.deconfigure      = false
 	};
-	if(ledc_timer_config(&ledc_timer) != ESP_OK){
-		test->log("ledc timer config", false);
-		return;
-	}
+	ledc_timer_config(&ledc_timer);
+
 	ledc_channel_config_t ledc_channel = {
 			.gpio_num       = PIN_BUZZ,
 			.speed_mode     = LEDC_LOW_SPEED_MODE,
@@ -336,37 +328,52 @@ void JigHWTest::AudioVisualTest(){
 			.hpoint         = 0,
 			.flags = { .output_invert = 1 }
 	};
-	ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+	ledc_channel_config(&ledc_channel);
 
+	new Input;
+	EventQueue queue(1);
+	Events::listen(Facility::Input, &queue);
+	bool mute = false;
 
-	int colors[] = { TFT_RED, TFT_GREEN, TFT_BLUE };
-	for(int i = 0;; i++){
-		if(i >= 3){
-			i = 0;
+	for(;;){
+		Event evt;
+		if(queue.get(evt, 0)){
+			auto data = (Input::Data*) evt.data;
+			if(data->action == Input::Data::Press && data->btn == Input::Alt){
+				mute = true;
+			}
+			free(evt.data);
 		}
-		if(i == 0){
+
+		if(!mute){
 			ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, (1 << (10 - 1)) - 1);
 			ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-		}else{
+		}
+		gpio_set_level(statusLed, 1);
+		vTaskDelay(500);
+
+		if(!mute){
 			ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
 			ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 		}
-		int c = colors[i];
-		canvas->clear(c);
+		gpio_set_level(statusLed, 0);
 		vTaskDelay(500);
 	}
 }
 
 bool JigHWTest::RTCTest(){
 	auto ret = i2c->write(0x51, { 0, 0, 0 }, 10);
-	if(ret == 0){
+	if(ret == ESP_OK){
 		test->log("begin", true);
 	}else{
 		test->log("begin", false);
 		return false;
 	}
 
-	rtc->init();
+	return rtc->init();
+}
+
+bool JigHWTest::Time1(){
 	auto t = rtc->getTime();
 	auto unixt = mktime(&t);
 
@@ -376,9 +383,7 @@ bool JigHWTest::RTCTest(){
 	auto unixt2 = mktime(&t2);
 	auto diff = std::difftime(unixt2, unixt);
 
-	if(diff == 1 || diff == 2){
-		test->log("time passage", true);
-	}else{
+	if(diff != 1 && diff != 2){
 		test->log("time passage (expected 1s or 2s)", (uint32_t) diff);
 		return false;
 	}
@@ -386,7 +391,7 @@ bool JigHWTest::RTCTest(){
 	return true;
 }
 
-bool JigHWTest::Time(){
+bool JigHWTest::Time2(){
 	static constexpr size_t count = 1000;
 
 	time_t lastTime = 0;
@@ -400,9 +405,10 @@ bool JigHWTest::Time(){
 			lastTime = unixt;
 			continue;
 		}
+		vTaskDelay(1);
 
 		auto diff = abs(difftime(unixt, lastTime));
-		if(diff > 10.0f){
+		if(diff > 1){
 			test->log("reading", i);
 			test->log("diff", diff);
 			JigHWTest::canvas->printf("diff: %.2f", diff);
@@ -417,12 +423,5 @@ bool JigHWTest::Time(){
 bool JigHWTest::IMUTest(){
 	uint8_t data;
 	auto ret = i2c->readReg(0x6A, 0x0FU, &data, 1, 10);
-	if(ret == 0 && data == 0x6AU){
-		test->log("begin", true);
-	}else{
-		test->log("begin", false);
-		return false;
-	}
-
-	return true;
+	return ret == ESP_OK && data == 0x6AU;
 }

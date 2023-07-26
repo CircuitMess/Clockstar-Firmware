@@ -9,6 +9,7 @@
 #include <esp_spiffs.h>
 #include "Periph/I2C.h"
 #include "Devices/RTC.h"
+#include <Pins.hpp>
 
 struct Test {
 	bool (* test)();
@@ -31,6 +32,8 @@ private:
 	std::vector<Test> tests;
 	const char* currentTest;
 
+	static constexpr gpio_num_t statusLed = (gpio_num_t) JIG_STATUS;
+
 	void log(const char* property, const char* value);
 	void log(const char* property, float value);
 	void log(const char* property, double value);
@@ -44,13 +47,15 @@ private:
 	static bool SPIFFSTest();
 	static uint32_t calcChecksum(FILE* file);
 	static bool RTCTest();
-	static bool Time();
+	static bool Time1();
+	static bool Time2();
 	static bool IMUTest();
 
 	void AudioVisualTest();
+	void rgb();
 
 
-	static const int16_t referenceVoltage = 4000;
+	static const int16_t referenceVoltage = 4050; // 50mV for backlight voltage drop compensation
 
 	static constexpr uint32_t CheckTimeout = 500;
 
