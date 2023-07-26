@@ -15,6 +15,8 @@ public:
 	MainMenu();
 	virtual ~MainMenu();
 
+	static void resetMenuIndex();
+
 private:
 	static constexpr const char* ConnDesc[3] = {
 			"Not connected.\nUse phone to pair",

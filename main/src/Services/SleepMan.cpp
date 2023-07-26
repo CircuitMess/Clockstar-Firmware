@@ -3,6 +3,7 @@
 #include "Util/Services.h"
 #include "Screens/ShutdownScreen.h"
 #include <esp_sleep.h>
+#include "Screens/MainMenu/MainMenu.h"
 
 SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 								 imu(*((IMU*) Services.get(Service::IMU))),
@@ -21,6 +22,8 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 void SleepMan::goSleep(){
 	auto battery = (Battery*) Services.get(Service::Battery);
 	if(!battery || battery->isShutdown()) return;
+
+	MainMenu::resetMenuIndex();
 
 	lvgl.stopScreen();
 	imu.setTiltDirection(IMU::TiltDirection::Lifted);

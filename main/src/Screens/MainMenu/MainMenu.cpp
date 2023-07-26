@@ -86,6 +86,10 @@ MainMenu::~MainMenu(){
 	lv_img_cache_set_size(LV_IMG_CACHE_DEF_SIZE);
 }
 
+void MainMenu::resetMenuIndex(){
+	lastIndex = UINT8_MAX;
+}
+
 void MainMenu::onStart(){
 	lv_indev_wait_release(InputLVGL::getInstance()->getIndev());
 }
