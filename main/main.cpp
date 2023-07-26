@@ -84,6 +84,7 @@ void init(){
 	Services.set(Service::Status, status);
 
 	auto battery = new Battery(); // Battery is doing shutdown
+	if(battery->isShutdown()) return; // Stop initialization if battery is critical
 	Services.set(Service::Battery, battery);
 
 	auto rtc = new RTC(*i2c);

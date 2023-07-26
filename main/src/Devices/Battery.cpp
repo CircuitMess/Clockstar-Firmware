@@ -54,6 +54,8 @@ int16_t Battery::getVoltOffset(){
 }
 
 void Battery::checkCharging(bool fresh){
+	if(shutdown) return;
+
 	auto chrg = gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
 	if(fresh){
 		chargeHyst.reset(chrg);
@@ -74,6 +76,7 @@ void Battery::checkCharging(bool fresh){
 }
 
 void Battery::sample(bool fresh){
+	if(shutdown) return;
 	if(isCharging()) return;
 
 	auto level = getLevel();
@@ -91,6 +94,7 @@ void Battery::sample(bool fresh){
 	}
 
 	if(level == Critical){
+		shutdown = true;
 		extern void shutdown();
 		shutdown();
 	}
@@ -115,6 +119,8 @@ void Battery::loop(){
 
 void Battery::startTimer(){
 	timer.stop();
+	if(shutdown) return;
+
 	if(isCharging() || !sleep){
 		timer.setPeriod(ShortMeasureIntverval);
 	}else{
@@ -145,4 +151,8 @@ Battery::Level Battery::getLevel() const{
 
 bool Battery::isCharging() const{
 	return chargeHyst.get();
+}
+
+bool Battery::isShutdown() const{
+	return shutdown;
 }

@@ -15,6 +15,9 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 }
 
 void SleepMan::goSleep(){
+	auto battery = (Battery*) Services.get(Service::Battery);
+	if(!battery || battery->isShutdown()) return;
+
 	lvgl.stopScreen();
 	imu.setTiltDirection(IMU::TiltDirection::Lifted);
 

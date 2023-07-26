@@ -36,6 +36,8 @@ public:
 	static int16_t getVoltOffset();
 	static uint16_t mapRawReading(uint16_t reading);
 
+	bool isShutdown() const;
+
 private:
 	static constexpr uint32_t ShortMeasureIntverval = 100;
 	static constexpr uint32_t LongMeasureIntverval = 6000;
@@ -60,6 +62,8 @@ private:
 	void checkCharging(bool fresh = false);
 	void sample(bool fresh = false);
 	void startTimer();
+
+	bool shutdown = false;
 
 };
 
