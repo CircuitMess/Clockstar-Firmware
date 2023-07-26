@@ -291,7 +291,7 @@ void Bangle::handle_call(const std::string& line){
 		}else if(ringing && newCallRinging){
 			notifRemove(currentCallId);
 			currentCallState = CallState::None;
-		}else if(ringing && inNewCall){
+		}else if((ringing || inCall) && inNewCall){
 			notifRemove(currentCallId);
 			if(command == CallCmd::Start){
 				currentCallState = CallState::Incoming;
