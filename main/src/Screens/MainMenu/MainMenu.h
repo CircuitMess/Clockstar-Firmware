@@ -58,6 +58,7 @@ private:
 	MenuItem* items[ItemCount];
 	// MenuItemAlt* phoneConnection;
 
+	void onStart() override;
 	void onStarting() override;
 	void onStop() override;
 	void loop() override;
