@@ -81,7 +81,7 @@ void Battery::sample(bool fresh){
 	if(shutdown) return;
 	if(isCharging()) return;
 
-	auto level = getLevel();
+	auto oldLevel = getLevel();
 
 	if(fresh){
 		adc.resetEma();
@@ -91,11 +91,11 @@ void Battery::sample(bool fresh){
 		hysteresis.update(val);
 	}
 
-	if(level != getLevel() || fresh){
+	if(oldLevel != getLevel() || fresh){
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::LevelChange, .level = getLevel() });
 	}
 
-	if(level == Critical){
+	if(getLevel() == Critical){
 		shutdown = true;
 		extern void shutdown();
 		shutdown();
@@ -139,6 +139,7 @@ void IRAM_ATTR Battery::isr(void* arg){
 void Battery::setSleep(bool sleep){
 	timer.stop();
 	std::lock_guard lock(mut);
+
 	this->sleep = sleep;
 	xSemaphoreGive(sem);
 }
