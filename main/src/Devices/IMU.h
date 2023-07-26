@@ -54,6 +54,8 @@ public:
 	 */
 	void setTiltDirection(TiltDirection direction);
 
+	void enableTiltDetection(bool enable);
+
 	Sample getSample();
 
 	void clearSources();
@@ -103,6 +105,7 @@ private:
 	Queue<Sample> fifoSamples;
 	void clearFifo();
 
+	bool tiltEnable = true;
 	TiltDirection tiltDirection = TiltDirection::Lifted;
 	HandSide handSide = HandSide::Left;
 	WatchPosition position = WatchPosition::FaceUp;

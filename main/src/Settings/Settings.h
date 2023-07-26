@@ -8,6 +8,7 @@ struct SettingsStruct {
 	uint8_t screenBrightness = 100;
 	uint8_t sleepTime = 1;
 	bool ledEnable = true;
+	bool motionDetection = true;
 };
 
 class Settings {
@@ -16,9 +17,10 @@ public:
 
 	SettingsStruct get();
 	void set(SettingsStruct& settings);
+	void store();
 
 	static constexpr uint8_t SleepSteps = 5;
-	static constexpr const uint32_t  SleepSeconds[SleepSteps] = { 0, 30, 60, 2 * 60, 5 * 60 };
+	static constexpr const uint32_t SleepSeconds[SleepSteps] = { 0, 30, 60, 2 * 60, 5 * 60 };
 	static constexpr const char* SleepText[SleepSteps] = { "OFF", "30 sec", "1 min", "2 min", "5 min" };
 
 private:
@@ -28,7 +30,6 @@ private:
 	static constexpr const char* NVSNamespace = "Clockstar";
 	static constexpr const char* BlobName = "Settings";
 
-	void store();
 	void load();
 };
 

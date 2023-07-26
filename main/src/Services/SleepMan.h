@@ -29,6 +29,7 @@ private:
 	LVGL& lvgl;
 	IMU& imu;
 	BacklightBrightness& bl;
+	Settings& settings;
 
 	void goSleep();
 
