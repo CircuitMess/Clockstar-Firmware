@@ -98,7 +98,7 @@ bool IMU::init(){
 	setTiltDirection(TiltDirection::Lowered);
 
 	gpio_config_t io_conf = {};
-	io_conf.intr_type = GPIO_INTR_POSEDGE;
+	io_conf.intr_type = GPIO_INTR_HIGH_LEVEL;
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
@@ -136,6 +136,7 @@ void IMU::thread1Func(){
 	}
 
 	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
+	gpio_set_intr_type((gpio_num_t) IMU_INT2, GPIO_INTR_HIGH_LEVEL);
 }
 
 void IMU::thread2Func(){
