@@ -109,7 +109,7 @@ void Battery::loop(){
 	}
 	timer.stop();
 
-	if(abortFlag) return;
+	if(abortFlag || shutdown) return;
 
 	std::lock_guard lock(mut);
 
