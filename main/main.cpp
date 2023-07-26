@@ -35,7 +35,11 @@ SleepMan* sleepMan;
 void shutdown(){
 	lvgl->stop();
 	lvgl->startScreen([](){ return std::make_unique<ShutdownScreen>(); });
+	lv_timer_handler();
 	sleepMan->wake(true);
+	if(!bl->isOn()){
+		bl->fadeIn();
+	}
 	vTaskDelay(SleepMan::ShutdownTime-1000);
 	sleepMan->shutdown();
 }
