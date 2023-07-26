@@ -118,6 +118,10 @@ void init(){
 	lvgl->start();
 
 	bl->fadeIn();
+
+	// Start Battery scanning after everything else, otherwise Critical
+	// Battery event might come while initialization is still in progress
+	battery->begin();
 }
 
 extern "C" void app_main(void){

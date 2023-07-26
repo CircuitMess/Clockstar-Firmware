@@ -14,6 +14,7 @@ class Battery : private Threaded {
 public:
 	Battery();
 	~Battery() override;
+	void begin();
 
 	enum Level { Critical = 0, VeryLow, Low, Mid, Full, COUNT };
 
