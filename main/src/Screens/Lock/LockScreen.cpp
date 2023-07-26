@@ -35,7 +35,6 @@ void LockScreen::onStart(){
 	Events::listen(Facility::Phone, &queue);
 	Events::listen(Facility::Time, &queue);
 	Events::listen(Facility::Input, &queue);
-	wakeTime = millis();
 	setSleep(true);
 }
 
@@ -80,7 +79,7 @@ void LockScreen::loop(){
 	}
 
 	Event evt;
-	if(queue.get(evt, 0)){
+	while(queue.get(evt, 0)){
 		if(evt.facility == Facility::Phone){
 			auto data = (Phone::Event*) evt.data;
 			processEvt(*data);
@@ -98,19 +97,21 @@ void LockScreen::loop(){
 }
 
 void LockScreen::processInput(const Input::Data& evt){
-	if(evt.btn != Input::Alt) return;
-
-	if(evt.action == Input::Data::Press && lv_group_get_focused(inputGroup) != main){
+	if(evt.btn == Input::Alt && evt.action == Input::Data::Press && lv_group_get_focused(inputGroup) != main){
 		lv_group_focus_obj(main);
 		return;
 	}
 
-	if(evt.action == Input::Data::Press){
-		if(millis() - wakeTime < 500) return;
-
-		locker->start();
-	}else if(evt.action == Input::Data::Release){
-		locker->stop();
+	if(evt.btn == Input::Select){
+		if(evt.action == Input::Data::Press){
+			locker->start();
+		}else if(evt.action == Input::Data::Release){
+			bool hide = locker->t() < 0.05;
+			locker->stop();
+			if(hide){
+				locker->hide();
+			}
+		}
 	}
 }
 

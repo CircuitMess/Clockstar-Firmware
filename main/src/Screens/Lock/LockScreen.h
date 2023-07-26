@@ -88,7 +88,6 @@ private:
 
 	void buildUI();
 
-	uint32_t wakeTime = 0;
 	void setSleep(bool sleep);
 
 };

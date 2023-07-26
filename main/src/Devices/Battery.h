@@ -14,25 +14,30 @@ class Battery : private Threaded {
 public:
 	Battery();
 	~Battery() override;
+	void begin();
+
+	enum Level { Critical = 0, VeryLow, Low, Mid, Full, COUNT };
 
 	void setSleep(bool sleep);
 
-	uint8_t getLevel() const;
+	uint8_t getPerc() const;
+	Level getLevel() const;
 	bool isCharging() const;
-	bool isCritical() const;
-	bool isLow() const;
 
 	struct Event {
 		enum {
-			Charging, BatteryLow, BatteryCritical
+			Charging, LevelChange
 		} action;
 		union {
 			bool chargeStatus;
+			Level level;
 		};
 	};
 
 	static int16_t getVoltOffset();
 	static uint16_t mapRawReading(uint16_t reading);
+
+	bool isShutdown() const;
 
 private:
 	static constexpr uint32_t ShortMeasureIntverval = 100;
@@ -41,19 +46,12 @@ private:
 	ADC adc;
 
 	Hysteresis hysteresis;
-	// Battery levels will be 0, 1, 2, 3 // Critical, Low, Mid, Full
-	static constexpr std::initializer_list<Hysteresis::Threshold> HysteresisThresholds = { { 1,  12, 1 },
-																						   { 15, 25, 2 },
-																						   { 65, 75, 3 } };
 
 	std::mutex mut;
 
 	TimeHysteresis<bool> chargeHyst;
 	bool wasCharging = false;
 	bool sleep = false;
-
-	bool batteryLowAlert = false;
-	bool batteryCriticalAlert = false;
 
 	std::atomic_bool abortFlag = false;
 
@@ -62,9 +60,11 @@ private:
 	static void isr(void* arg);
 	void loop() override;
 
-	void checkCharging();
+	void checkCharging(bool fresh = false);
 	void sample(bool fresh = false);
 	void startTimer();
+
+	bool shutdown = false;
 
 };
 

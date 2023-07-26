@@ -12,11 +12,15 @@ public:
 	void fadeIn();
 	void fadeOut();
 
+	bool isOn();
+
 private:
 	PWM& pwm;
 	static constexpr uint8_t mapDuty(uint8_t level);
 	static constexpr uint8_t FadeDelay = 2;
 	static constexpr uint8_t MinDuty = 10;
+
+	bool state = false;
 };
 
 

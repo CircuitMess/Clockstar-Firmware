@@ -27,6 +27,9 @@ constexpr uint8_t BacklightBrightness::mapDuty(uint8_t level){
 }
 
 void BacklightBrightness::fadeIn(){
+	if(state) return;
+	state = true;
+
 	pwm.attach();
 	Settings& settings = *(Settings*) Services.get(Service::Settings);
 
@@ -38,6 +41,9 @@ void BacklightBrightness::fadeIn(){
 }
 
 void BacklightBrightness::fadeOut(){
+	if(!state) return;
+	state = false;
+
 	Settings& settings = *(Settings*) Services.get(Service::Settings);
 
 	for(uint8_t i = 100; i > 0; i--){
@@ -46,4 +52,8 @@ void BacklightBrightness::fadeOut(){
 		vTaskDelay(FadeDelay / portTICK_PERIOD_MS);
 	}
 	pwm.detach();
+}
+
+bool BacklightBrightness::isOn(){
+	return state;
 }

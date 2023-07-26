@@ -11,6 +11,7 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 	Events::listen(Facility::Input, &events);
 	Events::listen(Facility::Motion, &events);
 	Events::listen(Facility::Battery, &events);
+
 	imu.enableTiltDetection(settings.get().motionDetection);
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
 
@@ -18,15 +19,31 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 }
 
 void SleepMan::goSleep(){
+	auto battery = (Battery*) Services.get(Service::Battery);
+	if(!battery || battery->isShutdown()) return;
+
 	lvgl.stopScreen();
 	imu.setTiltDirection(IMU::TiltDirection::Lifted);
+
+	inSleep = true;
 	sleep.sleep([this](){
-		lvgl.startScreen([](){ return std::make_unique<LockScreen>(); });
+		if(!nsBlocked){
+			lvgl.startScreen([](){ return std::make_unique<LockScreen>(); });
+		}
 		lv_timer_handler();
 	});
+	nsBlocked = inSleep = false;
+
 	imu.setTiltDirection(IMU::TiltDirection::Lowered);
+
 	wakeTime = actTime = millis();
 	events.reset();
+}
+
+void SleepMan::wake(bool blockLock){
+	if(!inSleep) return;
+	nsBlocked = blockLock;
+	xSemaphoreGive(sleep.wakeSem);
 }
 
 void SleepMan::shutdown(){
@@ -55,9 +72,6 @@ void SleepMan::checkEvents(){
 		}else if(evt.facility == Facility::Motion){
 			auto param = (IMU::Event*) evt.data;
 			handleMotion(*param);
-		}else if(evt.facility == Facility::Battery){
-			auto param = (Battery::Event*) evt.data;
-			handleBattery(*param);
 		}
 
 		free(evt.data);
@@ -95,24 +109,14 @@ void SleepMan::handleMotion(const IMU::Event& evt){
 	if(!autoSleep) return;
 
 	const bool wristSleep = settings.get().motionDetection;
-	if(!wristSleep) return;
 
-	if(evt.action != IMU::Event::WristTilt || evt.wristTiltDir != IMU::TiltDirection::Lowered) return;
-	goSleep();
+	if((evt.action == IMU::Event::WristTilt && evt.wristTiltDir == IMU::TiltDirection::Lowered && wristSleep) || evt.action == IMU::Event::DoubleTap){
+		goSleep();
+	}
 }
 
 void SleepMan::enAltLock(bool altLock){
 	SleepMan::altLock = altLock;
-}
-
-void SleepMan::handleBattery(const Battery::Event& evt){
-	if(evt.action != Battery::Event::BatteryCritical) return;
-	lvgl.startScreen([](){ return std::make_unique<ShutdownScreen>(); });
-
-	lv_timer_handler();
-	vTaskDelay(ShutdownTime);
-
-	shutdown();
 }
 
 void SleepMan::enAutoSleep(bool autoSleep){

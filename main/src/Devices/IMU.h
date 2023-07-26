@@ -32,7 +32,7 @@ public:
 	};
 
 	struct Event {
-		enum { SignMotion, SingleTap, WristTilt, FIFO } action;
+		enum { SignMotion, SingleTap, WristTilt, FIFO, DoubleTap } action;
 		union {
 			TiltDirection wristTiltDir;
 		};
@@ -121,6 +121,8 @@ private:
 	ThreadedClosure thread2;
 	void thread1Func();
 	void thread2Func();
+
+	void fetchEvents();
 
 	static double xlConv(int16_t raw);
 	static double gyConv(int16_t raw);

@@ -83,12 +83,13 @@ bool IMU::init(){
 /*	lsm6ds3tr_c_tap_detection_on_x_set(&ctx, 0);
 	lsm6ds3tr_c_tap_detection_on_y_set(&ctx, 0);
 	lsm6ds3tr_c_tap_detection_on_z_set(&ctx, 1);
-	lsm6ds3tr_c_tap_threshold_x_set(&ctx, 0x01);
-	lsm6ds3tr_c_tap_dur_set(&ctx, 0);
-	lsm6ds3tr_c_tap_quiet_set(&ctx, 3);
-	lsm6ds3tr_c_tap_shock_set(&ctx, 3);
-	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);
-	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);*/
+	lsm6ds3tr_c_tap_threshold_x_set(&ctx, 1);
+	lsm6ds3tr_c_tap_dur_set(&ctx, 1);
+	lsm6ds3tr_c_tap_quiet_set(&ctx, 1);
+	lsm6ds3tr_c_tap_shock_set(&ctx, 0);
+	lsm6ds3tr_c_tap_mode_set(&ctx, LSM6DS3TR_C_BOTH_SINGLE_DOUBLE);*/
+	lsm6ds3tr_c_int_notification_set(&ctx, LSM6DS3TR_C_INT_LATCHED);
+	lsm6ds3tr_c_data_ready_mode_set(&ctx, LSM6DS3TR_C_DRDY_LATCHED);
 
 	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
@@ -116,18 +117,39 @@ bool IMU::init(){
 void IRAM_ATTR IMU::isr1(void* arg){
 	gpio_set_intr_type((gpio_num_t) IMU_INT1, GPIO_INTR_POSEDGE);
 	auto imu = static_cast<IMU*>(arg);
-	xSemaphoreGiveFromISR(imu->sem1, nullptr);
+	int wake = 1;
+	xSemaphoreGiveFromISR(imu->sem1, &wake);
 }
 
 void IRAM_ATTR IMU::isr2(void* arg){
 	gpio_set_intr_type((gpio_num_t) IMU_INT2, GPIO_INTR_POSEDGE);
 	auto imu = static_cast<IMU*>(arg);
-	xSemaphoreGiveFromISR(imu->sem1, nullptr);
+	int wake = 1;
+	xSemaphoreGiveFromISR(imu->sem1, &wake);
 }
 
 void IMU::thread1Func(){
 	if(xSemaphoreTake(sem1, portMAX_DELAY) != pdTRUE) return;
 
+	while(gpio_get_level((gpio_num_t) IMU_INT1) || gpio_get_level((gpio_num_t) IMU_INT2)){
+		fetchEvents();
+	}
+}
+
+void IMU::thread2Func(){
+	if(xSemaphoreTake(sem2, portMAX_DELAY) != pdTRUE) return;
+
+	lsm6ds3tr_c_all_sources_t src;
+	lsm6ds3tr_c_all_sources_get(&ctx, &src);
+
+	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
+		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
+	}
+}
+
+void IMU::fetchEvents(){
 	lsm6ds3tr_c_all_sources_t src;
 	lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
@@ -180,6 +202,15 @@ void IMU::thread1Func(){
 		Events::post(Facility::Motion, &evt, sizeof(evt));
 	}
 
+/*	if(src.tap_src.double_tap){
+		Event evt = { .action = Event::DoubleTap };
+		Events::post(Facility::Motion, &evt, sizeof(evt));
+
+		if(tiltDirection == TiltDirection::Lifted){
+			auto sleep = (SleepMan*) Services.get(Service::Sleep);
+			sleep->wake();
+		}
+	}*/
 
 	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
 	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
@@ -188,23 +219,8 @@ void IMU::thread1Func(){
 
 		if(tiltDirection == TiltDirection::Lifted){
 			auto sleep = (SleepMan*) Services.get(Service::Sleep);
-			xSemaphoreGive(sleep->sleep.wakeSem);
+			sleep->wake();
 		}
-	}
-
-	clearSources();
-}
-
-void IMU::thread2Func(){
-	if(xSemaphoreTake(sem2, portMAX_DELAY) != pdTRUE) return;
-
-	lsm6ds3tr_c_all_sources_t src;
-	lsm6ds3tr_c_all_sources_get(&ctx, &src);
-
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
-	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
-		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
-		Events::post(Facility::Motion, &evt, sizeof(evt));
 	}
 }
 
@@ -270,15 +286,15 @@ void IMU::setTiltDirection(IMU::TiltDirection direction){
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 
 
-	uint8_t tiltThresh; // total thresh is tiltThresh * 15.625mg
+	uint8_t tiltThresh = 8; // total thresh is tiltThresh * 15.625mg
+	uint8_t tiltLatency = 8; // total latency is tiltLatency * 40ms
 	if(direction == TiltDirection::Lifted){
-		tiltThresh = 8;
+		//tiltThresh = 8;
 	}else{
-		tiltThresh = 16;
+		//tiltThresh = 16;
+		tiltLatency = 6;
 	}
 	lsm6ds3tr_c_tilt_threshold_set(&ctx, &tiltThresh);
-
-	uint8_t tiltLatency = 8; // total latency is tiltLatency * 40ms
 	lsm6ds3tr_c_tilt_latency_set(&ctx, &tiltLatency);
 
 	lsm6ds3tr_c_wrist_tilt_sens_set(&ctx, 1);
@@ -314,12 +330,12 @@ void IMU::enableMotionDetection(bool enable){
 
 int32_t IMU::platform_write(void* hndl, uint8_t reg, const uint8_t* data, uint16_t len){
 	auto imu = (IMU*) hndl;
-	return imu->i2c.writeReg(Addr, reg, data, len, 10);
+	return imu->i2c.writeReg(Addr, reg, data, len);
 }
 
 int32_t IMU::platform_read(void* hndl, uint8_t reg, uint8_t* data, uint16_t len){
 	auto imu = (IMU*) hndl;
-	return imu->i2c.readReg(Addr, reg, data, len, 10);
+	return imu->i2c.readReg(Addr, reg, data, len);
 }
 
 double IMU::xlConv(int16_t raw){

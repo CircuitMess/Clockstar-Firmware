@@ -6,8 +6,9 @@
 #include "Screens/Theremin/Theremin.h"
 #include "Screens/Settings/SettingsScreen.h"
 #include "Util/stdafx.h"
+#include "LV_Interface/InputLVGL.h"
 
-uint8_t  MainMenu::lastIndex = 0;
+uint8_t  MainMenu::lastIndex = UINT8_MAX;
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
 	lv_img_cache_set_size(8);
@@ -85,8 +86,17 @@ MainMenu::~MainMenu(){
 	lv_img_cache_set_size(LV_IMG_CACHE_DEF_SIZE);
 }
 
+void MainMenu::onStart(){
+	lv_indev_wait_release(InputLVGL::getInstance()->getIndev());
+}
+
 void MainMenu::onStarting(){
 	// TODO: place all ring phone stuff into setRingAlts
+
+	if(lastIndex == UINT8_MAX){
+		lastIndex = 0;
+	}
+
 	if(phone.getPhoneType() != Phone::PhoneType::Android){
 		lv_obj_add_flag(*items[0], LV_OBJ_FLAG_HIDDEN);
 
@@ -97,6 +107,8 @@ void MainMenu::onStarting(){
 
 	lv_group_focus_obj(*items[lastIndex]);
 	lv_obj_scroll_to_view(*items[lastIndex], LV_ANIM_OFF);
+
+	lastIndex = UINT8_MAX;
 
 	setConnAlts();
 }
@@ -170,7 +182,6 @@ void MainMenu::handlePhoneChange(Phone::Event& event){
 void MainMenu::handleInput(Input::Data& event){
 	if(event.btn == Input::Alt && event.action == Input::Data::Press){
 		transition([](){ return std::make_unique<LockScreen>(); });
-		lastIndex = 0;
 	}
 }
 

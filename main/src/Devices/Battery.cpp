@@ -9,7 +9,8 @@
 #define MAX_READ 3550 // 4.2V
 #define MIN_READ 3050 // 3.6V
 
-Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()), hysteresis(HysteresisThresholds),
+Battery::Battery() : Threaded("Battery", 3 * 1024, 5), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()),
+					 hysteresis({ 0, 4, 15, 30, 70, 100 }, 3),
 					 chargeHyst(2000, false), sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 
 	gpio_config_t cfg_gpio = {};
@@ -20,14 +21,8 @@ Battery::Battery() : Threaded("Battery", 2048, 4), adc((gpio_num_t) PIN_BATT, 0.
 	cfg_gpio.intr_type = GPIO_INTR_POSEDGE;
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
-	checkCharging();
-	sample(true);
-
-	if(!isCritical() || isCharging()){
-		start();
-		startTimer();
-		gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
-	}
+	checkCharging(true);
+	sample(true); // this will initiate shutdown if battery is critical
 }
 
 Battery::~Battery(){
@@ -43,6 +38,12 @@ Battery::~Battery(){
 	}
 }
 
+void Battery::begin(){
+	start();
+	startTimer();
+	gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
+}
+
 uint16_t Battery::mapRawReading(uint16_t reading){
 	return std::round(map((double) reading, MIN_READ, MAX_READ, 3600, 4200));
 }
@@ -54,33 +55,35 @@ int16_t Battery::getVoltOffset(){
 	return (upper << 7) | lower;
 }
 
-void Battery::checkCharging(){
-	// Detecting high immediately sends us into charging state
-	// Switch to not-charging if pin is low for longer than some time period
-	if(gpio_get_level((gpio_num_t) PIN_CHARGE) == 1){
-		chargeHyst.update(true);
+void Battery::checkCharging(bool fresh){
+	if(shutdown) return;
+
+	auto chrg = gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
+	if(fresh){
+		chargeHyst.reset(chrg);
 	}else{
-		chargeHyst.update(false);
+		chargeHyst.update(chrg);
 	}
 
 	if(isCharging()){
 		if(!wasCharging){
 			wasCharging = true;
-			batteryLowAlert = false;
-			batteryCriticalAlert = false;
 			Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = true });
 		}
 	}else if(wasCharging){
 		wasCharging = false;
-		Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = false });
 		sample(true);
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::Charging, .chargeStatus = false });
 	}
 }
 
 void Battery::sample(bool fresh){
+	if(shutdown) return;
 	if(isCharging()) return;
 
-	if(fresh || sleep){
+	auto oldLevel = getLevel();
+
+	if(fresh){
 		adc.resetEma();
 		hysteresis.reset(adc.getVal());
 	}else{
@@ -88,16 +91,14 @@ void Battery::sample(bool fresh){
 		hysteresis.update(val);
 	}
 
-	if(isCritical() && !batteryCriticalAlert){
-		batteryCriticalAlert = true;
-		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryCritical, .chargeStatus = isCharging() });
-		stop(0);
-		return;
-	}else if(isLow() && !batteryLowAlert){
-		batteryLowAlert = true;
-		Events::post(Facility::Battery, Battery::Event{ .action = Event::BatteryLow, .chargeStatus = isCharging() });
-	}else if(!isLow() && batteryLowAlert){
-		batteryLowAlert = false;
+	if(oldLevel != getLevel() || fresh){
+		Events::post(Facility::Battery, Battery::Event{ .action = Event::LevelChange, .level = getLevel() });
+	}
+
+	if(getLevel() == Critical){
+		shutdown = true;
+		extern void shutdown();
+		shutdown();
 	}
 }
 
@@ -108,7 +109,7 @@ void Battery::loop(){
 	}
 	timer.stop();
 
-	if(abortFlag) return;
+	if(abortFlag || shutdown) return;
 
 	std::lock_guard lock(mut);
 
@@ -120,6 +121,8 @@ void Battery::loop(){
 
 void Battery::startTimer(){
 	timer.stop();
+	if(shutdown) return;
+
 	if(isCharging() || !sleep){
 		timer.setPeriod(ShortMeasureIntverval);
 	}else{
@@ -136,23 +139,25 @@ void IRAM_ATTR Battery::isr(void* arg){
 void Battery::setSleep(bool sleep){
 	timer.stop();
 	std::lock_guard lock(mut);
+
+	adc.setEmaA(sleep ? 0.5 : 0.05);
+
 	this->sleep = sleep;
 	xSemaphoreGive(sem);
 }
 
-uint8_t Battery::getLevel() const{
-	return hysteresis.get();
+uint8_t Battery::getPerc() const{
+	return adc.getVal();
+}
+
+Battery::Level Battery::getLevel() const{
+	return (Level) hysteresis.get();
 }
 
 bool Battery::isCharging() const{
 	return chargeHyst.get();
 }
 
-bool Battery::isCritical() const{
-	return getLevel() == 0;
+bool Battery::isShutdown() const{
+	return shutdown;
 }
-
-bool Battery::isLow() const{
-	return getLevel() <= 1;
-}
-

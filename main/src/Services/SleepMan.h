@@ -18,10 +18,10 @@ public:
 
 	static constexpr uint32_t ShutdownTime = 3000; //3s
 
+	void wake(bool blockLockScreen = false);
 	void shutdown();
 
 private:
-friend IMU;
 
 	Sleep sleep;
 	EventQueue events;
@@ -33,6 +33,8 @@ friend IMU;
 
 	void goSleep();
 
+	bool inSleep = false;
+
 	uint32_t actTime = 0;
 	bool autoSleep = true;
 	void checkAutoSleep();
@@ -40,7 +42,6 @@ friend IMU;
 	void checkEvents();
 	void handleInput(const Input::Data& evt);
 	void handleMotion(const IMU::Event& evt);
-	void handleBattery(const Battery::Event& evt);
 
 	static constexpr uint32_t WakeCooldown = 100;
 	uint32_t wakeTime = 0;
@@ -48,6 +49,8 @@ friend IMU;
 	bool altLock = false;
 	static constexpr uint32_t AltHoldTime = 300;
 	uint32_t altPress;
+
+	bool nsBlocked = false;
 
 };
 

@@ -45,6 +45,8 @@ private:
 		CategoryID category;
 		bool modify; // whether it's a new notification or a modification
 		std::unordered_map<AttributeID, std::string> attrs;
+		AttributeID currAttr = AttributeID::COUNT;
+		uint32_t currAttrLen = 0;
 	};
 	std::queue<QueuedNotif> needData;
 	std::mutex needDataMut;

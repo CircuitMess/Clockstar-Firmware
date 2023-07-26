@@ -7,7 +7,7 @@
 #include "BacklightBrightness.h"
 #include "Pins.hpp"
 
-class IMU;
+class SleepMan;
 
 class Sleep {
 public:
@@ -20,7 +20,7 @@ public:
 	};
 
 private:
-friend IMU;
+friend SleepMan;
 	static constexpr gpio_num_t WakePin = (gpio_num_t) BTN_ALT;
 
 	SemaphoreHandle_t wakeSem;

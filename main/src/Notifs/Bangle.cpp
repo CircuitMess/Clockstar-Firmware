@@ -286,12 +286,19 @@ void Bangle::handle_call(const std::string& line){
 		const bool newCallRinging = (command == CallCmd::Incoming);
 		const bool ringing = (currentCallState == CallState::Incoming);
 
+		if(command == CallCmd::End && !missedCalls.count(currentCallId)){
+			currentCallState = CallState::None;
+			//in case of putting calls on hold, the end command can be sent with a different number, so terminate the call if it happens
+			notifRemove(currentCallId);
+			return;
+		}
+
 		if(inCall && newCallRinging){
 			return;
 		}else if(ringing && newCallRinging){
 			notifRemove(currentCallId);
 			currentCallState = CallState::None;
-		}else if(ringing && inNewCall){
+		}else if((ringing || inCall) && inNewCall){
 			notifRemove(currentCallId);
 			if(command == CallCmd::Start){
 				currentCallState = CallState::Incoming;

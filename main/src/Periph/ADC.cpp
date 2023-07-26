@@ -20,6 +20,10 @@ ADC::ADC(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin
 	sample();
 }
 
+void ADC::setEmaA(float emaA){
+	ema_a = emaA;
+}
+
 void ADC::resetEma(){
 	val = -1;
 	sample();
@@ -44,7 +48,7 @@ float ADC::sample(){
 	return getVal();
 }
 
-float ADC::getVal(){
+float ADC::getVal() const{
 	if(!valid){
 		return 0;
 	}
