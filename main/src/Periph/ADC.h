@@ -15,12 +15,13 @@ public:
 	float getVal() const;
 
 	void resetEma();
+	void setEmaA(float emaA);
 
 private:
 	bool valid = true;
 
 	const gpio_num_t pin;
-	const float ema_a;
+	float ema_a;
 	const float min, max;
 	const float offset;
 
