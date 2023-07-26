@@ -140,6 +140,8 @@ void Battery::setSleep(bool sleep){
 	timer.stop();
 	std::lock_guard lock(mut);
 
+	adc.setEmaA(sleep ? 0.5 : 0.05);
+
 	this->sleep = sleep;
 	xSemaphoreGive(sem);
 }
