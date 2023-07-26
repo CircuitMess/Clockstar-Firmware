@@ -3,7 +3,7 @@
 Hysteresis::Hysteresis(std::initializer_list<int> thresholds, int margin) : Thresholds(thresholds),
 																			LevelCount(thresholds.size() - 1),
 																			Margin(margin),
-																			currentLevel(LevelCount - 1){
+																			currentLevel(0){
 
 
 
