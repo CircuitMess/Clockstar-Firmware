@@ -46,14 +46,14 @@ void shutdown(){
 }
 
 void init(){
-	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
-
 	if(JigHWTest::checkJig()){
 		printf("Jig\n");
 		auto test = new JigHWTest();
 		test->start();
-		for(;;) vTaskDelay(1000);
+		vTaskDelete(nullptr);
 	}
+
+	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
 
 	auto ret = nvs_flash_init();
 	if(ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND){
