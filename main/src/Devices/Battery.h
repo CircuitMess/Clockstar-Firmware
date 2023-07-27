@@ -9,6 +9,7 @@
 #include "Periph/Timer.h"
 #include "Util/TimeHysteresis.h"
 #include <mutex>
+#include <esp_efuse.h>
 
 class Battery : private Threaded {
 public:
@@ -65,6 +66,11 @@ private:
 	void startTimer();
 
 	bool shutdown = false;
+
+	static constexpr esp_efuse_desc_t adc1_low = { EFUSE_BLK3, 96, 7 };
+	static constexpr const esp_efuse_desc_t* efuse_adc1_low[] = { &adc1_low, nullptr };
+	static constexpr esp_efuse_desc_t adc1_high = { EFUSE_BLK3, 103, 9 };
+	static constexpr const esp_efuse_desc_t* efuse_adc1_high[] = { &adc1_high, nullptr };
 
 };
 
