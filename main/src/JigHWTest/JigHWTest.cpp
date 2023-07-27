@@ -188,7 +188,7 @@ void JigHWTest::log(const char* property, const std::string& value){
 
 bool JigHWTest::BatteryCalib(){
 	if(Battery::getVoltOffset() != 0){
-		test->log("calibrated", (uint32_t) Battery::getVoltOffset());
+		test->log("calibrated", (int32_t) Battery::getVoltOffset());
 		canvas->print("fused. ");
 		return true;
 	}
@@ -223,7 +223,7 @@ bool JigHWTest::BatteryCalib(){
 	uint16_t offsetLow = offset & 0b01111111;
 	uint16_t offsetHigh = offset >> 7;
 
-	return true; //TODO - remove early return, burn to efuse
+	// return true; //TODO - remove early return, burn to efuse
 
 	esp_efuse_write_field_blob((const esp_efuse_desc_t**) efuse_adc1_low, &offsetLow, 7);
 	esp_efuse_write_field_blob((const esp_efuse_desc_t**) efuse_adc1_high, &offsetHigh, 9);
