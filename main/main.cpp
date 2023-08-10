@@ -1,143 +1,170 @@
-#include <driver/gpio.h>
-#include <nvs_flash.h>
-#include "Settings/Settings.h"
-#include "Pins.hpp"
-#include "Periph/I2C.h"
-#include "Periph/PinOut.h"
-#include "Periph/Bluetooth.h"
-#include "Devices/Battery.h"
 #include "Devices/Display.h"
-#include "Devices/Input.h"
-#include "Devices/IMU.h"
-#include "BLE/GAP.h"
-#include "BLE/Client.h"
-#include "BLE/Server.h"
-#include "Notifs/Phone.h"
-#include "LV_Interface/LVGL.h"
-#include "LV_Interface/FSLVGL.h"
-#include "LV_Interface/InputLVGL.h"
-#include <lvgl/lvgl.h>
-#include "Theme/theme.h"
-#include "Util/Services.h"
-#include "Services/BacklightBrightness.h"
-#include "Services/ChirpSystem.h"
-#include "Services/Time.h"
-#include "Services/StatusCenter.h"
-#include "Services/SleepMan.h"
-#include "Screens/ShutdownScreen.h"
-#include "Screens/Lock/LockScreen.h"
-#include "JigHWTest/JigHWTest.h"
-#include "Util/Notes.h"
+#include <esp_spiffs.h>
+#include "Util/stdafx.h"
+#include "FS/SPIFFS.h"
+#include "GIF/GIFSprite.h"
+#include <esp_log.h>
+#include "Util/Threaded.h"
+#include "Pins.hpp"
+#include <termios.h>
 
-LVGL* lvgl;
-BacklightBrightness* bl;
-SleepMan* sleepMan;
+bool initSPIFFS(){
+	esp_vfs_spiffs_conf_t conf = {
+			.base_path = "/spiffs",
+			.partition_label = "storage",
+			.max_files = 8,
+			.format_if_mount_failed = false
+	};
 
-void shutdown(){
-	lvgl->stop(0);
-	lvgl->startScreen([](){ return std::make_unique<ShutdownScreen>(); });
-	lv_timer_handler();
-	sleepMan->wake(true);
-	if(!bl->isOn()){
-		bl->fadeIn();
+	auto ret = esp_vfs_spiffs_register(&conf);
+	if(ret != ESP_OK){
+		if(ret == ESP_FAIL){
+			ESP_LOGE("FS", "Failed to mount or format filesystem");
+		}else if(ret == ESP_ERR_NOT_FOUND){
+			ESP_LOGE("FS", "Failed to find SPIFFS partition");
+		}else{
+			ESP_LOGE("FS", "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+		}
+		return false;
 	}
-	vTaskDelay(SleepMan::ShutdownTime-1000);
-	sleepMan->shutdown();
+
+	return true;
+}
+
+Display* disp;
+
+class GifScreen {
+public:
+	GifScreen(){
+		FILE* f = fopen("/spiffs/gif.gif", "r");
+		if(f == nullptr){
+			printf("No gif\n");
+			return;
+		}
+		fclose(f);
+
+		File file = SPIFFS::open("/gif.gif");
+		gif = new GIFSprite(file);
+		gif->setLoopMode(GIF::Infinite);
+		frameTime = millis();
+	}
+
+	virtual ~GifScreen(){
+		delete gif;
+	}
+
+	void loop(){
+		uint32_t now = millis();
+		auto diff = now - frameTime;
+		frameTime = now;
+
+		gif->loop(diff*1000);
+		auto sprite = gif->getSprite();
+		disp->getLGFX().pushImage(0, 0, sprite.width(), sprite.height(), sprite.getBuffer(), 0x002400);
+	}
+
+private:
+	GIFSprite* gif = nullptr;
+
+	uint32_t frameTime;
+};
+
+GifScreen* scr;
+
+int bread(void* buff, size_t size, uint32_t timeout = 0){
+	uint8_t* buf = (uint8_t*) buff;
+
+	uint32_t bytesRead = 0;
+	uint32_t startTime = millis();
+	while(bytesRead < size){
+		if(timeout != 0 && millis() - startTime >= timeout) return bytesRead;
+
+		size_t now = std::min(256UL, size - bytesRead);
+		int run = read(0, buf + bytesRead, now);
+		if(run <= 0){
+			vTaskDelay(1);
+			continue;
+		}
+		bytesRead += run;
+	}
+	return bytesRead;
+}
+
+void ok(){
+	printf("OK");
+	fflush(stdout);
+}
+
+void checkUpload(){
+	uint32_t size;
+	if(bread(&size, 4, 50) != 4) return;
+
+	uint32_t checksum;
+	bread(&checksum, 4);
+
+	delete scr;
+	scr = nullptr;
+
+	unlink("/spiffs/gif.gif");
+	FILE* f = fopen("/spiffs/gif.gif", "wb");
+
+	ok();
+
+	uint32_t sum = 0;
+	uint32_t bytesRead = 0;
+	uint8_t buf[256];
+	while(bytesRead < size){
+		size_t readNow = std::min(256UL, size - bytesRead);
+		bread(buf, readNow);
+
+		fwrite(buf, 1, readNow, f);
+		fflush(f);
+
+		for(int i = 0; i < readNow; i++){
+			sum += buf[i];
+		}
+		bytesRead += readNow;
+
+		ok();
+
+		vTaskDelay(10);
+	}
+	fflush(f);
+	fclose(f);
+
+	if(sum != checksum){
+		printf("1");
+		fflush(stdout);
+		return;
+	}
+	printf("0");
+	fflush(stdout);
+
+	vTaskDelay(1000);
+	esp_restart();
 }
 
 void init(){
-	if(JigHWTest::checkJig()){
-		printf("Jig\n");
-		auto test = new JigHWTest();
-		test->start();
-		vTaskDelete(nullptr);
-	}
+	if(!initSPIFFS()) return;
+	freopen(nullptr, "rb", stdin);
 
-	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
+	gpio_set_direction((gpio_num_t) PIN_BL, GPIO_MODE_OUTPUT);
+	gpio_set_level((gpio_num_t) PIN_BL, 0);
 
-	auto ret = nvs_flash_init();
-	if(ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND){
-		ESP_ERROR_CHECK(nvs_flash_erase());
-		ret = nvs_flash_init();
-	}
-	ESP_ERROR_CHECK(ret);
+	disp = new Display();
 
-	auto settings = new Settings();
-	Services.set(Service::Settings, settings);
-
-	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
-	blPwm->detach();
-	bl = new BacklightBrightness(blPwm);
-	Services.set(Service::Backlight, bl);
-
-	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
-	auto audio = new ChirpSystem(*buzzPwm);
-	Services.set(Service::Audio, audio);
-
-	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
-	auto imu = new IMU(*i2c);
-	Services.set(Service::IMU, imu);
-
-	auto disp = new Display();
-	auto input = new Input();
-	Services.set(Service::Input, input);
-
-	lvgl = new LVGL(*disp);
-	auto theme = theme_init(lvgl->disp());
-	lv_disp_set_theme(lvgl->disp(), theme);
-
-	auto lvglInput = new InputLVGL();
-	auto fs = new FSLVGL('S');
-
-	sleepMan = new SleepMan(*lvgl);
-	Services.set(Service::Sleep, sleepMan);
-
-	auto status = new StatusCenter();
-	Services.set(Service::Status, status);
-
-	auto battery = new Battery(); // Battery is doing shutdown
-	if(battery->isShutdown()) return; // Stop initialization if battery is critical
-	Services.set(Service::Battery, battery);
-
-	auto rtc = new RTC(*i2c);
-	auto time = new Time(*rtc);
-	Services.set(Service::Time, time); // Time service is required as soon as Phone is up
-
-	auto bt = new Bluetooth();
-	auto gap = new BLE::GAP();
-	auto client = new BLE::Client(gap);
-	auto server = new BLE::Server(gap);
-	auto phone = new Phone(server, client);
-	server->start();
-	Services.set(Service::Phone, phone);
-
-	FSLVGL::loadCache();
-
-	// Load start screen here
-	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
-
-	if(settings->get().notificationSounds){
-		audio->play({
-							Chirp{ .startFreq = NOTE_E4, .endFreq = NOTE_GS4, .duration = 100 },
-							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
-							Chirp{ .startFreq = NOTE_GS4, .endFreq = NOTE_B4, .duration = 100 },
-							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
-							Chirp{ .startFreq = NOTE_B4, .endFreq = NOTE_E5, .duration = 100 }
-					});
-	}
-
-	// Start UI thread after initialization
-	lvgl->start();
-
-	bl->fadeIn();
-
-	// Start Battery scanning after everything else, otherwise Critical
-	// Battery event might come while initialization is still in progress
-	battery->begin();
+	scr = new GifScreen();
+	auto ui = new ThreadedClosure([](){
+		if(scr){
+			scr->loop();
+		}
+		checkUpload();
+		vTaskDelay(5);
+	}, "UI", 12*1024);
+	ui->start();
 }
 
 extern "C" void app_main(void){
 	init();
-
 	vTaskDelete(nullptr);
 }

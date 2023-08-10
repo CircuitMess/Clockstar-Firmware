@@ -3,6 +3,8 @@
 
 #include <LovyanGFX.h>
 
+typedef lgfx::LGFX_Sprite Sprite;
+
 class Display {
 public:
 	Display();
