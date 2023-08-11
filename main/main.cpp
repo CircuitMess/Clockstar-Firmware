@@ -71,24 +71,46 @@ private:
 
 GifScreen* scr;
 
-int bread(void* buff, size_t size, uint32_t timeout = 0){
-	uint8_t* buf = (uint8_t*) buff;
-
-	uint32_t bytesRead = 0;
-	uint32_t startTime = millis();
-	while(bytesRead < size){
-		if(timeout != 0 && millis() - startTime >= timeout) return bytesRead;
-
-		size_t now = std::min(256UL, size - bytesRead);
-		int run = read(0, buf + bytesRead, now);
-		if(run <= 0){
-			vTaskDelay(1);
-			continue;
-		}
-		bytesRead += run;
+class Serial : public Threaded {
+public:
+	Serial() : Threaded("Serial", 6 * 1024){
+		queue = xQueueCreate(2048, 1);
+		start();
 	}
-	return bytesRead;
-}
+
+	size_t available(){
+		return uxQueueMessagesWaiting(queue);
+	}
+
+	void read(uint8_t* buf, size_t len){
+		size_t copied = 0;
+		while(copied < len){
+			if(!xQueueReceive(queue, buf + copied, portMAX_DELAY)) continue;
+			copied++;
+		}
+	}
+
+	void read(void* buf, size_t len){
+		read((uint8_t*) buf, len);
+	}
+
+private:
+	QueueHandle_t queue;
+
+	void loop() override{
+		uint8_t buf[256];
+		int bytes;
+		while((bytes = ::read(0, buf, 256)) > 0){
+			for(int i = 0; i < bytes; i++){
+				xQueueSend(queue, &buf[i], portMAX_DELAY);
+			}
+		}
+		vTaskDelay(1);
+	}
+
+};
+
+Serial* serial;
 
 void ok(){
 	printf("OK");
@@ -96,11 +118,13 @@ void ok(){
 }
 
 void checkUpload(){
+	if(serial->available() < 4) return;
+
 	uint32_t size;
-	if(bread(&size, 4, 50) != 4) return;
+	serial->read(&size, 4);
 
 	uint32_t checksum;
-	bread(&checksum, 4);
+	serial->read(&checksum, 4);
 
 	delete scr;
 	scr = nullptr;
@@ -115,7 +139,7 @@ void checkUpload(){
 	uint8_t buf[256];
 	while(bytesRead < size){
 		size_t readNow = std::min(256UL, size - bytesRead);
-		bread(buf, readNow);
+		serial->read(buf, readNow);
 
 		fwrite(buf, 1, readNow, f);
 		fflush(f);
@@ -132,6 +156,11 @@ void checkUpload(){
 	fflush(f);
 	fclose(f);
 
+	for(;;){
+		printf("Received all %lu bytes. Our sum: %lu, received sum: %lu\n", size, sum, checksum);
+		vTaskDelay(1000);
+	}
+
 	if(sum != checksum){
 		printf("1");
 		fflush(stdout);
@@ -146,19 +175,22 @@ void checkUpload(){
 
 void init(){
 	if(!initSPIFFS()) return;
-	freopen(nullptr, "rb", stdin);
+	//fflush(0);
+	//freopen(nullptr, "rb", stdin);
 
 	gpio_set_direction((gpio_num_t) PIN_BL, GPIO_MODE_OUTPUT);
 	gpio_set_level((gpio_num_t) PIN_BL, 0);
 
 	disp = new Display();
 
+	//serial = new Serial();
+
 	scr = new GifScreen();
 	auto ui = new ThreadedClosure([](){
 		if(scr){
 			scr->loop();
 		}
-		checkUpload();
+		//checkUpload();
 		vTaskDelay(5);
 	}, "UI", 12*1024);
 	ui->start();
