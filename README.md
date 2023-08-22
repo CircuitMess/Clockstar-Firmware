@@ -1,35 +1,25 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- |
+# Clockstar Firmware
+> Build & Code Your Own Smartwatch
 
-# _Sample project_
+# Building
+To build the Clockstar base firmware, you'll need the ESP-IDF. You can find the getting started 
+guide [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/). The 
+production firmware is built using IDF version 5.1, commit [3a45d4e](https://github.com/espressif/esp-idf/tree/3a45d4e949a174e8829a2e4c86c421b030ceac5a).
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+In the root directory of the project:
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+**To build the firmware** run ```idf.py build```
 
+**To upload the firmware to the device** run ```idf.py -p <PORT> flash```. Replace `<PORT>` with 
+the port Clockstar is attached to, for ex. ```COM6``` or ```/dev/ttyUSB0```.
 
-
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
-
-## Example folder contents
-
-The project **sample_project** contains one source file in C language [main.c](main/main.cpp). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
-
-Below is short explanation of remaining files in the project folder.
-
+# Restoring the stock firmware
+To restore the stock firmware, you can download the prebuilt binary on the [releases page](https://github.com/CircuitMess/Clockstar-Firmware/releases) of this repository 
+and flash it manually using esptool:
+```shell
+esptool -c esp32 -b 921600 -p <PORT> write_flash 0 Clockstar-Firmware.bin
 ```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+
+Alternatively, you can also do so using [CircuitBlocks](https://code.circuitmess.com/) by 
+logging in, clicking the "Restore Firmware" button in the top-right corner, and following the 
+on-screen instructions. 
