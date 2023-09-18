@@ -53,12 +53,12 @@ void SleepMan::shutdown(){
 	bl.fadeOut();
 	imu.shutdown();
 
-	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
-	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_AUTO);
-	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_AUTO);
-	esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL, ESP_PD_OPTION_AUTO);
-	esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
-	esp_deep_sleep_start();
+	gpio_set_level((gpio_num_t) PIN_PWDN, 0);
+	const gpio_config_t cfg = {
+			.pin_bit_mask = 1ULL << PIN_PWDN,
+			.mode = GPIO_MODE_OUTPUT
+	};
+	gpio_config(&cfg);
 }
 
 void SleepMan::loop(){
