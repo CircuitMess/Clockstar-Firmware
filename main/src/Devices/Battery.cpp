@@ -6,8 +6,8 @@
 #include <cmath>
 #include <driver/gpio.h>
 
-#define MAX_READ 3550 // 4.2V
-#define MIN_READ 3050 // 3.6V
+#define MAX_READ 3125 // 4.2V
+#define MIN_READ 2650 // 3.6V
 
 Battery::Battery() : Threaded("Battery", 3 * 1024, 5), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()),
 					 hysteresis({ 0, 4, 15, 30, 70, 100 }, 3),
@@ -15,7 +15,7 @@ Battery::Battery() : Threaded("Battery", 3 * 1024, 5), adc((gpio_num_t) PIN_BATT
 
 	gpio_config_t cfg_gpio = {};
 	cfg_gpio.mode = GPIO_MODE_INPUT;
-	cfg_gpio.pull_down_en = GPIO_PULLDOWN_ENABLE;
+	cfg_gpio.pull_down_en = GPIO_PULLDOWN_DISABLE;
 	cfg_gpio.pull_up_en = GPIO_PULLUP_DISABLE;
 	cfg_gpio.pin_bit_mask = 1ULL << PIN_CHARGE;
 	cfg_gpio.intr_type = GPIO_INTR_POSEDGE;
@@ -58,7 +58,7 @@ int16_t Battery::getVoltOffset(){
 void Battery::checkCharging(bool fresh){
 	if(shutdown) return;
 
-	auto chrg = gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
+	auto chrg = gpio_get_level((gpio_num_t) PIN_CHARGE) == 1; // TODO: Schmitt. ~2.4V when charging, 0V when not
 	if(fresh){
 		chargeHyst.reset(chrg);
 	}else{
