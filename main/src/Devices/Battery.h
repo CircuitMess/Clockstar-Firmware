@@ -67,9 +67,9 @@ private:
 
 	bool shutdown = false;
 
-	static constexpr esp_efuse_desc_t adc1_low = { EFUSE_BLK3, 96, 7 };
+	static constexpr esp_efuse_desc_t adc1_low = { EFUSE_BLK3, 0, 8 };
 	static constexpr const esp_efuse_desc_t* efuse_adc1_low[] = { &adc1_low, nullptr };
-	static constexpr esp_efuse_desc_t adc1_high = { EFUSE_BLK3, 103, 9 };
+	static constexpr esp_efuse_desc_t adc1_high = { EFUSE_BLK3, 8, 8 };
 	static constexpr const esp_efuse_desc_t* efuse_adc1_high[] = { &adc1_high, nullptr };
 
 };
