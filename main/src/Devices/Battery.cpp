@@ -49,10 +49,10 @@ uint16_t Battery::mapRawReading(uint16_t reading){
 }
 
 int16_t Battery::getVoltOffset(){
-	uint32_t upper = 0, lower = 0;
-	esp_efuse_read_field_blob((const esp_efuse_desc_t**) efuse_adc1_low, &lower, 7);
-	esp_efuse_read_field_blob((const esp_efuse_desc_t**) efuse_adc1_high, &upper, 9);
-	return (upper << 7) | lower;
+	int16_t upper = 0, lower = 0;
+	esp_efuse_read_field_blob((const esp_efuse_desc_t**) efuse_adc1_low, &lower, 8);
+	esp_efuse_read_field_blob((const esp_efuse_desc_t**) efuse_adc1_high, &upper, 8);
+	return (upper << 8) | lower;
 }
 
 void Battery::checkCharging(bool fresh){

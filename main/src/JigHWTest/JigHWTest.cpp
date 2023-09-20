@@ -198,10 +198,10 @@ bool JigHWTest::BatteryCalib(){
 	uint32_t reading = 0;
 
 	adc1_config_width(ADC_WIDTH_BIT_12);
-	adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_0);
+	adc1_config_channel_atten(ADC1_CHANNEL_1, ADC_ATTEN_DB_6);
 
 	for(int i = 0; i < numReadings; i++){
-		reading += adc1_get_raw(ADC1_CHANNEL_0);
+		reading += adc1_get_raw(ADC1_CHANNEL_1);
 		vTaskDelay(readDelay / portTICK_PERIOD_MS);
 	}
 	reading /= numReadings;
@@ -220,14 +220,15 @@ bool JigHWTest::BatteryCalib(){
 		return false;
 	}
 
-	uint16_t offsetLow = offset & 0b01111111;
-	uint16_t offsetHigh = offset >> 7;
+	uint8_t offsetLow = offset & 0xff;
+	uint8_t offsetHigh = (offset >> 8) & 0xff;
 
 	// return true; //TODO - remove early return, burn to efuse
 
-	esp_efuse_write_field_blob((const esp_efuse_desc_t**) efuse_adc1_low, &offsetLow, 7);
-	esp_efuse_write_field_blob((const esp_efuse_desc_t**) efuse_adc1_high, &offsetHigh, 9);
-	esp_efuse_reset();
+	esp_efuse_batch_write_begin();
+	esp_efuse_write_field_blob((const esp_efuse_desc_t**) efuse_adc1_low, &offsetLow, 8);
+	esp_efuse_write_field_blob((const esp_efuse_desc_t**) efuse_adc1_high, &offsetHigh, 8);
+	esp_efuse_batch_write_commit();
 
 	return true;
 }
@@ -235,14 +236,14 @@ bool JigHWTest::BatteryCalib(){
 
 bool JigHWTest::BatteryCheck(){
 	adc1_config_width(ADC_WIDTH_BIT_12);
-	adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_0);
+	adc1_config_channel_atten(ADC1_CHANNEL_1, ADC_ATTEN_DB_6);
 
 	constexpr uint16_t numReadings = 50;
 	constexpr uint16_t readDelay = 10;
 	uint32_t reading = 0;
 
 	for(int i = 0; i < numReadings; i++){
-		reading += adc1_get_raw(ADC1_CHANNEL_0);
+		reading += adc1_get_raw(ADC1_CHANNEL_1);
 		vTaskDelay(readDelay / portTICK_PERIOD_MS);
 	}
 	reading /= numReadings;
