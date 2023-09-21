@@ -45,7 +45,23 @@ void shutdown(){
 	sleepMan->shutdown();
 }
 
+static const gpio_num_t PWDN = GPIO_NUM_26;
+static const gpio_num_t LEDs[] = { GPIO_NUM_43, GPIO_NUM_44 };
+
+void setLEDs(){
+	for(int i = 0; i < sizeof(LEDs)/sizeof(LEDs[0]); i++){
+		const gpio_config_t cfg = {
+				.pin_bit_mask = 1ULL << LEDs[i],
+				.mode = GPIO_MODE_OUTPUT
+		};
+		gpio_config(&cfg);
+		gpio_set_level((gpio_num_t) LEDs[i], 0);
+	}
+}
+
 void init(){
+	setLEDs();
+
 	if(JigHWTest::checkJig()){
 		printf("Jig\n");
 		auto test = new JigHWTest();
