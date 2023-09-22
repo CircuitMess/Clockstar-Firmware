@@ -102,6 +102,8 @@ void LockScreen::processInput(const Input::Data& evt){
 		return;
 	}
 
+	if(lv_group_get_focused(inputGroup) != main) return;
+
 	if(evt.btn == Input::Select){
 		if(evt.action == Input::Data::Press){
 			locker->start();
