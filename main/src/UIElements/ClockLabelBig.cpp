@@ -12,7 +12,7 @@ ClockLabelBig::ClockLabelBig(lv_obj_t* parent) : ClockLabel(parent){
 	}
 
 
-	lv_obj_set_style_pad_hor(icons[2], 5, 0);
+	lv_obj_set_style_pad_hor(icons[2], 1, 0);
 
 	updateTime(ts.getTime());
 }
