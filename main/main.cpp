@@ -45,8 +45,7 @@ void shutdown(){
 	sleepMan->shutdown();
 }
 
-static const gpio_num_t PWDN = GPIO_NUM_26;
-static const gpio_num_t LEDs[] = { GPIO_NUM_43, GPIO_NUM_44 };
+static const int LEDs[] = { LED_1, LED_2, LED_3, LED_4, LED_5, LED_6 };
 
 void setLEDs(){
 	for(int i = 0; i < sizeof(LEDs)/sizeof(LEDs[0]); i++){
@@ -55,7 +54,7 @@ void setLEDs(){
 				.mode = GPIO_MODE_OUTPUT
 		};
 		gpio_config(&cfg);
-		gpio_set_level((gpio_num_t) LEDs[i], 0);
+		gpio_set_level((gpio_num_t) LEDs[i], 1);
 	}
 }
 
