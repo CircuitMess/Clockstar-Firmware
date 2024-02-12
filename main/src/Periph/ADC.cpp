@@ -6,15 +6,15 @@
 static const char* TAG = "ADC";
 
 ADC::ADC(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin(pin), ema_a(ema_a), min(min), max(max), offset(readingOffset){
-	if(pin != GPIO_NUM_2){
+	if(pin != GPIO_NUM_6){
 		ESP_LOGE(TAG, "Only GPIO 36 is supported for ADC");
 		valid = false;
 		return;
 	}
 
-	if(pin == GPIO_NUM_2){
+	if(pin == GPIO_NUM_6){
 		adc1_config_width(ADC_WIDTH_BIT_12);
-		adc1_config_channel_atten(ADC1_CHANNEL_1, ADC_ATTEN_DB_6);
+		adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_11);
 	}
 
 	sample();
@@ -35,8 +35,9 @@ float ADC::sample(){
 	}
 
 	float reading = 0;
-	if(pin == GPIO_NUM_2){
-		reading = adc1_get_raw(ADC1_CHANNEL_1);
+	if(pin == GPIO_NUM_6){
+		reading = adc1_get_raw(ADC1_CHANNEL_5);
+		printf("ADC read %d\n", (int) reading);
 	}
 
 	if(val == -1 || ema_a == 1){
