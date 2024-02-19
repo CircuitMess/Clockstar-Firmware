@@ -17,6 +17,8 @@ class LabelElement;
 
 class DiscreteSliderElement;
 
+class LVModal;
+
 class SettingsScreen : public LVScreen {
 public:
 	SettingsScreen();
@@ -31,9 +33,11 @@ private:
 	BacklightBrightness& backlight;
 	ChirpSystem& audio;
 	IMU& imu;
+	Time& ts;
 
 	lv_obj_t* bg;
 	lv_obj_t* container;
+	LabelElement* manualTime;
 	BoolElement* audioSwitch;
 	SliderElement* brightnessSlider;
 	BoolElement* ledSwitch;
@@ -41,6 +45,8 @@ private:
 	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
 	BoolElement* motionSwitch;
+
+	LVModal* timePickerModal;
 
 	static constexpr uint8_t TopPadding = 18;
 
