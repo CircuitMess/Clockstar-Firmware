@@ -44,6 +44,7 @@ Level::~Level(){
 }
 
 void Level::setOrientation(double pitch, double roll){
+	pitch = -pitch;
 	pitch = std::clamp(pitch, -AngleConstraint, AngleConstraint);
 	roll = std::clamp(roll, -AngleConstraint, AngleConstraint);
 

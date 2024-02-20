@@ -145,7 +145,7 @@ void IMU::thread2Func(){
 	lsm6ds3tr_c_all_sources_t src;
 	lsm6ds3tr_c_all_sources_get(&ctx, &src);
 
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	bool ypos = !((tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp));
 	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
 		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
 		Events::post(Facility::Motion, &evt, sizeof(evt));
@@ -215,7 +215,7 @@ void IMU::fetchEvents(){
 		}
 	}*/
 
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	bool ypos = !((tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp));
 	if((src.wrist_tilt_ia.wrist_tilt_ia_ypos && ypos) || (src.wrist_tilt_ia.wrist_tilt_ia_yneg && !ypos)){
 		Event evt = { .action = Event::WristTilt, .wristTiltDir = tiltDirection };
 		Events::post(Facility::Motion, &evt, sizeof(evt));
@@ -284,7 +284,7 @@ void IMU::setTiltDirection(IMU::TiltDirection direction){
 
 	this->tiltDirection = direction;
 	//XOR - tilt logic is inverted if WristPosition is FaceUp
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	bool ypos = !((tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp));
 	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 
@@ -322,7 +322,7 @@ void IMU::enableTiltDetection(bool enable){
 
 void IMU::setWristPosition(WatchPosition wristPosition){
 	this->position = wristPosition;
-	bool ypos = (tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp);
+	bool ypos = !((tiltDirection == TiltDirection::Lifted) ^ (position == WatchPosition::FaceUp));
 	lsm6ds3tr_c_a_wrist_tilt_mask_t tiltMask = { 0, 0, 0, !ypos, ypos, 0, 0 };
 	lsm6ds3tr_c_tilt_src_set(&ctx, &tiltMask);
 }
