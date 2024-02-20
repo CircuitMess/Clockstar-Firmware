@@ -94,6 +94,7 @@ void StatusCenter::blockAudio(bool block){
 
 void StatusCenter::blink(){
 	led->blinkTwice({ 0, 0, 255 });
+	// TODO: add multiple leds here to have a more dramatic effect
 }
 
 void StatusCenter::beep(){
