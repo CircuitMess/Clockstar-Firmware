@@ -30,7 +30,7 @@ void TimePickerModal::buildStyles(){
 
 void TimePickerModal::buildUI(){
 	lv_obj_set_layout(*this, LV_LAYOUT_FLEX);
-	lv_obj_set_flex_align(*this, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+	lv_obj_set_flex_align(*this, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);
 
 	timeCont = lv_obj_create(*this);
@@ -52,9 +52,41 @@ void TimePickerModal::buildUI(){
 
 	day = createPicker(dateCont, time.tm_mday, 1, 31);
 	addLabel(dateCont, "/");
-	month = createPicker(dateCont, time.tm_mon + 1, 1, 12);
-	addLabel(dateCont, "/");
-	year = createPicker(dateCont, time.tm_year + 1900, 1970, 2100);
+
+	month = lv_roller_create(dateCont);
+	lv_roller_set_options(month, MonthsNames, LV_ROLLER_MODE_NORMAL);
+	lv_roller_set_visible_row_count(month, 1);
+	lv_roller_set_selected(month, time.tm_mon, LV_ANIM_OFF);
+
+	lv_obj_add_style(month, defaultStyle, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_add_style(month, focusedStyle, LV_PART_MAIN | LV_STATE_FOCUSED);
+	lv_obj_add_style(month, labelStyle, LV_PART_MAIN);
+	lv_obj_set_style_pad_hor(month, 1, LV_PART_SELECTED);
+	lv_obj_set_style_bg_color(month, lv_palette_main(LV_PALETTE_INDIGO), LV_PART_SELECTED | LV_STATE_DEFAULT);
+	lv_obj_set_style_bg_opa(month, LV_OPA_COVER, LV_PART_SELECTED | LV_STATE_DEFAULT);
+	lv_obj_set_style_bg_color(month, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_bg_opa(month, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_radius(month, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_anim_time(month, 250, LV_PART_MAIN);
+	lv_obj_set_style_text_line_space(month, 2, LV_PART_MAIN);
+	lv_group_add_obj(inputGroup, month);
+
+	lv_obj_add_event_cb(month, [](lv_event_t* e){
+		if(lv_event_get_key(e) != LV_KEY_ENTER) return;
+
+		lv_anim_del(e->target, nullptr);
+	}, LV_EVENT_KEY, this);
+
+	lv_obj_add_event_cb(month, [](lv_event_t* e){
+		auto modal = (TimePickerModal*) e->user_data;
+
+		if(lv_group_get_editing(modal->inputGroup)){
+			modal->startAnim(e->target);
+		}
+	}, LV_EVENT_FOCUSED, this);
+
+
+	year = createPicker(*this, time.tm_year + 1900, 1970, 2100);
 
 	lv_obj_add_event_cb(month, [](lv_event_t* e){
 		auto modal = (TimePickerModal*) e->user_data;
@@ -84,7 +116,7 @@ void TimePickerModal::saveTime(){
 	time.tm_min = lv_spinbox_get_value(minute);
 	time.tm_sec = lv_spinbox_get_value(second);
 	time.tm_mday = lv_spinbox_get_value(day);
-	time.tm_mon = lv_spinbox_get_value(month) - 1;
+	time.tm_mon = lv_roller_get_selected(month);
 	time.tm_year = lv_spinbox_get_value(year) - 1900;
 
 	ts.setTime(time);
@@ -137,7 +169,7 @@ void TimePickerModal::addLabel(lv_obj_t* parent, const char* text){
 }
 
 void TimePickerModal::setDateLimits(){
-	int m = lv_spinbox_get_value(month) - 1;
+	int m = lv_roller_get_selected(month);
 	int y = lv_spinbox_get_value(year);
 	int daysLimit;
 

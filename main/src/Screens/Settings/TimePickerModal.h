@@ -32,10 +32,10 @@ private:
 	lv_anim_t blinkAnim;
 	static void animFunc(void* var, int32_t val);
 	void startAnim(lv_obj_t* target);
-	void stopAnim();
 
 	static constexpr lv_style_selector_t SelDefault = LV_PART_MAIN | LV_STATE_DEFAULT;
 	static constexpr lv_style_selector_t SelFocus = LV_PART_MAIN | LV_STATE_FOCUSED;
+	static constexpr const char* MonthsNames = "January\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember";
 };
 
 
