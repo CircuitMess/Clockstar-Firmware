@@ -17,6 +17,18 @@ settings(*((Settings*) Services.get(Service::Settings)))
 	led = new RGBLEDController(*pwmR, *pwmG, *pwmB);
 	led->begin();
 
+	singleLeds[0] = std::make_shared<SingleLEDController>(*new PWM(LED_1, LEDC_CHANNEL_0));
+	singleLeds[1] = std::make_shared<SingleLEDController>(*new PWM(LED_2, LEDC_CHANNEL_0));
+	singleLeds[2] = std::make_shared<SingleLEDController>(*new PWM(LED_3, LEDC_CHANNEL_0));
+	singleLeds[3] = std::make_shared<SingleLEDController>(*new PWM(LED_4, LEDC_CHANNEL_0));
+	singleLeds[4] = std::make_shared<SingleLEDController>(*new PWM(LED_5, LEDC_CHANNEL_0));
+	singleLeds[5] = std::make_shared<SingleLEDController>(*new PWM(LED_6, LEDC_CHANNEL_0));
+
+	for(const std::shared_ptr<SingleLEDController>& singleLed : singleLeds){
+		singleLed->begin();
+		singleLed->setSolid(0);
+	}
+
 	updateLED();
 	start();
 }
@@ -94,7 +106,10 @@ void StatusCenter::blockAudio(bool block){
 
 void StatusCenter::blink(){
 	led->blinkTwice({ 0, 0, 255 });
-	// TODO: add multiple leds here to have a more dramatic effect
+
+	for(const std::shared_ptr<SingleLEDController>& singleLed : singleLeds){
+		singleLed->blinkTwice(0xFF);
+	}
 }
 
 void StatusCenter::beep(){
