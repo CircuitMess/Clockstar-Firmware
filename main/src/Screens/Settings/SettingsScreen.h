@@ -41,6 +41,7 @@ private:
 	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
 	BoolElement* motionSwitch;
+	BoolElement* rotationSwitch;
 
 	static constexpr uint8_t TopPadding = 18;
 

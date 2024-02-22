@@ -7,6 +7,7 @@
 #include "LabelElement.h"
 #include "DiscreteSliderElement.h"
 #include "Services/StatusCenter.h"
+#include "LV_Interface/LVGL.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)), queue(4){
@@ -76,6 +77,13 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.notificationSounds);
 	lv_group_add_obj(inputGroup, *motionSwitch);
 
+	rotationSwitch = new BoolElement(container, "Rotate screen", [this](bool value){
+		auto s = settings.get();
+		s.motionDetection = value;
+		settings.set(s);
+	}, startingSettings.screenRotate);
+	lv_group_add_obj(inputGroup, *rotationSwitch);
+
 	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
 		transition([](){ return std::make_unique<MainMenu>(); });
 	});
@@ -110,11 +118,14 @@ void SettingsScreen::onStop(){
 	savedSettings.sleepTime = sleepSlider->getValue();
 	savedSettings.ledEnable = ledSwitch->getValue();
 	savedSettings.motionDetection = motionSwitch->getValue();
+	savedSettings.screenRotate = rotationSwitch->getValue();
 	settings.set(savedSettings);
 	settings.store();
 
 	backlight.setBrightness(brightnessSlider->getValue());
 	imu.enableTiltDetection(motionSwitch->getValue());
+	lvgl->rotateScreen(rotationSwitch->getValue());
+	//TODO - apply rotation to input
 	//TODO - apply sleep time
 
 	Events::unlisten(&queue);
@@ -125,11 +136,13 @@ void SettingsScreen::onStop(){
 }
 
 void SettingsScreen::onStarting(){
-	brightnessSlider->setValue(settings.get().screenBrightness);
-	audioSwitch->setValue(settings.get().notificationSounds);
-	ledSwitch->setValue(settings.get().ledEnable);
-	sleepSlider->setValue(settings.get().sleepTime);
-	motionSwitch->setValue(settings.get().motionDetection);
+	auto sets = settings.get();
+	brightnessSlider->setValue(sets.screenBrightness);
+	audioSwitch->setValue(sets.notificationSounds);
+	ledSwitch->setValue(sets.ledEnable);
+	sleepSlider->setValue(sets.sleepTime);
+	motionSwitch->setValue(sets.motionDetection);
+	rotationSwitch->setValue(sets.screenRotate);
 }
 
 void SettingsScreen::onStart(){

@@ -69,3 +69,14 @@ void Display::drawTest(){
 	lgfx.drawLine(127, 0, 127, 127, TFT_GREEN);
 	printf("Done.\n");
 }
+
+void Display::setRotation(bool rotation){
+	const uint8_t val = rotation ? 3 : 1;
+	lgfx::Panel_Device::config_t cfg = lgfx.getPanel()->config();
+	if(val == cfg.offset_rotation) return;
+
+	cfg.offset_rotation = val;
+	panel.config(cfg);
+	lgfx.setPanel(&panel);
+	lgfx.init();
+}
