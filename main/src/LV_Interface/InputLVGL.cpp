@@ -1,5 +1,7 @@
 #include "InputLVGL.h"
 #include "Pins.hpp"
+#include "Settings/Settings.h"
+#include "Util/Services.h"
 
 InputLVGL* InputLVGL::instance = nullptr;
 const std::map<Input::Button, lv_key_t> InputLVGL::keyMap = {{ Input::Button::Up,     LV_KEY_LEFT },
@@ -18,6 +20,9 @@ InputLVGL::InputLVGL() : Threaded("InputLVGL", 1024), queue(QueueSize){
 	inputDriver.long_press_time = 350;
 	inputDriver.read_cb = [](lv_indev_drv_t* drv, lv_indev_data_t* data){ InputLVGL::getInstance()->read(drv, data); };
 	inputDevice = lv_indev_drv_register(&inputDriver);
+
+	auto& settings = *(Settings*) Services.get(Service::Settings);
+	//TODO - invert if screenRotation is on
 
 	start();
 }
