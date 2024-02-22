@@ -127,5 +127,8 @@ void StatusCenter::shutdown(){
 	led->breathe({ 150, 0, 0 }, { 0, 0, 0 }, 1000);
 	vTaskDelay(500);
 
+	for(const auto& singleLed : singleLeds){
+		singleLed->clear();
+	}
 	led->clear();
 }
