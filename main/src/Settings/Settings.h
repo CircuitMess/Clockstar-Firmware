@@ -3,6 +3,19 @@
 
 #include <nvs.h>
 
+enum class Theme : uint8_t {
+	Default,
+	Theme1,
+	Theme2,
+	Theme3,
+	Theme4,
+	Theme5,
+	Theme6,
+	Theme7,
+	Theme8,
+	Theme9
+};
+
 struct SettingsStruct {
 	bool notificationSounds = true;
 	uint8_t screenBrightness = 100;

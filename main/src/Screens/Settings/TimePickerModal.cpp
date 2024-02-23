@@ -62,10 +62,6 @@ void TimePickerModal::buildUI(){
 	lv_obj_add_style(month, focusedStyle, LV_PART_MAIN | LV_STATE_FOCUSED);
 	lv_obj_add_style(month, labelStyle, LV_PART_MAIN);
 	lv_obj_set_style_pad_hor(month, 1, LV_PART_SELECTED);
-	lv_obj_set_style_bg_color(month, lv_palette_main(LV_PALETTE_INDIGO), LV_PART_SELECTED | LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_opa(month, LV_OPA_COVER, LV_PART_SELECTED | LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_color(month, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_opa(month, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_radius(month, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_anim_time(month, 250, LV_PART_MAIN);
 	lv_obj_set_style_text_line_space(month, 2, LV_PART_MAIN);

@@ -8,6 +8,7 @@
 #include "DiscreteSliderElement.h"
 #include "Services/StatusCenter.h"
 #include "TimePickerModal.h"
+#include "PickerElement.h"
 #include "Services/Time.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
@@ -36,6 +37,11 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_obj_set_pos(*statusBar, 0, 0);
 
 	auto startingSettings = settings.get();
+
+	themePicker = new PickerElement(container, "Change theme", (uint16_t) Theme::Default, "Default \nTheme 1\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9", [](uint16_t selected){
+
+	});
+	lv_group_add_obj(inputGroup, *themePicker);
 
 	manualTime = new LabelElement(container, "Adjust date/time", [this](){
 		timePickerModal = std::make_unique<TimePickerModal>(this, ts.getTime());

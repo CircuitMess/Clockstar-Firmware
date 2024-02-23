@@ -37,6 +37,7 @@ private:
 
 	lv_obj_t* bg;
 	lv_obj_t* container;
+	class PickerElement* themePicker;
 	LabelElement* manualTime;
 	BoolElement* audioSwitch;
 	SliderElement* brightnessSlider;
