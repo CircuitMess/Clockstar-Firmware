@@ -8,9 +8,12 @@
 #include "DiscreteSliderElement.h"
 #include "Services/StatusCenter.h"
 #include "LV_Interface/LVGL.h"
+#include "TimePickerModal.h"
+#include "Services/Time.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
-								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)), queue(4){
+								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
+								   ts(*(Time*)Services.get(Service::Time)), queue(4){
 	lv_obj_set_size(*this, 128, 128);
 
 	bg = lv_obj_create(*this);
@@ -34,6 +37,11 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_obj_set_pos(*statusBar, 0, 0);
 
 	auto startingSettings = settings.get();
+
+	manualTime = new LabelElement(container, "Adjust date/time", [this](){
+		new TimePickerModal(this, ts.getTime());
+	});
+	lv_group_add_obj(inputGroup, *manualTime);
 
 	audioSwitch = new BoolElement(container, "Sound", [this](bool value){
 		if(value){

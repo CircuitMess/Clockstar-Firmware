@@ -17,6 +17,18 @@ settings(*((Settings*) Services.get(Service::Settings)))
 	led = new RGBLEDController(*pwmR, *pwmG, *pwmB);
 	led->begin();
 
+	singleLeds[0] = std::make_shared<DigitalLEDController>((gpio_num_t) LED_1);
+	singleLeds[1] = std::make_shared<DigitalLEDController>((gpio_num_t) LED_2);
+	singleLeds[2] = std::make_shared<DigitalLEDController>((gpio_num_t) LED_3);
+	singleLeds[3] = std::make_shared<DigitalLEDController>((gpio_num_t) LED_4);
+	singleLeds[4] = std::make_shared<DigitalLEDController>((gpio_num_t) LED_5);
+	singleLeds[5] = std::make_shared<DigitalLEDController>((gpio_num_t) LED_6);
+
+	for(const std::shared_ptr<DigitalLEDController>& singleLed : singleLeds){
+		singleLed->begin();
+		singleLed->setSolid(0);
+	}
+
 	updateLED();
 	start();
 }
@@ -94,6 +106,10 @@ void StatusCenter::blockAudio(bool block){
 
 void StatusCenter::blink(){
 	led->blinkTwice({ 0, 0, 255 });
+
+	for(const std::shared_ptr<DigitalLEDController>& singleLed : singleLeds){
+		singleLed->blinkTwice(0xFF);
+	}
 }
 
 void StatusCenter::beep(){
@@ -111,5 +127,8 @@ void StatusCenter::shutdown(){
 	led->breathe({ 150, 0, 0 }, { 0, 0, 0 }, 1000);
 	vTaskDelay(500);
 
+	for(const auto& singleLed : singleLeds){
+		singleLed->clear();
+	}
 	led->clear();
 }

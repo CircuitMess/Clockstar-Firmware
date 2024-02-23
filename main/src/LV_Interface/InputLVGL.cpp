@@ -30,6 +30,13 @@ InputLVGL::InputLVGL() : Threaded("InputLVGL", 1024), queue(QueueSize){
 void InputLVGL::read(lv_indev_drv_t* drv, lv_indev_data_t* data){
 	if(keyMap.count(lastKey) == 0) return;
 	data->key = keyMap.at(lastKey);
+
+	if(data->key == LV_KEY_LEFT && invertedDirections){
+		data->key = LV_KEY_RIGHT;
+	}else if(data->key == LV_KEY_RIGHT && invertedDirections){
+		data->key = LV_KEY_LEFT;
+	}
+
 	data->state = (action == Input::Data::Action::Press) ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
 }
 
@@ -50,4 +57,8 @@ void InputLVGL::loop(){
 
 lv_indev_t* InputLVGL::getIndev() const{
 	return inputDevice;
+}
+
+void InputLVGL::invertDirections(bool invert){
+	invertedDirections = invert;
 }

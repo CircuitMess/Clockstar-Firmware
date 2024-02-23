@@ -13,6 +13,8 @@ public:
 	LVScreen();
 	virtual ~LVScreen();
 
+	lv_group_t* getInputGroup() const;
+
 	bool isRunning() const;
 
 protected:
