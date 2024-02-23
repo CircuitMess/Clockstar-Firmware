@@ -38,7 +38,7 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	auto startingSettings = settings.get();
 
 	manualTime = new LabelElement(container, "Adjust date/time", [this](){
-		new TimePickerModal(this, ts.getTime());
+		timePickerModal = std::make_unique<TimePickerModal>(this, ts.getTime());
 	});
 	lv_group_add_obj(inputGroup, *manualTime);
 
@@ -100,9 +100,13 @@ void SettingsScreen::loop(){
 		if(evt.facility == Facility::Input){
 			auto eventData = (Input::Data*) evt.data;
 			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
-				free(evt.data);
-				transition([](){ return std::make_unique<MainMenu>(); });
-				return;
+				if(timePickerModal){
+					timePickerModal.reset();
+				}else{
+					free(evt.data);
+					transition([](){ return std::make_unique<MainMenu>(); });
+					return;
+				}
 			}
 		}
 		free(evt.data);

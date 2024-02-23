@@ -8,6 +8,7 @@
 #include "Services/BacklightBrightness.h"
 #include "Services/ChirpSystem.h"
 #include "Devices/IMU.h"
+#include "LV_Interface/LVModal.h"
 
 class BoolElement;
 
@@ -17,7 +18,6 @@ class LabelElement;
 
 class DiscreteSliderElement;
 
-class LVModal;
 
 class SettingsScreen : public LVScreen {
 public:
@@ -46,7 +46,7 @@ private:
 	LabelElement* saveAndExit;
 	BoolElement* motionSwitch;
 
-	LVModal* timePickerModal;
+	std::unique_ptr<LVModal> timePickerModal;
 
 	static constexpr uint8_t TopPadding = 18;
 
