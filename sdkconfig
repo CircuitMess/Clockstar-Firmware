@@ -2330,7 +2330,7 @@ CONFIG_LV_USE_THEME_BASIC=y
 # Layouts
 #
 CONFIG_LV_USE_FLEX=y
-# CONFIG_LV_USE_GRID is not set
+CONFIG_LV_USE_GRID=y
 # end of Layouts
 
 #
