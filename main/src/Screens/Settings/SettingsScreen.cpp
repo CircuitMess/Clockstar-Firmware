@@ -10,6 +10,7 @@
 #include "LV_Interface/LVGL.h"
 #include "TimePickerModal.h"
 #include "Services/Time.h"
+#include "LV_Interface/InputLVGL.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
@@ -133,7 +134,7 @@ void SettingsScreen::onStop(){
 	backlight.setBrightness(brightnessSlider->getValue());
 	imu.enableTiltDetection(motionSwitch->getValue());
 	lvgl->rotateScreen(rotationSwitch->getValue());
-	//TODO - apply rotation to input
+	InputLVGL::getInstance()->invertDirections(rotationSwitch->getValue());
 	//TODO - apply sleep time
 
 	Events::unlisten(&queue);

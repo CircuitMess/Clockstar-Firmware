@@ -22,7 +22,9 @@ InputLVGL::InputLVGL() : Threaded("InputLVGL", 1024), queue(QueueSize){
 	inputDevice = lv_indev_drv_register(&inputDriver);
 
 	auto& settings = *(Settings*) Services.get(Service::Settings);
-	//TODO - invert if screenRotation is on
+	if(settings.get().screenRotate){
+		invertDirections(true);
+	}
 
 	start();
 }
@@ -61,4 +63,8 @@ lv_indev_t* InputLVGL::getIndev() const{
 
 void InputLVGL::invertDirections(bool invert){
 	invertedDirections = invert;
+}
+
+bool InputLVGL::getInvertDirections() const{
+	return invertedDirections;
 }

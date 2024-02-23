@@ -29,6 +29,8 @@ private:
 	LVStyle focusedStyle;
 	LVStyle labelStyle;
 
+	const bool startingInputInversion;
+
 	lv_anim_t blinkAnim;
 	static void animFunc(void* var, int32_t val);
 	void startAnim(lv_obj_t* target);

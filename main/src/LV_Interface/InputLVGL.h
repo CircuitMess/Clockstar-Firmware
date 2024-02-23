@@ -18,6 +18,8 @@ public:
 
 	void invertDirections(bool invert);
 
+	bool getInvertDirections() const;
+
 protected:
 	void loop() override;
 

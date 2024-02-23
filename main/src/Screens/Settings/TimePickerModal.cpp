@@ -5,7 +5,8 @@
 #include <Util/Services.h>
 #include <valarray>
 
-TimePickerModal::TimePickerModal(LVScreen* parent, tm time) : LVModal(parent), time(time){
+TimePickerModal::TimePickerModal(LVScreen* parent, tm time) : LVModal(parent), time(time),
+															  startingInputInversion(InputLVGL::getInstance()->getInvertDirections()){
 	buildStyles();
 	buildUI();
 	setDateLimits();
@@ -141,7 +142,7 @@ lv_obj_t* TimePickerModal::createPicker(lv_obj_t* parent, int32_t value, int32_t
 
 		auto modal = (TimePickerModal*) e->user_data;
 		lv_group_set_editing(modal->inputGroup, false);
-		InputLVGL::getInstance()->invertDirections(false);
+		InputLVGL::getInstance()->invertDirections(modal->startingInputInversion);
 		lv_anim_del(e->target, nullptr);
 	}, LV_EVENT_KEY, this);
 
@@ -151,7 +152,7 @@ lv_obj_t* TimePickerModal::createPicker(lv_obj_t* parent, int32_t value, int32_t
 		auto modal = (TimePickerModal*) e->user_data;
 
 		if(lv_group_get_editing(modal->inputGroup)){
-			InputLVGL::getInstance()->invertDirections(true);
+			InputLVGL::getInstance()->invertDirections(!modal->startingInputInversion);
 			modal->startAnim(e->target);
 		}
 	}, LV_EVENT_FOCUSED, this);
