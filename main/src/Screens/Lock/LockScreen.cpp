@@ -258,6 +258,21 @@ void LockScreen::removeNotifIcon(const char* path){
 
 void LockScreen::updateTime(const tm& time){
 	lastTimeUpdate = millis();
+
+	// Update any date/time in UI here
+
+	/*char dateText[128];
+
+	static const char* Months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+	const int dayLd = time.tm_mday - (time.tm_mday / 10) * 10;
+	const char* daySuff;
+	if(time.tm_mday == 11 || time.tm_mday == 12) daySuff = "th";
+	else if(dayLd == 1) daySuff = "st";
+	else if(dayLd == 2) daySuff = "nd";
+	else if(dayLd == 3) daySuff = "rd";
+	else daySuff = "th";
+
+	snprintf(dateText, sizeof(dateText), "%s %d%s, %d", Months[time.tm_mon % 12], time.tm_mday, daySuff, 1900 + time.tm_year);*/
 }
 
 void LockScreen::buildUI(){
