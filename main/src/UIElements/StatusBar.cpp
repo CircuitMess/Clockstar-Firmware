@@ -23,19 +23,19 @@ StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone
 	lv_obj_set_flex_flow(right, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(right, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	phoneIcon = lv_img_create(right);
-
 	if(showExtra){
 		clock = new ClockLabelSmall(*this);
 		lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
 		lv_obj_center(*clock);
 
-		notifIcon = lv_img_create(left);
+		notifIcon = lv_img_create(right);
 		lv_img_set_src(notifIcon, "S:/icon/cat_other.bin");
 		setNotifIcon();
 	}
 
-	batDevice = new BatteryElement(right);
+	phoneIcon = lv_img_create(right);
+
+	batDevice = new BatteryElement(left);
 
 	// Events::listen(Facility::Phone, &queue); TODO: uncomment once evnet processing is actually hapening
 	Events::listen(Facility::Battery, &queue);
