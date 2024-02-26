@@ -38,8 +38,8 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 
 	auto startingSettings = settings.get();
 
-	themePicker = new PickerElement(container, "Change theme", (uint16_t) Theme::Default, "Default \nTheme 1\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9", [](uint16_t selected){
-		// TODO: change the theme in the settings, send event that the theme was changed
+	themePicker = new PickerElement(container, "Change theme", (uint16_t) Theme::Default, "Default \nTheme 1\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9", [&startingSettings](uint16_t selected){
+		startingSettings.theme = (Theme) selected;
 	});
 	lv_group_add_obj(inputGroup, *themePicker);
 

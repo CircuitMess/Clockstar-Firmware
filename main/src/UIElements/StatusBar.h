@@ -1,7 +1,6 @@
 #ifndef CLOCKSTAR_FIRMWARE_STATUSBAR_H
 #define CLOCKSTAR_FIRMWARE_STATUSBAR_H
 
-
 #include "LV_Interface/LVObject.h"
 #include "ClockLabelSmall.h"
 #include "Services/Time.h"
@@ -10,6 +9,7 @@
 #include "Devices/Battery.h"
 #include "BatteryElement.h"
 
+// TODO: this will be active while changing themes, make sure to switch the theme of the status bar immediately
 class StatusBar : public LVObject {
 public:
 	explicit StatusBar(lv_obj_t* parent, bool showExtra = true);
@@ -40,6 +40,5 @@ private:
 	void setNotifIcon();
 
 };
-
 
 #endif //CLOCKSTAR_FIRMWARE_STATUSBAR_H

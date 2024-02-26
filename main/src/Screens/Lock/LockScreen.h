@@ -11,6 +11,7 @@
 #include "Devices/Input.h"
 #include "UIElements/ClockLabelBig.h"
 
+// TODO: functionality of this should be separated from UI and this should control UI, which can be different at times but needs same API for interacting with the user through different skins
 class LockScreen : public LVScreen {
 public:
 	LockScreen();

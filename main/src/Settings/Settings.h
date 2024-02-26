@@ -22,6 +22,7 @@ struct SettingsStruct {
 	uint8_t sleepTime = 1;
 	bool ledEnable = true;
 	bool motionDetection = true;
+	Theme theme = Theme::Default;
 };
 
 class Settings {
