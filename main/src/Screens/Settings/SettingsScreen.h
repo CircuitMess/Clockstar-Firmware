@@ -45,6 +45,7 @@ private:
 	DiscreteSliderElement* sleepSlider;
 	LabelElement* saveAndExit;
 	BoolElement* motionSwitch;
+	BoolElement* rotationSwitch;
 
 	std::unique_ptr<LVModal> timePickerModal;
 

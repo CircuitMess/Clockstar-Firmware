@@ -22,9 +22,9 @@ protected:
 
 	void transition(std::function<std::unique_ptr<LVScreen>()> create);
 
-private:
 	LVGL* lvgl = nullptr;
 
+private:
 	void start(LVGL* lvgl);
 	void stop();
 
