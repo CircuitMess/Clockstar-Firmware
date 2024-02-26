@@ -17,8 +17,8 @@ private:
 	lv_obj_t* icons[NumIcons]{};
 
 	static constexpr const char* IconPaths[12] = {
-			"S:/clockIcons/0.bin", "S:/clockIcons/1.bin", "S:/clockIcons/2.bin", "S:/clockIcons/3.bin", "S:/clockIcons/4.bin", "S:/clockIcons/5.bin",
-			"S:/clockIcons/6.bin", "S:/clockIcons/7.bin", "S:/clockIcons/8.bin", "S:/clockIcons/9.bin", "S:/clockIcons/colon.bin", "S:/clockIcons/space.bin"
+			"S:/default/clock/0.bin", "S:/default/clock/1.bin", "S:/default/clock/2.bin", "S:/default/clock/3.bin", "S:/default/clock/4.bin", "S:/default/clock/5.bin",
+			"S:/default/clock/6.bin", "S:/default/clock/7.bin", "S:/default/clock/8.bin", "S:/default/clock/9.bin", "S:/default/clock/colon.bin", "S:/default/clock/space.bin"
 	};
 };
 

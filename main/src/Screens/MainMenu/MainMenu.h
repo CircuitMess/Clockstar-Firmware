@@ -31,11 +31,11 @@ private:
 		const char* iconAltPath = nullptr;
 	};
 	static constexpr ItemInfo ItemInfos[] = {
-			{ "Find my phone",    "Ringing phone...",                     "S:/menu/find.bin",       "S:/menu/find.bin" },
-			{ "Level",            nullptr,                                "S:/menu/level.bin",      nullptr },
-			{ "Theremin",         nullptr,                                "S:/menu/theremin.bin",   nullptr },
-			{ "Phone connection", ConnDesc[(int) Phone::PhoneType::None], "S:/menu/connection.bin", "S:/menu/connection.bin" },
-			{ "Settings",         nullptr,                                "S:/menu/settings.bin",   nullptr }
+			{ "Find my phone",    "Ringing phone...",                     "S:/default/menu/find.bin",       "S:/default/menu/find.bin" },
+			{ "Level",            nullptr,                                "S:/default/menu/level.bin",      nullptr },
+			{ "Theremin",         nullptr,                                "S:/default/menu/theremin.bin",   nullptr },
+			{ "Phone connection", ConnDesc[(int) Phone::PhoneType::None], "S:/default/menu/connection.bin", "S:/default/menu/connection.bin" },
+			{ "Settings",         nullptr,                                "S:/default/menu/settings.bin",   nullptr }
 	};
 	static constexpr uint8_t ItemCount = sizeof(ItemInfos) / sizeof(ItemInfos[0]);
 

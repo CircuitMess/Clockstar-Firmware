@@ -10,6 +10,7 @@
 #include "Slider.h"
 #include "Devices/Input.h"
 #include "UIElements/ClockLabelBig.h"
+#include "LockSkin.h"
 
 // TODO: functionality of this should be separated from UI and this should control UI, which can be different at times but needs same API for interacting with the user through different skins
 class LockScreen : public LVScreen {
@@ -34,21 +35,17 @@ private:
 	 * `-- item
 	 */
 
-	lv_obj_t* main;
+	LockSkin* skin = nullptr;
 
-	lv_obj_t* mainTop;
+	/*lv_obj_t* mainTop;
 
 	lv_obj_t* mainMid;
-	ClockLabelBig* clock;
 	lv_obj_t* icons;
 
-	Slider* locker;
 	lv_obj_t* playing;
 	lv_obj_t* lock;
 
-	lv_obj_t* rest;
-
-	StatusBar* status;
+	lv_obj_t* rest;*/
 
 	Time& ts;
 	Phone& phone;
@@ -63,7 +60,7 @@ private:
 	};
 	std::unordered_map<const char*, NotifIcon> notifIcons;
 	static constexpr uint8_t MaxIconsCount = MaxNotifs;
-	static constexpr const char* EtcIconPath = "S:/icon/etc.bin";
+	static constexpr const char* EtcIconPath = "S:/default/icon/etc.bin";
 
 	void onStarting() override;
 	void onStart() override;

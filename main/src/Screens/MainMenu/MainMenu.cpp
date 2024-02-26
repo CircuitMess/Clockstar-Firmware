@@ -22,7 +22,7 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
-	lv_obj_set_style_bg_img_src(bg, "S:/menu/bg.bin", 0);
+	lv_obj_set_style_bg_img_src(bg, "S:/default/menu/bg.bin", 0);
 
 	container = lv_obj_create(*this);
 	lv_obj_set_style_pad_all(container, 1, 0);
