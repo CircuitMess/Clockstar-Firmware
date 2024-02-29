@@ -10,6 +10,7 @@
 #include "TimePickerModal.h"
 #include "PickerElement.h"
 #include "Services/Time.h"
+#include "Filepaths.hpp"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
@@ -22,7 +23,7 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
-	lv_obj_set_style_bg_img_src(bg, "S:/bg.bin", 0);
+	lv_obj_set_style_bg_img_src(bg, File::Background, 0);
 
 	container = lv_obj_create(*this);
 	lv_obj_set_size(container, 128, 128 - TopPadding);
@@ -48,7 +49,7 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	});
 	lv_group_add_obj(inputGroup, *manualTime);
 
-	audioSwitch = new BoolElement(container, "Sound", [this](bool value){
+	audioSwitch = new BoolElement(container, "Sound", [](bool value){
 		if(value){
 			auto status = (StatusCenter*) Services.get(Service::Status);
 			status->beep();

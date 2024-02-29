@@ -9,6 +9,7 @@
 #include "Notifs/Phone.h"
 #include "Devices/Input.h"
 #include "MenuItemAlt.h"
+#include "Filepaths.hpp"
 
 class MainMenu : public LVScreen {
 public:
@@ -31,11 +32,11 @@ private:
 		const char* iconAltPath = nullptr;
 	};
 	static constexpr ItemInfo ItemInfos[] = {
-			{ "Find my phone",    "Ringing phone...",                     "S:/default/menu/find.bin",       "S:/default/menu/find.bin" },
-			{ "Level",            nullptr,                                "S:/default/menu/level.bin",      nullptr },
-			{ "Theremin",         nullptr,                                "S:/default/menu/theremin.bin",   nullptr },
-			{ "Phone connection", ConnDesc[(int) Phone::PhoneType::None], "S:/default/menu/connection.bin", "S:/default/menu/connection.bin" },
-			{ "Settings",         nullptr,                                "S:/default/menu/settings.bin",   nullptr }
+			{ "Find my phone",    "Ringing phone...",                     File::Menu::Default::Find,       File::Menu::Default::Find },
+			{ "Level",            nullptr,                                File::Menu::Default::Level,      nullptr },
+			{ "Theremin",         nullptr,                                File::Menu::Default::Theremin,   nullptr },
+			{ "Phone connection", ConnDesc[(int) Phone::PhoneType::None], File::Menu::Default::Connection, File::Menu::Default::Connection },
+			{ "Settings",         nullptr,                                File::Menu::Default::Settings,   nullptr }
 	};
 	static constexpr uint8_t ItemCount = sizeof(ItemInfos) / sizeof(ItemInfos[0]);
 

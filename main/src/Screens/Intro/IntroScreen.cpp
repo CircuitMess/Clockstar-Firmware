@@ -1,11 +1,12 @@
 #include "IntroScreen.h"
 #include "Util/stdafx.h"
 #include "Screens/Lock/LockScreen.h"
+#include "Filepaths.hpp"
 
 IntroScreen::IntroScreen(){
 	bg = lv_obj_create(*this);
 	lv_obj_set_style_bg_img_opa(bg, LV_OPA_COVER, 0);
-	lv_obj_set_style_bg_img_src(bg, "S:/intro/orangeBg.bin", 0);
+	lv_obj_set_style_bg_img_src(bg, File::Intro::OrangeBackground, 0);
 	lv_obj_move_background(bg);
 	lv_obj_add_flag(bg, LV_OBJ_FLAG_FLOATING);
 

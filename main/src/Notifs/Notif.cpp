@@ -1,29 +1,30 @@
 #include "Notif.h"
 #include <unordered_map>
+#include "Filepaths.hpp"
 
 static const std::unordered_map<std::string, const char*> appMap = {
-		{ "Messenger", "S:/default/icon/app_mess.bin" },
-		{ "WhatsApp",  "S:/default/icon/app_wapp.bin" },
-		{ "Messages",  "S:/default/icon/app_sms.bin" },
-		{ "Instagram", "S:/default/icon/app_inst.bin" },
-		{ "Snapchat",  "S:/default/icon/app_snap.bin" },
-		{ "TikTok",    "S:/default/icon/app_tiktok.bin" }
+		{ "Messenger", File::Icons::Default::AppMess },
+		{ "WhatsApp",  File::Icons::Default::AppWapp },
+		{ "Messages",  File::Icons::Default::AppSms },
+		{ "Instagram", File::Icons::Default::AppInst },
+		{ "Snapchat",  File::Icons::Default::AppSnap },
+		{ "TikTok",    File::Icons::Default::AppTiktok }
 };
 
 static const std::unordered_map<Notif::Category, const char*> catMap = {
-		{ Notif::Category::Other,              "S:/default/icon/cat_other.bin" },
-		{ Notif::Category::IncomingCall,       "S:/default/icon/call_in.bin" },
-		{ Notif::Category::MissedCall,         "S:/default/icon/call_miss.bin" },
-		{ Notif::Category::Voicemail,          "S:/default/icon/cat_other.bin" },
-		{ Notif::Category::Social,             "S:/default/icon/cat_soc.bin" },
-		{ Notif::Category::Schedule,           "S:/default/icon/cat_sched.bin" },
-		{ Notif::Category::Email,              "S:/default/icon/cat_email.bin" },
-		{ Notif::Category::News,               "S:/default/icon/cat_news.bin" },
-		{ Notif::Category::HealthAndFitness,   "S:/default/icon/cat_health.bin" },
-		{ Notif::Category::BusinessAndFinance, "S:/default/icon/cat_fin.bin" },
-		{ Notif::Category::Location,           "S:/default/icon/cat_loc.bin" },
-		{ Notif::Category::Entertainment,      "S:/default/icon/cat_entert.bin" },
-		{ Notif::Category::OutgoingCall,       "S:/default/icon/call_out.bin" }
+		{ Notif::Category::Other,              File::Icons::Default::CatOther },
+		{ Notif::Category::IncomingCall,       File::Icons::Default::CallIn },
+		{ Notif::Category::MissedCall,         File::Icons::Default::CallMiss },
+		{ Notif::Category::Voicemail,          File::Icons::Default::CatOther },
+		{ Notif::Category::Social,             File::Icons::Default::CatSoc },
+		{ Notif::Category::Schedule,           File::Icons::Default::CatSched },
+		{ Notif::Category::Email,              File::Icons::Default::CatEmail },
+		{ Notif::Category::News,               File::Icons::Default::CatNews },
+		{ Notif::Category::HealthAndFitness,   File::Icons::Default::CatHealth },
+		{ Notif::Category::BusinessAndFinance, File::Icons::Default::CatFin },
+		{ Notif::Category::Location,           File::Icons::Default::CatLoc },
+		{ Notif::Category::Entertainment,      File::Icons::Default::CatEntert },
+		{ Notif::Category::OutgoingCall,       File::Icons::Default::CallOut }
 };
 
 const char* iconPath(const Notif& notif){
@@ -37,5 +38,5 @@ const char* iconPath(const Notif& notif){
 		return itCat->second;
 	}
 
-	return "S:/icon/cat_other.bin";
+	return File::Icons::Default::CatOther;
 }

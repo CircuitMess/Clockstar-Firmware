@@ -3,17 +3,17 @@
 
 #include <nvs.h>
 
-enum class Theme : uint8_t {
-	Default,
-	Theme1,
-	Theme2,
-	Theme3,
-	Theme4,
-	Theme5,
-	Theme6,
-	Theme7,
-	Theme8,
-	Theme9
+enum Theme {
+	Default [[maybe_unused]],
+	Theme1 [[maybe_unused]],
+	Theme2 [[maybe_unused]],
+	Theme3 [[maybe_unused]],
+	Theme4 [[maybe_unused]],
+	Theme5 [[maybe_unused]],
+	Theme6 [[maybe_unused]],
+	Theme7 [[maybe_unused]],
+	Theme8 [[maybe_unused]],
+	Theme9 [[maybe_unused]]
 };
 
 struct SettingsStruct {
@@ -22,7 +22,7 @@ struct SettingsStruct {
 	uint8_t sleepTime = 1;
 	bool ledEnable = true;
 	bool motionDetection = true;
-	Theme theme = Theme::Default;
+	Theme theme = Default;
 };
 
 class Settings {

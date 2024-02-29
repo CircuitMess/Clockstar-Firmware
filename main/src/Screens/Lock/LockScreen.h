@@ -11,6 +11,7 @@
 #include "Devices/Input.h"
 #include "UIElements/ClockLabelBig.h"
 #include "LockSkin.h"
+#include "Filepaths.hpp"
 
 // TODO: functionality of this should be separated from UI and this should control UI, which can be different at times but needs same API for interacting with the user through different skins
 class LockScreen : public LVScreen {
@@ -60,7 +61,7 @@ private:
 	};
 	std::unordered_map<const char*, NotifIcon> notifIcons;
 	static constexpr uint8_t MaxIconsCount = MaxNotifs;
-	static constexpr const char* EtcIconPath = "S:/default/icon/etc.bin";
+	static constexpr const char* EtcIconPath = File::Icons::Default::Etc;
 
 	void onStarting() override;
 	void onStart() override;

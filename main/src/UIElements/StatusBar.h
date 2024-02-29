@@ -33,12 +33,12 @@ private:
 	lv_obj_t* phoneIcon;
 	lv_obj_t* notifIcon;
 	ClockLabelSmall* clock = nullptr;
-	BatteryElement* batDevice;
+	BatteryElement* batDevice = nullptr;
 
 	void setPhoneConnected();
 	void setDeviceBattery();
 	void setNotifIcon();
-
+	void buildUI();
 };
 
 #endif //CLOCKSTAR_FIRMWARE_STATUSBAR_H

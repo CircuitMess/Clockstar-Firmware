@@ -29,6 +29,7 @@
 #include "JigHWTest/JigHWTest.h"
 #include "Util/Notes.h"
 #include "Screens/Intro/IntroScreen.h"
+#include "Filepaths.hpp"
 
 LVGL* lvgl;
 BacklightBrightness* bl;

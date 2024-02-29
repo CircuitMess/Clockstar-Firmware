@@ -1,8 +1,8 @@
 #ifndef CLOCKSTAR_FIRMWARE_BATTERYELEMENT_H
 #define CLOCKSTAR_FIRMWARE_BATTERYELEMENT_H
 
-
 #include "LV_Interface/LVObject.h"
+#include "Filepaths.hpp"
 
 class BatteryElement : public LVObject {
 public:
@@ -26,7 +26,7 @@ private:
 	uint32_t chargingMillis = 0;
 
 	static constexpr const char* BatteryIcons[] = {
-			"S:/icons/batteryEmpty.bin", "S:/icons/batteryLow.bin", "S:/icons/batteryMid.bin", "S:/icons/batteryFull.bin"
+			File::Menu::Default::BatteryEmpty, File::Menu::Default::BatteryLow, File::Menu::Default::BatteryMid, File::Menu::Default::BatteryFull
 	};
 };
 

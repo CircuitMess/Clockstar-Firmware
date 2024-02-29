@@ -6,7 +6,7 @@
 #include "Screens/MainMenu/MainMenu.h"
 #include "Services/StatusCenter.h"
 #include "Services/SleepMan.h"
-
+#include "Filepaths.hpp"
 
 Theremin::Theremin() : audio(*(ChirpSystem*) Services.get(Service::Audio)), sem(xSemaphoreCreateBinary()),
 					   timer(getToneDuration(sequence.getSize()), timerCB, sem),
@@ -155,15 +155,15 @@ void Theremin::buildUI(){
 	bg = lv_obj_create(*this);
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_size(bg, 128, 128);
-	lv_obj_set_style_bg_img_src(bg, "S:/bg.bin", 0);
+	lv_obj_set_style_bg_img_src(bg, File::Background, 0);
 	lv_obj_set_style_bg_img_tiled(bg, true, 0);
 
 
 	sliderHorizontal = lv_slider_create(bg);
 	lv_obj_set_pos(sliderHorizontal, HorizontalBarX, HorizontalBarY);
 	lv_obj_set_size(sliderHorizontal, SliderLength, SliderWidth);
-	lv_obj_set_style_bg_img_src(sliderHorizontal, "S:/theremin/horizontalBar.bin", 0);
-	lv_obj_set_style_bg_img_src(sliderHorizontal, "S:/theremin/dot.bin", LV_PART_KNOB);
+	lv_obj_set_style_bg_img_src(sliderHorizontal, File::Theremin::HorizontalBar, 0);
+	lv_obj_set_style_bg_img_src(sliderHorizontal, File::Theremin::Dot, LV_PART_KNOB);
 	lv_obj_set_style_pad_hor(sliderHorizontal, 5, LV_PART_MAIN);
 	lv_slider_set_range(sliderHorizontal, 0, SliderRange);
 
@@ -171,8 +171,8 @@ void Theremin::buildUI(){
 	sliderVertical = lv_slider_create(bg);
 	lv_obj_set_pos(sliderVertical, VerticalBarX, VerticalBarY);
 	lv_obj_set_size(sliderVertical, SliderWidth, SliderLength);
-	lv_obj_set_style_bg_img_src(sliderVertical, "S:/theremin/verticalBar.bin", 0);
-	lv_obj_set_style_bg_img_src(sliderVertical, "S:/theremin/dot.bin", LV_PART_KNOB);
+	lv_obj_set_style_bg_img_src(sliderVertical, File::Theremin::VerticalBar, 0);
+	lv_obj_set_style_bg_img_src(sliderVertical, File::Theremin::Dot, LV_PART_KNOB);
 	lv_obj_set_style_pad_bottom(sliderVertical, 5, LV_PART_MAIN);
 	lv_slider_set_range(sliderHorizontal, 0, SliderRange);
 
@@ -188,10 +188,10 @@ void Theremin::buildUI(){
 	lv_label_set_text(label, "Tilt");
 	lv_obj_add_style(label, textStyle, 0);
 	auto arrow = lv_img_create(textVertical);
-	lv_img_set_src(arrow, "S:/theremin/up.bin");
+	lv_img_set_src(arrow, File::Theremin::Up);
 	lv_obj_set_style_pad_left(arrow, 1, 0);
 	arrow = lv_img_create(textVertical);
-	lv_img_set_src(arrow, "S:/theremin/down.bin");
+	lv_img_set_src(arrow, File::Theremin::Down);
 	label = lv_label_create(textVertical);
 	lv_label_set_text(label, "to change");
 	lv_obj_add_style(label, textStyle, 0);
@@ -214,10 +214,10 @@ void Theremin::buildUI(){
 	lv_label_set_text(label, "Tilt");
 	lv_obj_add_style(label, textStyle, 0);
 	arrow = lv_img_create(textHorizontal);
-	lv_img_set_src(arrow, "S:/theremin/left.bin");
+	lv_img_set_src(arrow, File::Theremin::Left);
 	lv_obj_set_style_pad_left(arrow, 1, 0);
 	arrow = lv_img_create(textHorizontal);
-	lv_img_set_src(arrow, "S:/theremin/right.bin");
+	lv_img_set_src(arrow, File::Theremin::Right);
 	label = lv_label_create(textHorizontal);
 	lv_label_set_text(label, "to change");
 	lv_obj_add_style(label, textStyle, 0);
