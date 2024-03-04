@@ -5,6 +5,7 @@
 #include "Filepaths.hpp"
 #include "Devices/Battery.h"
 #include "Util/Events.h"
+#include "Settings/Settings.h"
 
 class BatteryElement : public LVObject {
 public:
@@ -28,7 +29,8 @@ private:
 	static constexpr uint8_t BatteryLevels = 4;
 	uint32_t chargingMillis = 0;
 
-	static constexpr const char* BatteryIcons[] = {
+	void setupFilePaths(Theme theme);
+	const char* BatteryIcons[4] = {
 			File::Menu::Theme1::BatteryEmpty, File::Menu::Theme1::BatteryLow, File::Menu::Theme1::BatteryMid, File::Menu::Theme1::BatteryFull
 	};
 

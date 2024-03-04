@@ -3,6 +3,9 @@
 #include "Util/Services.h"
 
 BatteryElement::BatteryElement(lv_obj_t* parent) : LVObject(parent), battery(*(Battery*) Services.get(Service::Battery)), queue(6){
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	setupFilePaths(settings->get().theme.theme);
+
 	lv_obj_set_size(*this, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 	img = lv_img_create(*this);
 
@@ -33,7 +36,7 @@ void BatteryElement::set(BatteryElement::Level level){
 		chargingMillis = millis();
 		chargingIndex = 0;
 		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
-		lv_img_set_src(img, File::Menu::Theme1::BatteryLow);
+		lv_img_set_src(img, BatteryIcons[1]);
 	}else{
 		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
 		lv_img_set_src(img, BatteryIcons[level]);
@@ -73,4 +76,11 @@ void BatteryElement::loop(){
 			lv_img_set_src(img, BatteryIcons[chargingIndex]);
 		}
 	}
+}
+
+void BatteryElement::setupFilePaths(Theme theme){
+	BatteryIcons[0] = THEMED_FILE(Menu, BatteryEmpty, theme);
+	BatteryIcons[1] = THEMED_FILE(Menu, BatteryLow, theme);
+	BatteryIcons[2] = THEMED_FILE(Menu, BatteryMid, theme);
+	BatteryIcons[3] = THEMED_FILE(Menu, BatteryFull, theme);
 }

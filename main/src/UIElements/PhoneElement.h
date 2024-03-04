@@ -19,6 +19,10 @@ private:
 	lv_obj_t* phoneIcon;
 	lv_obj_t* notifIcon;
 
+	const char* phonePath;
+	const char* phoneDcPath;
+	const char* notifPath;
+
 	void setPhoneConnected();
 	void setNotifIcon();
 };
