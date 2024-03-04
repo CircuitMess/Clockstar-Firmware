@@ -3,12 +3,10 @@
 #include "Filepaths.hpp"
 #include "Settings/Settings.h"
 
-StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), showExtra(showExtra){
+StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), showExtra(showExtra){
 	buildUI();
 
 	// Events::listen(Facility::Phone, &queue); TODO: uncomment once evnet processing is actually hapening
-
-	setPhoneConnected();
 }
 
 void StatusBar::loop(){
@@ -16,37 +14,9 @@ void StatusBar::loop(){
 		clock->loop();
 	}
 
-	if(connected ^ phone.isConnected()){
-		setPhoneConnected();
-	}
-
-	if(showExtra && notifPresent ^ (phone.getNotifsCount() > 0)){
-		setNotifIcon();
-	}
+	phone->loop();
 
 	batDevice->loop();
-}
-
-void StatusBar::setPhoneConnected(){
-	connected = phone.isConnected();
-
-	if(connected){
-		lv_img_set_src(phoneIcon, File::Menu::Default::Phone);
-	}else{
-		lv_img_set_src(phoneIcon, File::Menu::Default::PhoneDisconnected);
-	}
-
-	lv_obj_refr_size(left);
-}
-
-void StatusBar::setNotifIcon(){
-	if(phone.getNotifsCount()){
-		lv_obj_clear_flag(notifIcon, LV_OBJ_FLAG_HIDDEN);
-		notifPresent = true;
-	}else{
-		lv_obj_add_flag(notifIcon, LV_OBJ_FLAG_HIDDEN);
-		notifPresent = false;
-	}
 }
 
 void StatusBar::buildUI(){
@@ -63,32 +33,14 @@ void StatusBar::buildUI(){
 	lv_obj_set_flex_flow(left, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(left, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	right = lv_obj_create(*this);
-	lv_obj_set_size(right, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-	lv_obj_set_style_pad_gap(right, 2, 0);
-
-	lv_obj_set_flex_flow(right, LV_FLEX_FLOW_ROW);
-	lv_obj_set_flex_align(right, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+	delete phone;
+	phone = new PhoneElement(*this, showExtra);
 
 	if(showExtra){
 		clock = new ClockLabelSmall(*this);
 		lv_obj_add_flag(*clock, LV_OBJ_FLAG_FLOATING);
 		lv_obj_center(*clock);
-
-		notifIcon = lv_img_create(right);
-
-		Settings* settings = (Settings*) Services.get(Service::Settings);
-		if(settings == nullptr){
-			return;
-		}
-
-		const Theme theme = settings->get().theme.theme;
-
-		lv_img_set_src(notifIcon, THEMED_FILE(Icons, CatOther, theme));
-		setNotifIcon();
 	}
-
-	phoneIcon = lv_img_create(right);
 
 	delete batDevice;
 	batDevice = new BatteryElement(left);
