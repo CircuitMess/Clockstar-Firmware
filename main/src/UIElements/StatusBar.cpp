@@ -113,7 +113,7 @@ void StatusBar::buildUI(){
 			return;
 		}
 
-		const Theme theme = settings->get().theme;
+		const Theme theme = settings->get().theme.theme;
 
 		lv_img_set_src(notifIcon, THEMED_FILE(Icons, CatOther, theme));
 		setNotifIcon();

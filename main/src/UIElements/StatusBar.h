@@ -9,7 +9,6 @@
 #include "Devices/Battery.h"
 #include "BatteryElement.h"
 
-// TODO: this will be active while changing themes, make sure to switch the theme of the status bar immediately
 class StatusBar : public LVObject {
 public:
 	explicit StatusBar(lv_obj_t* parent, bool showExtra = true);

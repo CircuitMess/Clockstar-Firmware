@@ -59,7 +59,7 @@ void LockSkin::buildUI(){
 		return;
 	}
 
-	const Theme theme = settings->get().theme;
+	const Theme theme = settings->get().theme.theme;
 
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_COLUMN);

@@ -674,16 +674,16 @@ namespace File {
 	}
 }
 
-#define THEMED_FILE(Category, Filename, theme) 							\
-	theme == Default ? File::Category::Default::Filename : 				\
-	theme == Theme1 ? File::Category::Theme1::Filename : 				\
-	theme == Theme2 ? File::Category::Theme2::Filename : 				\
-	theme == Theme3 ? File::Category::Theme3::Filename : 				\
-	theme == Theme4 ? File::Category::Theme4::Filename : 				\
-	theme == Theme5 ? File::Category::Theme5::Filename : 				\
-	theme == Theme6 ? File::Category::Theme6::Filename : 				\
-	theme == Theme7 ? File::Category::Theme7::Filename : 				\
-	theme == Theme8 ? File::Category::Theme8::Filename : 				\
-	theme == Theme9 ? File::Category::Theme9::Filename : ""				\
+#define THEMED_FILE(Category, Filename, theme) 									\
+	theme == Theme::Default ? File::Category::Default::Filename : 				\
+	theme == Theme::Theme1 ? File::Category::Theme1::Filename : 				\
+	theme == Theme::Theme2 ? File::Category::Theme2::Filename : 				\
+	theme == Theme::Theme3 ? File::Category::Theme3::Filename : 				\
+	theme == Theme::Theme4 ? File::Category::Theme4::Filename : 				\
+	theme == Theme::Theme5 ? File::Category::Theme5::Filename : 				\
+	theme == Theme::Theme6 ? File::Category::Theme6::Filename : 				\
+	theme == Theme::Theme7 ? File::Category::Theme7::Filename : 				\
+	theme == Theme::Theme8 ? File::Category::Theme8::Filename : 				\
+	theme == Theme::Theme9 ? File::Category::Theme9::Filename : ""				\
 
 #endif //ARTEMIS_FIRMWARE_FILEPATHS_HPP

@@ -2,8 +2,9 @@
 #define CLOCKSTAR_FIRMWARE_SETTINGS_H
 
 #include <nvs.h>
+#include "core/lv_theme.h"
 
-enum Theme {
+enum class Theme : uint8_t {
 	Default [[maybe_unused]],
 	Theme1 [[maybe_unused]],
 	Theme2 [[maybe_unused]],
@@ -16,13 +17,29 @@ enum Theme {
 	Theme9 [[maybe_unused]]
 };
 
+struct ThemeStruct {
+	Theme theme = Theme::Default;
+	lv_theme_t* visualTheme = nullptr;
+};
+
+const static inline ThemeStruct DefaultTheme = {};
+const static inline ThemeStruct Theme1 = { Theme::Theme1 };
+const static inline ThemeStruct Theme2 = { Theme::Theme2 };
+const static inline ThemeStruct Theme3 = { Theme::Theme3 };
+const static inline ThemeStruct Theme4 = { Theme::Theme4 };
+const static inline ThemeStruct Theme5 = { Theme::Theme5 };
+const static inline ThemeStruct Theme6 = { Theme::Theme6 };
+const static inline ThemeStruct Theme7 = { Theme::Theme7 };
+const static inline ThemeStruct Theme8 = { Theme::Theme8 };
+const static inline ThemeStruct Theme9 = { Theme::Theme9 };
+
 struct SettingsStruct {
 	bool notificationSounds = true;
 	uint8_t screenBrightness = 100;
 	uint8_t sleepTime = 1;
 	bool ledEnable = true;
 	bool motionDetection = true;
-	Theme theme = Default;
+	ThemeStruct theme = {};
 };
 
 class Settings {
