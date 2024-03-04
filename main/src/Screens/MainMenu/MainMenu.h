@@ -10,6 +10,7 @@
 #include "Devices/Input.h"
 #include "MenuItemAlt.h"
 #include "Filepaths.hpp"
+#include "Settings/Settings.h"
 
 class MainMenu : public LVScreen {
 public:
@@ -31,7 +32,7 @@ private:
 		const char* iconPath = nullptr;
 		const char* iconAltPath = nullptr;
 	};
-	static constexpr ItemInfo ItemInfos[] = {
+	ItemInfo ItemInfos[5] = {
 			{ "Find my phone",    "Ringing phone...",                     File::Menu::Default::Find,       File::Menu::Default::Find },
 			{ "Level",            nullptr,                                File::Menu::Default::Level,      nullptr },
 			{ "Theremin",         nullptr,                                File::Menu::Default::Theremin,   nullptr },
@@ -39,6 +40,7 @@ private:
 			{ "Settings",         nullptr,                                File::Menu::Default::Settings,   nullptr }
 	};
 	static constexpr uint8_t ItemCount = sizeof(ItemInfos) / sizeof(ItemInfos[0]);
+	void setupItemPaths(Theme theme);
 
 	void setConnAlts();
 

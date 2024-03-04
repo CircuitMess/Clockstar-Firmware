@@ -11,6 +11,10 @@
 uint8_t  MainMenu::lastIndex = UINT8_MAX;
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
+	Settings* settings = (Settings*) Services.get(Service::Settings);
+	const auto theme = settings->get().theme.theme;
+	setupItemPaths(theme);
+
 	lv_img_cache_set_size(8);
 
 	lv_obj_set_size(*this, 128, LV_SIZE_CONTENT);
@@ -22,7 +26,7 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
-	lv_obj_set_style_bg_img_src(bg, File::Menu::Default::Background, 0);
+	lv_obj_set_style_bg_img_src(bg, THEMED_FILE(Menu, Background, theme), 0);
 
 	static constexpr auto statusBarHeight = 15;
 	container = lv_obj_create(*this);
@@ -92,6 +96,16 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 MainMenu::~MainMenu(){
 	Events::unlisten(&queue);
 	lv_img_cache_set_size(LV_IMG_CACHE_DEF_SIZE);
+}
+
+void MainMenu::setupItemPaths(Theme theme){
+	ItemInfos[0].iconPath = THEMED_FILE(Menu, Find, theme);
+	ItemInfos[0].iconAltPath = THEMED_FILE(Menu, Find, theme);
+	ItemInfos[1].iconPath = THEMED_FILE(Menu, Level, theme);
+	ItemInfos[2].iconPath = THEMED_FILE(Menu, Theremin, theme);
+	ItemInfos[3].iconPath = THEMED_FILE(Menu, Connection, theme);
+	ItemInfos[3].iconAltPath = THEMED_FILE(Menu, Connection, theme);
+	ItemInfos[4].iconPath = THEMED_FILE(Menu, Settings, theme);
 }
 
 void MainMenu::resetMenuIndex(){
