@@ -16,6 +16,8 @@ public:
 
 	void loop();
 
+	void set24hFormat(bool format);
+
 private:
 	bool showExtra = false;
 

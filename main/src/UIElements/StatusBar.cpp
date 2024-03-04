@@ -45,3 +45,9 @@ void StatusBar::buildUI(){
 	delete batDevice;
 	batDevice = new BatteryElement(left);
 }
+
+void StatusBar::set24hFormat(bool format){
+	if(!clock) return;
+
+	clock->set24hFormat(format);
+}

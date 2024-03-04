@@ -39,6 +39,8 @@ struct SettingsStruct {
 	uint8_t sleepTime = 1;
 	bool ledEnable = true;
 	bool motionDetection = true;
+	bool screenRotate = false;
+	bool timeFormat24h = true;
 	ThemeStruct theme = {};
 };
 

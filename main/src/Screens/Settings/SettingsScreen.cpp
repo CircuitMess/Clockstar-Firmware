@@ -7,10 +7,12 @@
 #include "LabelElement.h"
 #include "DiscreteSliderElement.h"
 #include "Services/StatusCenter.h"
+#include "LV_Interface/LVGL.h"
 #include "TimePickerModal.h"
 #include "PickerElement.h"
 #include "Services/Time.h"
 #include "Filepaths.hpp"
+#include "LV_Interface/InputLVGL.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
@@ -39,13 +41,21 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 
 	auto startingSettings = settings.get();
 
+	timeFormatSwitch = new BoolElement(container, "24-hour format", [this](bool value){
+		auto s = settings.get();
+		s.timeFormat24h = value;
+		settings.set(s);
+		statusBar->set24hFormat(value);
+	}, startingSettings.timeFormat24h);
+	lv_group_add_obj(inputGroup, *timeFormatSwitch);
+
 	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.theme.theme, "Default \nTheme 1\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9", [&startingSettings](uint16_t selected){
 		startingSettings.theme.theme = (Theme) selected;
 	});
 	lv_group_add_obj(inputGroup, *themePicker);
 
 	manualTime = new LabelElement(container, "Adjust date/time", [this](){
-		timePickerModal = std::make_unique<TimePickerModal>(this, ts.getTime());
+		timePickerModal = new TimePickerModal(this, ts.getTime());
 	});
 	lv_group_add_obj(inputGroup, *manualTime);
 
@@ -91,6 +101,16 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.notificationSounds);
 	lv_group_add_obj(inputGroup, *motionSwitch);
 
+	rotationSwitch = new BoolElement(container, "Flip screen", [this](bool value){
+		auto s = settings.get();
+		s.motionDetection = value;
+		settings.set(s);
+		lvgl->rotateScreen(value);
+		lv_obj_invalidate(*this);
+		InputLVGL::getInstance()->invertDirections(value);
+	}, startingSettings.screenRotate);
+	lv_group_add_obj(inputGroup, *rotationSwitch);
+
 	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
 		transition([](){ return std::make_unique<MainMenu>(); });
 	});
@@ -108,7 +128,8 @@ void SettingsScreen::loop(){
 			auto eventData = (Input::Data*) evt.data;
 			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
 				if(timePickerModal){
-					timePickerModal.reset();
+					delete timePickerModal;
+					timePickerModal = nullptr;
 				}else{
 					free(evt.data);
 					transition([](){ return std::make_unique<MainMenu>(); });
@@ -129,11 +150,15 @@ void SettingsScreen::onStop(){
 	savedSettings.sleepTime = sleepSlider->getValue();
 	savedSettings.ledEnable = ledSwitch->getValue();
 	savedSettings.motionDetection = motionSwitch->getValue();
+	savedSettings.screenRotate = rotationSwitch->getValue();
+	savedSettings.timeFormat24h = timeFormatSwitch->getValue();
 	settings.set(savedSettings);
 	settings.store();
 
 	backlight.setBrightness(brightnessSlider->getValue());
 	imu.enableTiltDetection(motionSwitch->getValue());
+	lvgl->rotateScreen(rotationSwitch->getValue());
+	InputLVGL::getInstance()->invertDirections(rotationSwitch->getValue());
 	//TODO - apply sleep time
 
 	Events::unlisten(&queue);
@@ -144,11 +169,13 @@ void SettingsScreen::onStop(){
 }
 
 void SettingsScreen::onStarting(){
-	brightnessSlider->setValue(settings.get().screenBrightness);
-	audioSwitch->setValue(settings.get().notificationSounds);
-	ledSwitch->setValue(settings.get().ledEnable);
-	sleepSlider->setValue(settings.get().sleepTime);
-	motionSwitch->setValue(settings.get().motionDetection);
+	auto sets = settings.get();
+	brightnessSlider->setValue(sets.screenBrightness);
+	audioSwitch->setValue(sets.notificationSounds);
+	ledSwitch->setValue(sets.ledEnable);
+	sleepSlider->setValue(sets.sleepTime);
+	motionSwitch->setValue(sets.motionDetection);
+	rotationSwitch->setValue(sets.screenRotate);
 }
 
 void SettingsScreen::onStart(){

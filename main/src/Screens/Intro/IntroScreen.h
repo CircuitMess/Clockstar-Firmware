@@ -7,31 +7,41 @@
 class IntroScreen : public LVScreen {
 public:
 	IntroScreen();
-private:
-	void onStop() override;
+	virtual ~IntroScreen();
 private:
 	void onStart() override;
+	void onStop() override;
 	void loop() override;
-	lv_obj_t* bg;
-	lv_obj_t* imageConts[3];
-	lv_obj_t* images[3];
+
+	static constexpr const char* Cached[] = {
+			"/intro/geek.bin", "/intro/cm.bin", "/intro/space.bin", "/intro/artemis.bin",
+			"/intro/orangeBg.bin", "/intro/blackBg.bin"
+	};
+
 	static constexpr const char* ImagePaths[3] = {
 			File::Intro::GeekClub, File::Intro::CircuitMess, File::Intro::Space
 	};
 
 	static constexpr uint32_t ScrollTime = 500;
 	static constexpr uint32_t WaitTime = 1000;
-	static constexpr uint32_t InitialWaitTime = 2000;
+
+	lv_obj_t* bg;
+	lv_obj_t* imageConts[3];
+	lv_obj_t* images[3];
 
 	enum {
 		Scrolling, Waiting
 	} state = Waiting;
-	uint32_t counter = 0;
 
 	int8_t currentIndex = -1;
+	uint32_t animTime = 0;
 	lv_anim_t anim;
 
-	static void animFunc(void *, int32_t);
+	lv_obj_t* phase2;
+	void gotoPhase2();
+
+	static void animFuncScroll(void *, int32_t);
+	static void animFuncOpa(void *, int32_t);
 };
 
 
