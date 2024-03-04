@@ -7,20 +7,14 @@ namespace File {
 	[[maybe_unused]] constexpr const char* ModalBackground = "S:/ModalBg.bin";
 
 	namespace Theremin {
-		[[maybe_unused]] constexpr const char* Dot = "S:/theremin/dot.bin";
-		[[maybe_unused]] constexpr const char* Down = "S:/theremin/down.bin";
-		[[maybe_unused]] constexpr const char* HorizontalBar = "S:/theremin/horizontalBar.bin";
-		[[maybe_unused]] constexpr const char* VerticalBar = "S:/theremin/verticalBar.bin";
-		[[maybe_unused]] constexpr const char* Left = "S:/theremin/left.bin";
-		[[maybe_unused]] constexpr const char* Right = "S:/theremin/right.bin";
-		[[maybe_unused]] constexpr const char* Up = "S:/theremin/up.bin";
+		[[maybe_unused]] constexpr const char* DotHorizontal = "S:/theremin/dotHorizontal.bin";
+		[[maybe_unused]] constexpr const char* DotVertical = "S:/theremin/dotVertical.bin";
+		[[maybe_unused]] constexpr const char* Background = "S:/theremin/bg.bin";
 	}
 
 	namespace Level {
 		[[maybe_unused]] constexpr const char* Background = "S:/level/bg.bin";
-		[[maybe_unused]] constexpr const char* BubbleCenter = "S:/level/bubbleCenter.bin";
-		[[maybe_unused]] constexpr const char* BubbleHorizontal = "S:/level/bubbleHorizontal.bin";
-		[[maybe_unused]] constexpr const char* BubbleVertical = "S:/level/bubbleVertical.bin";
+		[[maybe_unused]] constexpr const char* Bubble = "S:/level/bubble.bin";
 		[[maybe_unused]] constexpr const char* MarkingsCenter = "S:/level/markingsCenter.bin";
 		[[maybe_unused]] constexpr const char* MarkingsHorizontal = "S:/level/markingsHorizontal.bin";
 		[[maybe_unused]] constexpr const char* MarkingsVertical = "S:/level/markingsVertical.bin";

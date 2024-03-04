@@ -76,11 +76,11 @@ void IntroScreen::gotoPhase2(){
 	lv_obj_set_size(phase2, 128, 128);
 	lv_obj_set_pos(phase2, 0, 0);
 
-	lv_obj_set_style_bg_img_src(phase2, "S:/intro/blackBg.bin", 0);
+	lv_obj_set_style_bg_img_src(phase2, File::Intro::BlackBackground, 0);
 	lv_obj_set_style_bg_img_opa(phase2, LV_OPA_COVER, 0);
 
 	auto img = lv_img_create(phase2);
-	lv_img_set_src(img, "S:/intro/artemis.bin");
+	lv_img_set_src(img, File::Intro::Artemis);
 	lv_obj_center(img);
 
 	lv_obj_set_style_opa(phase2, 0, 0);
