@@ -3,19 +3,12 @@
 #include "Filepaths.hpp"
 #include "Settings/Settings.h"
 
-StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))),
-														 battery(*((Battery*) Services.get(Service::Battery))), queue(12), showExtra(showExtra){
+StatusBar::StatusBar(lv_obj_t* parent, bool showExtra) : LVObject(parent), phone(*((Phone*) Services.get(Service::Phone))), showExtra(showExtra){
 	buildUI();
 
 	// Events::listen(Facility::Phone, &queue); TODO: uncomment once evnet processing is actually hapening
-	Events::listen(Facility::Battery, &queue);
 
 	setPhoneConnected();
-	setDeviceBattery();
-}
-
-StatusBar::~StatusBar(){
-	Events::unlisten(&queue);
 }
 
 void StatusBar::loop(){
@@ -31,14 +24,6 @@ void StatusBar::loop(){
 		setNotifIcon();
 	}
 
-	Event event{};
-	if(queue.get(event, 0)){
-		if(event.facility == Facility::Battery){
-			setDeviceBattery();
-		}
-		free(event.data);
-	}
-
 	batDevice->loop();
 }
 
@@ -52,22 +37,6 @@ void StatusBar::setPhoneConnected(){
 	}
 
 	lv_obj_refr_size(left);
-}
-
-void StatusBar::setDeviceBattery(){
-	if(battery.isCharging()){
-		batDevice->set(BatteryElement::Charging);
-		return;
-	}
-
-	auto level = battery.getLevel();
-	if(level >= Battery::COUNT){
-		batDevice->set(BatteryElement::Full);
-	}else if(level < Battery::VeryLow){
-		batDevice->set(BatteryElement::Empty);
-	}else{
-		batDevice->set((BatteryElement::Level) (battery.getLevel() - 1));
-	}
 }
 
 void StatusBar::setNotifIcon(){

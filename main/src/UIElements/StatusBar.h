@@ -13,15 +13,10 @@ class StatusBar : public LVObject {
 public:
 	explicit StatusBar(lv_obj_t* parent, bool showExtra = true);
 
-	~StatusBar() override;
-
 	void loop();
 
 private:
 	Phone& phone;
-	Battery& battery;
-
-	EventQueue queue;
 
 	bool connected = false;
 	bool showExtra = false;
@@ -35,7 +30,6 @@ private:
 	BatteryElement* batDevice = nullptr;
 
 	void setPhoneConnected();
-	void setDeviceBattery();
 	void setNotifIcon();
 	void buildUI();
 };
