@@ -7,55 +7,67 @@
 #include <algorithm>
 #include <unordered_map>
 
-static const char* Cached[] = {
-	"/bg.bin",
-	"/bg_bot.bin",
+static constexpr const char* Cached[] = {
+		"/lock_screen/bg.bin",
 
-	"/icons/batteryFull.bin",
-	"/icons/batteryLow.bin",
-	"/icons/batteryMid.bin",
-	"/icons/phone.bin",
-	"/icons/phoneDisconnected.bin",
+		"/menu/bg.bin",
+		"/menu/batteryFull.bin",
+		"/menu/batteryLow.bin",
+		"/menu/batteryMid.bin",
+		"/menu/phone.bin",
+		"/menu/phoneDc.bin",
 
-	"/default/icon/app_inst.bin",
-	"/default/icon/app_mess.bin",
-	"/default/icon/app_sms.bin",
-	"/default/icon/app_snap.bin",
-	"/default/icon/app_tiktok.bin",
-	"/default/icon/app_wapp.bin",
-	"/default/icon/call_in.bin",
-	"/default/icon/call_miss.bin",
-	"/default/icon/call_out.bin",
-	"/default/icon/cat_email.bin",
-	"/default/icon/cat_entert.bin",
-	"/default/icon/cat_fin.bin",
-	"/default/icon/cat_health.bin",
-	"/default/icon/cat_loc.bin",
-	"/default/icon/cat_news.bin",
-	"/default/icon/cat_other.bin",
-	"/default/icon/cat_sched.bin",
-	"/default/icon/cat_soc.bin",
-	"/default/icon/etc.bin",
-	"/default/icon/lock_closed.bin",
-	"/default/icon/lock_open.bin",
-	"/default/icon/trash.bin",
-	"/default/icon/trash_sel.bin",
-	"/default/icon/back.bin",
-	"/default/icon/back_sel.bin",
+		"/icon/app_inst.bin",
+		"/icon/app_mess.bin",
+		"/icon/app_sms.bin",
+		"/icon/app_snap.bin",
+		"/icon/app_tiktok.bin",
+		"/icon/app_wapp.bin",
+		"/icon/call_in.bin",
+		"/icon/call_miss.bin",
+		"/icon/call_out.bin",
+		"/icon/cat_email.bin",
+		"/icon/cat_entert.bin",
+		"/icon/cat_fin.bin",
+		"/icon/cat_health.bin",
+		"/icon/cat_loc.bin",
+		"/icon/cat_news.bin",
+		"/icon/cat_other.bin",
+		"/icon/cat_sched.bin",
+		"/icon/cat_soc.bin",
+		"/icon/etc.bin",
+		"/icon/lock_closed.bin",
+		"/icon/lock_open.bin",
+		"/icon/trash.bin",
+		"/icon/trash_sel.bin",
+		"/icon/back.bin",
+		"/icon/back_sel.bin",
 
-	"/clock/0.bin",
-	"/clock/1.bin",
-	"/clock/2.bin",
-	"/clock/3.bin",
-	"/clock/4.bin",
-	"/clock/5.bin",
-	"/clock/6.bin",
-	"/clock/7.bin",
-	"/clock/8.bin",
-	"/clock/9.bin",
-	"/clock/colon.bin",
-	"/clock/space.bin"
+		"/clock/0.bin",
+		"/clock/1.bin",
+		"/clock/2.bin",
+		"/clock/3.bin",
+		"/clock/4.bin",
+		"/clock/5.bin",
+		"/clock/6.bin",
+		"/clock/7.bin",
+		"/clock/8.bin",
+		"/clock/9.bin",
+		"/clock/colon.bin",
+		"/clock/space.bin"
 
+};
+
+static constexpr const char* ThemeDirs[] = {
+		"/theme1",
+		"/theme2",
+		"/theme3",
+		"/theme4",
+		"/theme5",
+		"/theme6",
+		"/theme7",
+		"/theme8",
+		"/theme9"
 };
 
 const char* TAG = "FSLVGL";
@@ -165,9 +177,23 @@ void FSLVGL::removeFromCache(const char* path){
 	it->deleteFlag = true;
 }
 
-void FSLVGL::loadCache(){
-	for(const auto& path : Cached){
-		addToCache(path);
+void FSLVGL::loadCache(Theme theme){
+	std::string themeDir = ThemeDirs[(uint8_t) theme];
+	for(const auto& p: Cached){
+		std::string filePath = themeDir;
+		filePath += p;
+		addToCache(filePath.c_str());
+	}
+}
+
+void FSLVGL::unloadCache(){
+	for(auto it = cache.begin(); it != cache.end();){
+		if(it->deleteFlag){
+			delete it->ramFile;
+			it = cache.erase(it);
+		}else{
+			++it;
+		}
 	}
 }
 

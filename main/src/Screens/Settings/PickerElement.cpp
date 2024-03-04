@@ -106,3 +106,7 @@ void PickerElement::startAnim(lv_obj_t* target){
 	lv_anim_set_var(&blinkAnim, target);
 	lv_anim_start(&blinkAnim);
 }
+
+uint8_t PickerElement::getValue() const{
+	return lv_roller_get_selected(picker);
+}

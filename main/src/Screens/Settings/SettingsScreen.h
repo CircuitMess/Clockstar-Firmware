@@ -53,6 +53,7 @@ private:
 	TimePickerModal* timePickerModal = nullptr;
 
 	static constexpr uint8_t TopPadding = 18;
+	static constexpr const char* ThemeNames = "Default \nTheme 1\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8";
 
 	EventQueue queue;
 

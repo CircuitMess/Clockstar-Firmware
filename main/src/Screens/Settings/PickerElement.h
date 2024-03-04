@@ -10,6 +10,8 @@ class PickerElement : public LVSelectable {
 public:
 	PickerElement(lv_obj_t* parent, const std::string& name, uint16_t startingIndex, const std::string& choiceNames, const std::function<void(uint16_t)>& cb);
 
+	uint8_t getValue() const;
+
 private:
 	void buildStyles();
 	void buildUI(const std::string& name);

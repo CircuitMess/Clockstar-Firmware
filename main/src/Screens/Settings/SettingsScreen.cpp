@@ -13,10 +13,11 @@
 #include "Services/Time.h"
 #include "Filepaths.hpp"
 #include "LV_Interface/InputLVGL.h"
+#include "LV_Interface/FSLVGL.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
-								   ts(*(Time*)Services.get(Service::Time)), queue(4){
+								   ts(*(Time*) Services.get(Service::Time)), queue(4){
 	lv_obj_set_size(*this, 128, 128);
 
 	bg = lv_obj_create(*this);
@@ -49,8 +50,8 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.timeFormat24h);
 	lv_group_add_obj(inputGroup, *timeFormatSwitch);
 
-	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.theme.theme, "Default \nTheme 1\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9", [&startingSettings](uint16_t selected){
-		startingSettings.theme.theme = (Theme) selected;
+	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.theme.theme, ThemeNames, [this](uint16_t selected){
+		//TODO - apply new theme
 	});
 	lv_group_add_obj(inputGroup, *themePicker);
 
@@ -152,6 +153,7 @@ void SettingsScreen::onStop(){
 	savedSettings.motionDetection = motionSwitch->getValue();
 	savedSettings.screenRotate = rotationSwitch->getValue();
 	savedSettings.timeFormat24h = timeFormatSwitch->getValue();
+	savedSettings.theme.theme = (Theme) themePicker->getValue();
 	settings.set(savedSettings);
 	settings.store();
 
@@ -159,6 +161,8 @@ void SettingsScreen::onStop(){
 	imu.enableTiltDetection(motionSwitch->getValue());
 	lvgl->rotateScreen(rotationSwitch->getValue());
 	InputLVGL::getInstance()->invertDirections(rotationSwitch->getValue());
+	FSLVGL::unloadCache();
+	FSLVGL::loadCache(savedSettings.theme.theme);
 	//TODO - apply sleep time
 
 	Events::unlisten(&queue);

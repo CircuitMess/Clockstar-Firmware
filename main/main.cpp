@@ -128,7 +128,7 @@ void init(){
 	server->start();
 	Services.set(Service::Phone, phone);
 
-	FSLVGL::loadCache();
+	FSLVGL::loadCache(settings->get().theme.theme);
 
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<IntroScreen>(); });
