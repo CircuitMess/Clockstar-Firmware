@@ -42,9 +42,9 @@ void PhoneElement::setPhoneConnected(){
 	connected = phone.isConnected();
 
 	if(connected){
-		lv_img_set_src(phoneIcon, File::Menu::Default::Phone);
+		lv_img_set_src(phoneIcon, File::Menu::Theme1::Phone);
 	}else{
-		lv_img_set_src(phoneIcon, File::Menu::Default::PhoneDisconnected);
+		lv_img_set_src(phoneIcon, File::Menu::Theme1::PhoneDisconnected);
 	}
 }
 

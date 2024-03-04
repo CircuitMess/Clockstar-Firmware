@@ -104,8 +104,8 @@ void Item::createControls(){
 	lv_obj_set_flex_align(ctrl, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 	lv_obj_set_style_radius(ctrl, 3, 0);
 
-	del = new CtrlItem(ctrl, File::Icons::Default::Trash, File::Icons::Default::TrashSel);
-	canc = new CtrlItem(ctrl, File::Icons::Default::Back, File::Icons::Default::BackSel);
+	del = new CtrlItem(ctrl, File::Icons::Theme1::Trash, File::Icons::Theme1::TrashSel);
+	canc = new CtrlItem(ctrl, File::Icons::Theme1::Back, File::Icons::Theme1::BackSel);
 
 	lv_obj_add_event_cb(*canc, [](lv_event_t* evt){
 		auto item = static_cast<Item*>(evt->user_data);

@@ -29,7 +29,7 @@ private:
 	uint32_t chargingMillis = 0;
 
 	static constexpr const char* BatteryIcons[] = {
-			File::Menu::Default::BatteryEmpty, File::Menu::Default::BatteryLow, File::Menu::Default::BatteryMid, File::Menu::Default::BatteryFull
+			File::Menu::Theme1::BatteryEmpty, File::Menu::Theme1::BatteryLow, File::Menu::Theme1::BatteryMid, File::Menu::Theme1::BatteryFull
 	};
 
 	void set(Level level);

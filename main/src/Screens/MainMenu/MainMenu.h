@@ -33,11 +33,11 @@ private:
 		const char* iconAltPath = nullptr;
 	};
 	ItemInfo ItemInfos[5] = {
-			{ "Find my phone",    "Ringing phone...",                     File::Menu::Default::Find,       File::Menu::Default::Find },
-			{ "Level",            nullptr,                                File::Menu::Default::Level,      nullptr },
-			{ "Theremin",         nullptr,                                File::Menu::Default::Theremin,   nullptr },
-			{ "Phone connection", ConnDesc[(int) Phone::PhoneType::None], File::Menu::Default::Connection, File::Menu::Default::Connection },
-			{ "Settings",         nullptr,                                File::Menu::Default::Settings,   nullptr }
+			{ "Find my phone",    "Ringing phone...",                     File::Menu::Theme1::Find,       File::Menu::Theme1::Find },
+			{ "Level",            nullptr,                                File::Menu::Theme1::Level,      nullptr },
+			{ "Theremin",         nullptr,                                File::Menu::Theme1::Theremin,   nullptr },
+			{ "Phone connection", ConnDesc[(int) Phone::PhoneType::None], File::Menu::Theme1::Connection, File::Menu::Theme1::Connection },
+			{ "Settings",         nullptr,                                File::Menu::Theme1::Settings,   nullptr }
 	};
 	static constexpr uint8_t ItemCount = sizeof(ItemInfos) / sizeof(ItemInfos[0]);
 	void setupItemPaths(Theme theme);

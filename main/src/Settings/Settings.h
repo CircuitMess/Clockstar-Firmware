@@ -5,7 +5,6 @@
 #include "core/lv_theme.h"
 
 enum class Theme : uint8_t {
-	Default [[maybe_unused]],
 	Theme1 [[maybe_unused]],
 	Theme2 [[maybe_unused]],
 	Theme3 [[maybe_unused]],
@@ -14,7 +13,8 @@ enum class Theme : uint8_t {
 	Theme6 [[maybe_unused]],
 	Theme7 [[maybe_unused]],
 	Theme8 [[maybe_unused]],
-	Theme9 [[maybe_unused]]
+	Theme9 [[maybe_unused]],
+	Default [[maybe_unused]] = Theme1
 };
 
 struct ThemeStruct {
@@ -22,7 +22,6 @@ struct ThemeStruct {
 	lv_theme_t* visualTheme = nullptr;
 };
 
-const static inline ThemeStruct DefaultTheme = {};
 const static inline ThemeStruct Theme1 = { Theme::Theme1 };
 const static inline ThemeStruct Theme2 = { Theme::Theme2 };
 const static inline ThemeStruct Theme3 = { Theme::Theme3 };
@@ -32,6 +31,7 @@ const static inline ThemeStruct Theme6 = { Theme::Theme6 };
 const static inline ThemeStruct Theme7 = { Theme::Theme7 };
 const static inline ThemeStruct Theme8 = { Theme::Theme8 };
 const static inline ThemeStruct Theme9 = { Theme::Theme9 };
+const static inline ThemeStruct Default = Theme1;
 
 struct SettingsStruct {
 	bool notificationSounds = true;

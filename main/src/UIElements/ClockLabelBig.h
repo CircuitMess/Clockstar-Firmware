@@ -17,18 +17,18 @@ private:
 	lv_obj_t* icons[NumIcons]{};
 
 	static constexpr const char* IconPaths[12] = {
-			File::Clock::Default::Num0,
-			File::Clock::Default::Num1,
-			File::Clock::Default::Num2,
-			File::Clock::Default::Num3,
-			File::Clock::Default::Num4,
-			File::Clock::Default::Num5,
-			File::Clock::Default::Num6,
-			File::Clock::Default::Num7,
-			File::Clock::Default::Num8,
-			File::Clock::Default::Num9,
-			File::Clock::Default::Colon,
-			File::Clock::Default::Space
+			File::Clock::Theme1::Num0,
+			File::Clock::Theme1::Num1,
+			File::Clock::Theme1::Num2,
+			File::Clock::Theme1::Num3,
+			File::Clock::Theme1::Num4,
+			File::Clock::Theme1::Num5,
+			File::Clock::Theme1::Num6,
+			File::Clock::Theme1::Num7,
+			File::Clock::Theme1::Num8,
+			File::Clock::Theme1::Num9,
+			File::Clock::Theme1::Colon,
+			File::Clock::Theme1::Space
 	};
 };
 

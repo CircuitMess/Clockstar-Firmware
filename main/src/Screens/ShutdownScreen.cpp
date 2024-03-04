@@ -24,7 +24,7 @@ ShutdownScreen::ShutdownScreen(){
 	lv_obj_set_style_text_color(label, lv_color_white(), 0);
 
 	img = lv_img_create(*this);
-	lv_img_set_src(img, File::Menu::Default::BigLowBattery);
+	lv_img_set_src(img, File::Menu::Theme1::BigLowBattery);
 	lv_obj_center(img);
 }
 

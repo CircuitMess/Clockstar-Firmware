@@ -7,7 +7,7 @@ Slider::Slider(lv_obj_t* parent) : LVObject(parent){
 	lv_obj_set_size(*this, 128, 16);
 
 	icon = lv_img_create(*this);
-	lv_img_set_src(icon, File::Icons::Default::LockClosed);
+	lv_img_set_src(icon, File::Icons::Theme1::LockClosed);
 	lv_obj_set_pos(icon, 6, LockY);
 }
 
@@ -38,14 +38,14 @@ void Slider::start(){
 
 	startTime = millis();
 	lv_obj_clear_flag(icon, LV_OBJ_FLAG_HIDDEN);
-	lv_img_set_src(icon, File::Icons::Default::LockOpen);
+	lv_img_set_src(icon, File::Icons::Theme1::LockOpen);
 }
 
 void Slider::stop(){
 	if(startTime == 0) return;
 
 	startTime = 0;
-	lv_img_set_src(icon, File::Icons::Default::LockClosed);
+	lv_img_set_src(icon, File::Icons::Theme1::LockClosed);
 	lv_obj_set_pos(icon, 6, LockY);
 
 	activity();

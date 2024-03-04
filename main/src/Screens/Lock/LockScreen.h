@@ -61,7 +61,6 @@ private:
 	};
 	std::unordered_map<const char*, NotifIcon> notifIcons;
 	static constexpr uint8_t MaxIconsCount = MaxNotifs;
-	static constexpr const char* EtcIconPath = File::Icons::Default::Etc;
 
 	void onStarting() override;
 	void onStart() override;
