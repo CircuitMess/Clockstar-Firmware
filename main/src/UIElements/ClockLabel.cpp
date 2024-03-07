@@ -33,6 +33,10 @@ void ClockLabel::loop(){
 	}
 }
 
+void ClockLabel::set24hFormat(bool format){
+	format24h = format;
+}
+
 void ClockLabel::updateTime(const tm& time){
 	lastTimeUpdate = millis();
 
@@ -52,8 +56,4 @@ void ClockLabel::updateTime(const tm& time){
 	updateUI(clockText, ampm);
 	lv_obj_refr_size(*this);
 	lv_obj_invalidate(*this);
-}
-
-void ClockLabel::set24hFormat(bool format){
-	format24h = format;
 }

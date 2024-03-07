@@ -1,5 +1,7 @@
 #include "ClockLabelBig.h"
 #include "LV_Interface/FSLVGL.h"
+#include "Settings/Settings.h"
+#include "Util/Services.h"
 
 ClockLabelBig::ClockLabelBig(lv_obj_t* parent) : ClockLabel(parent){
 	lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
@@ -23,7 +25,29 @@ void ClockLabelBig::updateUI(const char* clockText, const char* ps){
 	}
 }
 
-constexpr const char* ClockLabelBig::getPath(char c){
+const char* ClockLabelBig::getPath(char c){
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return "";
+	}
+
+	const Theme theme = settings->get().themeData.theme;
+
+	const char* IconPaths[12] = {
+			THEMED_FILE(Clock, Num0, theme),
+			THEMED_FILE(Clock, Num1, theme),
+			THEMED_FILE(Clock, Num2, theme),
+			THEMED_FILE(Clock, Num3, theme),
+			THEMED_FILE(Clock, Num4, theme),
+			THEMED_FILE(Clock, Num5, theme),
+			THEMED_FILE(Clock, Num6, theme),
+			THEMED_FILE(Clock, Num7, theme),
+			THEMED_FILE(Clock, Num8, theme),
+			THEMED_FILE(Clock, Num9, theme),
+			THEMED_FILE(Clock, Space, theme),
+			THEMED_FILE(Clock, Colon, theme),
+	};
+
 	if(c >= '0' && c <= '9'){
 		return IconPaths[c - '0'];
 	}else if(c == ':'){

@@ -12,7 +12,11 @@ uint8_t  MainMenu::lastIndex = UINT8_MAX;
 
 MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4){
 	Settings* settings = (Settings*) Services.get(Service::Settings);
-	const auto theme = settings->get().theme.theme;
+	if(settings == nullptr){
+		return;
+	}
+
+	const auto theme = settings->get().themeData.theme;
 	setupItemPaths(theme);
 
 	lv_img_cache_set_size(8);

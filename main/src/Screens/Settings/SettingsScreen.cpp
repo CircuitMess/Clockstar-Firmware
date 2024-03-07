@@ -18,6 +18,128 @@
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
 								   ts(*(Time*) Services.get(Service::Time)), queue(4){
+	buildUI();
+}
+
+void SettingsScreen::loop(){
+	Event evt{};
+	if(queue.get(evt, 0)){
+		if(evt.facility == Facility::Input){
+			auto eventData = (Input::Data*) evt.data;
+			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
+				if(timePickerModal){
+					delete timePickerModal;
+					timePickerModal = nullptr;
+				}else{
+					free(evt.data);
+					transition([](){ return std::make_unique<MainMenu>(); });
+					return;
+				}
+			}
+		}
+		free(evt.data);
+	}
+
+	statusBar->loop();
+}
+
+void SettingsScreen::onStop(){
+	auto savedSettings = settings.get();
+	savedSettings.notificationSounds = audioSwitch->getValue();
+	savedSettings.screenBrightness = brightnessSlider->getValue();
+	savedSettings.sleepTime = sleepSlider->getValue();
+	savedSettings.ledEnable = ledSwitch->getValue();
+	savedSettings.motionDetection = motionSwitch->getValue();
+	savedSettings.screenRotate = rotationSwitch->getValue();
+	savedSettings.timeFormat24h = timeFormatSwitch->getValue();
+	settings.set(savedSettings);
+	settings.store();
+
+	backlight.setBrightness(brightnessSlider->getValue());
+	imu.enableTiltDetection(motionSwitch->getValue());
+	lvgl->rotateScreen(rotationSwitch->getValue());
+	InputLVGL::getInstance()->invertDirections(rotationSwitch->getValue());
+	//TODO - apply sleep time
+
+	Events::unlisten(&queue);
+
+	auto status = (StatusCenter*) Services.get(Service::Status);
+	status->blockAudio(false);
+	status->updateLED();
+}
+
+void SettingsScreen::onStarting(){
+	auto sets = settings.get();
+	brightnessSlider->setValue(sets.screenBrightness);
+	audioSwitch->setValue(sets.notificationSounds);
+	ledSwitch->setValue(sets.ledEnable);
+	sleepSlider->setValue(sets.sleepTime);
+	motionSwitch->setValue(sets.motionDetection);
+	rotationSwitch->setValue(sets.screenRotate);
+}
+
+void SettingsScreen::onStart(){
+	Events::listen(Facility::Input, &queue);
+
+	auto status = (StatusCenter*) Services.get(Service::Status);
+	status->blockAudio(true);
+}
+
+void SettingsScreen::updateVisuals(){
+	const Theme theme = settings.get().themeData.theme;
+
+	if(bg != nullptr){
+		lv_obj_set_style_bg_img_src(bg, THEMED_FILE(Menu, Background, theme), 0);
+	}
+
+	if(statusBar != nullptr){
+		statusBar->updateVisuals();
+	}
+
+	if(timeFormatSwitch != nullptr){
+		timeFormatSwitch->updateVisuals();
+	}
+
+	if(themePicker != nullptr){
+		themePicker->updateVisuals();
+	}
+
+	if(manualTime != nullptr){
+		manualTime->updateVisuals();
+	}
+
+	if(audioSwitch != nullptr){
+		audioSwitch->updateVisuals();
+	}
+
+	if(brightnessSlider != nullptr){
+		brightnessSlider->updateVisuals();
+	}
+
+	if(ledSwitch != nullptr){
+		ledSwitch->updateVisuals();
+	}
+
+	if(sleepSlider != nullptr){
+		sleepSlider->updateVisuals();
+	}
+
+	if(motionSwitch != nullptr){
+		motionSwitch->updateVisuals();
+	}
+
+	if(rotationSwitch != nullptr){
+		rotationSwitch->updateVisuals();
+	}
+
+	if(saveAndExit != nullptr){
+		saveAndExit->updateVisuals();
+	}
+}
+
+void SettingsScreen::buildUI(){
+	const Theme theme = settings.get().themeData.theme;
+
 	lv_obj_set_size(*this, 128, 128);
 
 	bg = lv_obj_create(*this);
@@ -25,8 +147,8 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_obj_set_size(bg, 128, 128);
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
+	lv_obj_set_style_bg_img_src(bg, THEMED_FILE(Menu, Background, theme), 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
-	lv_obj_set_style_bg_img_src(bg, File::Background, 0);
 
 	container = lv_obj_create(*this);
 	lv_obj_set_size(container, 128, 128 - TopPadding);
@@ -35,6 +157,8 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN);
 	lv_obj_set_flex_align(container, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 	lv_obj_set_style_pad_gap(container, 5, 0);
+	lv_obj_set_style_pad_hor(container, 1, 0);
+	lv_obj_set_style_pad_bottom(container, 1, 0);
 
 	statusBar = new StatusBar(*this);
 	lv_obj_add_flag(*statusBar, LV_OBJ_FLAG_FLOATING);
@@ -50,9 +174,15 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	}, startingSettings.timeFormat24h);
 	lv_group_add_obj(inputGroup, *timeFormatSwitch);
 
-	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.theme.theme, ThemeNames, [this](uint16_t selected){
-		//TODO - apply new theme
-	});
+	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.themeData.theme,
+									"Default \nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9",
+									[&startingSettings, this](uint16_t selected){
+										SettingsStruct sett = settings.get();
+										sett.themeData = createTheme((Theme) selected);
+										settings.set(sett);
+
+										updateVisuals();
+									});
 	lv_group_add_obj(inputGroup, *themePicker);
 
 	manualTime = new LabelElement(container, "Adjust date/time", [this](){
@@ -120,71 +250,4 @@ SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::S
 	for(int i = 0; i < lv_obj_get_child_cnt(container); ++i){
 		lv_obj_add_flag(lv_obj_get_child(container, i), LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 	}
-}
-
-void SettingsScreen::loop(){
-	Event evt{};
-	if(queue.get(evt, 0)){
-		if(evt.facility == Facility::Input){
-			auto eventData = (Input::Data*) evt.data;
-			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
-				if(timePickerModal){
-					delete timePickerModal;
-					timePickerModal = nullptr;
-				}else{
-					free(evt.data);
-					transition([](){ return std::make_unique<MainMenu>(); });
-					return;
-				}
-			}
-		}
-		free(evt.data);
-	}
-
-	statusBar->loop();
-}
-
-void SettingsScreen::onStop(){
-	auto savedSettings = settings.get();
-	savedSettings.notificationSounds = audioSwitch->getValue();
-	savedSettings.screenBrightness = brightnessSlider->getValue();
-	savedSettings.sleepTime = sleepSlider->getValue();
-	savedSettings.ledEnable = ledSwitch->getValue();
-	savedSettings.motionDetection = motionSwitch->getValue();
-	savedSettings.screenRotate = rotationSwitch->getValue();
-	savedSettings.timeFormat24h = timeFormatSwitch->getValue();
-	savedSettings.theme.theme = (Theme) themePicker->getValue();
-	settings.set(savedSettings);
-	settings.store();
-
-	backlight.setBrightness(brightnessSlider->getValue());
-	imu.enableTiltDetection(motionSwitch->getValue());
-	lvgl->rotateScreen(rotationSwitch->getValue());
-	InputLVGL::getInstance()->invertDirections(rotationSwitch->getValue());
-	FSLVGL::unloadCache();
-	FSLVGL::loadCache(savedSettings.theme.theme);
-	//TODO - apply sleep time
-
-	Events::unlisten(&queue);
-
-	auto status = (StatusCenter*) Services.get(Service::Status);
-	status->blockAudio(false);
-	status->updateLED();
-}
-
-void SettingsScreen::onStarting(){
-	auto sets = settings.get();
-	brightnessSlider->setValue(sets.screenBrightness);
-	audioSwitch->setValue(sets.notificationSounds);
-	ledSwitch->setValue(sets.ledEnable);
-	sleepSlider->setValue(sets.sleepTime);
-	motionSwitch->setValue(sets.motionDetection);
-	rotationSwitch->setValue(sets.screenRotate);
-}
-
-void SettingsScreen::onStart(){
-	Events::listen(Facility::Input, &queue);
-
-	auto status = (StatusCenter*) Services.get(Service::Status);
-	status->blockAudio(true);
 }

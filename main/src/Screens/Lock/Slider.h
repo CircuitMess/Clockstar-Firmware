@@ -6,7 +6,7 @@
 
 class Slider : public LVObject {
 public:
-	Slider(lv_obj_t* parent);
+	Slider(lv_obj_t* parent, bool reverse = false);
 
 	void loop();
 	void start();
@@ -29,6 +29,7 @@ private:
 
 	static constexpr uint32_t LockY = 3;
 
+	bool reverse;
 };
 
 

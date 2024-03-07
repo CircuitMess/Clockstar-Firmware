@@ -52,28 +52,10 @@ private:
 	Phone& phone;
 	EventQueue queue;
 
-	static constexpr uint8_t MaxNotifs = 20;
-	std::unordered_map<uint32_t, Item*> notifs;
-
-	struct NotifIcon {
-		uint32_t count;
-		lv_obj_t* icon;
-	};
-	std::unordered_map<const char*, NotifIcon> notifIcons;
-	static constexpr uint8_t MaxIconsCount = MaxNotifs;
-
 	void onStarting() override;
 	void onStart() override;
 	void onStop() override;
 	void prepare();
-
-	void updateNotifs();
-	void notifAdd(const Notif& notif);
-	void notifRem(uint32_t id);
-	void notifsClear();
-
-	void addNotifIcon(const char* path);
-	void removeNotifIcon(const char* path);
 
 	void loop() override;
 	void processEvt(const Phone::Event& evt);

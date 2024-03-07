@@ -2,8 +2,15 @@
 
 #include <utility>
 #include "Theme/theme.h"
+#include "Settings/Settings.h"
+#include "Util/Services.h"
 
 LabelElement::LabelElement(lv_obj_t* parent, const char* name, std::function<void()> cb) : LVObject(parent), cb(std::move(cb)){
+	Settings* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_CLICKABLE);
 
 	lv_style_set_border_width(defaultStyle, 1);
@@ -12,11 +19,11 @@ LabelElement::LabelElement(lv_obj_t* parent, const char* name, std::function<voi
 	lv_style_set_bg_opa(defaultStyle, 0);
 
 	lv_style_set_border_width(focusedStyle, 1);
-	lv_style_set_border_color(focusedStyle, lv_color_white());
+	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
-	lv_style_set_text_color(labelStyle, lv_color_white());
+	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
 
 	lv_obj_set_height(*this, Height);
 	lv_obj_set_width(*this, lv_pct(100));
@@ -34,4 +41,17 @@ LabelElement::LabelElement(lv_obj_t* parent, const char* name, std::function<voi
 		if(element->cb) element->cb();
 	}, LV_EVENT_CLICKED, this);
 
+}
+
+void LabelElement::updateVisuals(){
+	Settings* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+
+	lv_obj_add_style(*this, focusedStyle, SelFocus);
+	lv_obj_add_style(label, labelStyle, 0);
 }

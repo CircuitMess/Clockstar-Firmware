@@ -1,6 +1,7 @@
 #include "PickerElement.h"
 #include "Theme/theme.h"
 #include "LV_Interface/InputLVGL.h"
+#include "Settings/Settings.h"
 #include <Util/Services.h>
 
 PickerElement::PickerElement(lv_obj_t* parent, const std::string& name, uint16_t startingIndex, const std::string& choiceNames, const std::function<void(uint16_t)>& cb) : LVSelectable(parent), startingIndex(startingIndex), cb(cb), choiceNames(choiceNames) {
@@ -10,26 +11,43 @@ PickerElement::PickerElement(lv_obj_t* parent, const std::string& name, uint16_t
 	buildUI(name);
 }
 
+void PickerElement::updateVisuals(){
+	Settings* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+
+	lv_obj_add_style(*this, focusedStyle, LV_PART_MAIN | LV_STATE_FOCUSED);
+	lv_obj_add_style(label, labelStyle, 0);
+	lv_obj_add_style(picker, defaultStyle, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_add_style(picker, focusedStyle, LV_PART_MAIN | LV_STATE_FOCUSED);
+	lv_obj_add_style(picker, labelStyle, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_DEFAULT);
+}
+
 void PickerElement::buildStyles(){
+	Settings* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
 	lv_style_set_border_width(defaultStyle, 1);
 	lv_style_set_border_opa(defaultStyle, 0);
 	lv_style_set_pad_all(defaultStyle, 3);
 	lv_style_set_bg_opa(defaultStyle, 0);
 
 	lv_style_set_border_width(focusedStyle, 1);
-	lv_style_set_border_color(focusedStyle, lv_color_white());
+	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
-	lv_style_set_text_color(labelStyle, lv_color_white());
+	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
 	lv_style_set_text_opa(labelStyle, LV_OPA_COVER);
 	lv_style_set_opa(labelStyle, LV_OPA_COVER);
 	lv_style_set_text_align(labelStyle, LV_TEXT_ALIGN_CENTER);
 	lv_style_set_pad_all(labelStyle, 1);
-
-	lv_style_set_bg_opa(pickerStyle, LV_OPA_COVER);
-	lv_style_set_bg_color(pickerStyle, lv_color_hex3(0xbbb));
-	lv_style_set_radius(pickerStyle, LV_RADIUS_CIRCLE);
 }
 
 void PickerElement::buildUI(const std::string& name){

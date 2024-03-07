@@ -10,6 +10,8 @@ public:
 
 	void loop();
 
+	virtual void updateVisuals() override;
+
 private:
 	const bool showNotifIcon;
 	Phone& phone;

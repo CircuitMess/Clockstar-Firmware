@@ -1,11 +1,9 @@
 #include "BatteryElement.h"
 #include "Util/stdafx.h"
 #include "Util/Services.h"
+#include "Settings/Settings.h"
 
 BatteryElement::BatteryElement(lv_obj_t* parent) : LVObject(parent), battery(*(Battery*) Services.get(Service::Battery)), queue(6){
-	auto* settings = (Settings*) Services.get(Service::Settings);
-	setupFilePaths(settings->get().theme.theme);
-
 	lv_obj_set_size(*this, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 	img = lv_img_create(*this);
 
@@ -31,6 +29,17 @@ BatteryElement::~BatteryElement(){
 }
 
 void BatteryElement::set(BatteryElement::Level level){
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	const Theme theme = settings->get().themeData.theme;
+
+	const char* BatteryIcons[] = {
+			THEMED_FILE(Menu, BatteryEmpty, theme), THEMED_FILE(Menu, BatteryLow, theme), THEMED_FILE(Menu, BatteryMid, theme), THEMED_FILE(Menu, BatteryFull, theme)
+	};
+
 	this->level = level;
 	if(level == Charging){
 		chargingMillis = millis();
@@ -69,6 +78,17 @@ void BatteryElement::loop(){
 		free(event.data);
 	}
 
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	const Theme theme = settings->get().themeData.theme;
+
+	const char* BatteryIcons[] = {
+			THEMED_FILE(Menu, BatteryEmpty, theme), THEMED_FILE(Menu, BatteryLow, theme), THEMED_FILE(Menu, BatteryMid, theme), THEMED_FILE(Menu, BatteryFull, theme)
+	};
+
 	if(level == Charging){
 		if(millis() - chargingMillis > ChargingAnimTime){
 			chargingIndex = (chargingIndex + 1) % BatteryLevels;
@@ -76,11 +96,4 @@ void BatteryElement::loop(){
 			lv_img_set_src(img, BatteryIcons[chargingIndex]);
 		}
 	}
-}
-
-void BatteryElement::setupFilePaths(Theme theme){
-	BatteryIcons[0] = THEMED_FILE(Menu, BatteryEmpty, theme);
-	BatteryIcons[1] = THEMED_FILE(Menu, BatteryLow, theme);
-	BatteryIcons[2] = THEMED_FILE(Menu, BatteryMid, theme);
-	BatteryIcons[3] = THEMED_FILE(Menu, BatteryFull, theme);
 }

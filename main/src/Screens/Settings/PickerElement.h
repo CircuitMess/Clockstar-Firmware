@@ -9,6 +9,7 @@
 class PickerElement : public LVSelectable {
 public:
 	PickerElement(lv_obj_t* parent, const std::string& name, uint16_t startingIndex, const std::string& choiceNames, const std::function<void(uint16_t)>& cb);
+	virtual void updateVisuals() override;
 
 	uint8_t getValue() const;
 
@@ -28,7 +29,6 @@ private:
 	LVStyle defaultStyle;
 	LVStyle focusedStyle;
 	LVStyle labelStyle;
-	LVStyle pickerStyle;
 
 	lv_anim_t blinkAnim;
 };

@@ -29,7 +29,6 @@ private:
 	static constexpr uint8_t BatteryLevels = 4;
 	uint32_t chargingMillis = 0;
 
-	void setupFilePaths(Theme theme);
 	const char* BatteryIcons[4] = {
 			File::Menu::Theme1::BatteryEmpty, File::Menu::Theme1::BatteryLow, File::Menu::Theme1::BatteryMid, File::Menu::Theme1::BatteryFull
 	};

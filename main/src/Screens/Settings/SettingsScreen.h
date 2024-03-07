@@ -11,24 +11,18 @@
 #include "LV_Interface/LVModal.h"
 #include "TimePickerModal.h"
 
-class BoolElement;
-
-class SliderElement;
-
-class LabelElement;
-
-class DiscreteSliderElement;
-
-
 class SettingsScreen : public LVScreen {
 public:
 	SettingsScreen();
 
 private:
-	void onStarting() override;
-	void onStart() override;
-	void onStop() override;
-	void loop() override;
+	virtual void onStarting() override;
+	virtual void onStart() override;
+	virtual void onStop() override;
+	virtual void loop() override;
+	virtual void updateVisuals() override;
+
+	void buildUI();
 
 	Settings& settings;
 	BacklightBrightness& backlight;
@@ -36,19 +30,19 @@ private:
 	IMU& imu;
 	Time& ts;
 
-	lv_obj_t* bg;
-	lv_obj_t* container;
-	class PickerElement* themePicker;
-	LabelElement* manualTime;
-	BoolElement* audioSwitch;
-	SliderElement* brightnessSlider;
-	BoolElement* ledSwitch;
-	StatusBar* statusBar;
-	DiscreteSliderElement* sleepSlider;
-	LabelElement* saveAndExit;
-	BoolElement* motionSwitch;
-	BoolElement* rotationSwitch;
-	BoolElement* timeFormatSwitch;
+	lv_obj_t* bg = nullptr;
+	lv_obj_t* container = nullptr;
+	class PickerElement* themePicker = nullptr;
+	class LabelElement* manualTime = nullptr;
+	class BoolElement* audioSwitch = nullptr;
+	class SliderElement* brightnessSlider = nullptr;
+	BoolElement* ledSwitch = nullptr;
+	StatusBar* statusBar = nullptr;
+	class DiscreteSliderElement* sleepSlider = nullptr;
+	LabelElement* saveAndExit = nullptr;
+	BoolElement* motionSwitch = nullptr;
+	BoolElement* rotationSwitch = nullptr;
+	BoolElement* timeFormatSwitch = nullptr;
 
 	TimePickerModal* timePickerModal = nullptr;
 

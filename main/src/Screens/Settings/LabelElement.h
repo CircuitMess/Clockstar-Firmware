@@ -9,6 +9,8 @@ class LabelElement : public LVObject {
 public:
 	explicit LabelElement(lv_obj_t* parent, const char* name, std::function<void()> cb);
 
+	virtual void updateVisuals() override;
+
 private:
 	lv_obj_t* label;
 

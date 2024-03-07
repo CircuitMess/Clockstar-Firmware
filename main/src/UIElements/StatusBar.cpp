@@ -19,6 +19,22 @@ void StatusBar::loop(){
 	batDevice->loop();
 }
 
+void StatusBar::set24hFormat(bool format){
+	if(!clock) return;
+
+	clock->set24hFormat(format);
+}
+
+void StatusBar::updateVisuals() noexcept{
+	if(phone != nullptr){
+		phone->updateVisuals();
+	}
+
+	if(clock != nullptr){
+		clock->updateVisuals();
+	}
+}
+
 void StatusBar::buildUI(){
 	lv_obj_set_size(*this, 128, 15);
 	lv_obj_set_style_pad_ver(*this, 2, 0);
@@ -44,10 +60,4 @@ void StatusBar::buildUI(){
 
 	delete batDevice;
 	batDevice = new BatteryElement(left);
-}
-
-void StatusBar::set24hFormat(bool format){
-	if(!clock) return;
-
-	clock->set24hFormat(format);
 }

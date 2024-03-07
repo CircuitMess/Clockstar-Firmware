@@ -5,11 +5,6 @@
 
 PhoneElement::PhoneElement(lv_obj_t* parent, bool showNotifIcon) : LVObject(parent), showNotifIcon(showNotifIcon),
 																   phone(*((Phone*) Services.get(Service::Phone))){
-	auto* settings = (Settings*) Services.get(Service::Settings);
-	phonePath = THEMED_FILE(Menu, Phone, settings->get().theme.theme);
-	phoneDcPath = THEMED_FILE(Menu, PhoneDisconnected, settings->get().theme.theme);
-	notifPath = THEMED_FILE(Icons, CatOther, settings->get().theme.theme);
-
 	lv_obj_set_size(*this, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 	lv_obj_set_style_pad_gap(*this, 3, 0);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_ROW);
@@ -18,7 +13,15 @@ PhoneElement::PhoneElement(lv_obj_t* parent, bool showNotifIcon) : LVObject(pare
 
 	if(showNotifIcon){
 		notifIcon = lv_img_create(*this);
-		lv_img_set_src(notifIcon, notifPath);
+
+		auto* settings = (Settings*) Services.get(Service::Settings);
+		if(settings == nullptr){
+			return;
+		}
+
+		const Theme theme = settings->get().themeData.theme;
+
+		lv_img_set_src(notifIcon, THEMED_FILE(Icons, CatOther, theme));
 		setNotifIcon();
 	}
 	phoneIcon = lv_img_create(*this);
@@ -35,13 +38,33 @@ void PhoneElement::loop(){
 	}
 }
 
+void PhoneElement::updateVisuals(){
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	const Theme theme = settings->get().themeData.theme;
+
+	lv_img_set_src(notifIcon, THEMED_FILE(Icons, CatOther, theme));
+
+	setPhoneConnected();
+}
+
 void PhoneElement::setPhoneConnected(){
 	connected = phone.isConnected();
 
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	const Theme theme = settings->get().themeData.theme;
+
 	if(connected){
-		lv_img_set_src(phoneIcon, phonePath);
+		lv_img_set_src(phoneIcon, THEMED_FILE(Menu, Phone, theme));
 	}else{
-		lv_img_set_src(phoneIcon, phoneDcPath);
+		lv_img_set_src(phoneIcon, THEMED_FILE(Menu, PhoneDisconnected, theme));
 	}
 }
 

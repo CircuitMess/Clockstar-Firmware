@@ -18,6 +18,8 @@ public:
 
 	void set24hFormat(bool format);
 
+	virtual void updateVisuals() noexcept;
+
 private:
 	bool showExtra = false;
 
