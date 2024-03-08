@@ -6,15 +6,19 @@
 
 class ClockLabelBig : public ClockLabel {
 public:
-	explicit ClockLabelBig(lv_obj_t* parent);
+	explicit ClockLabelBig(lv_obj_t* parent, bool vertical = false, int16_t verticalPad = 0);
 	~ClockLabelBig() override = default;
 private:
 	void updateUI(const char* clockText, const char* ps) override;
 
 	static const char* getPath(char c);
 
-	static constexpr uint8_t NumIcons = 5;
-	lv_obj_t* icons[NumIcons]{};
+	lv_obj_t* hourIcons[2]{};
+	lv_obj_t* minuteIcons[2]{};
+	lv_obj_t* colonIcon = nullptr;
+	lv_obj_t* hours;
+	lv_obj_t* minutes;
+	bool vertical;
 };
 
 

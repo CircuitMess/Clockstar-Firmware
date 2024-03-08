@@ -5,7 +5,7 @@
 #include "Settings/Settings.h"
 #include "Util/Services.h"
 
-Slider::Slider(lv_obj_t* parent, bool reverse) : LVObject(parent), reverse(reverse){
+Slider::Slider(lv_obj_t* parent, SliderConfig config) : LVObject(parent), config(config){
 	auto* settings = (Settings*) Services.get(Service::Settings);
 	if(settings == nullptr){
 		return;
@@ -17,7 +17,13 @@ Slider::Slider(lv_obj_t* parent, bool reverse) : LVObject(parent), reverse(rever
 
 	icon = lv_img_create(*this);
 	lv_img_set_src(icon, THEMED_FILE(Icons, LockClosed, theme));
-	lv_obj_set_pos(icon, 6, LockY);
+
+	if(config.start > config.end){
+		lv_img_t* img = (lv_img_t*) icon;
+		lv_obj_set_pos(icon, config.start - img->w, config.y);
+	}else{
+		lv_obj_set_pos(icon, config.start, config.y);
+	}
 }
 
 bool Slider::started(){
@@ -33,10 +39,11 @@ void Slider::loop(){
 	if(startTime == 0 && activityTime == 0) return;
 
 	if(startTime != 0){
-		if(reverse){
-			lv_obj_set_pos(icon, 128 - 6 - std::round(128.0f * t()), LockY);
+		if(config.start > config.end){
+			lv_img_t* img = (lv_img_t*) icon;
+			lv_obj_set_pos(icon, std::max((int16_t) (config.start - img->w - std::round((config.start - config.end) * t())), config.end), config.y);
 		}else{
-			lv_obj_set_pos(icon, 6 + std::round(128.0f * t()), LockY);
+			lv_obj_set_pos(icon, std::min((int16_t) (config.start + std::round((config.end - config.start) * t())), config.end), config.y);
 		}
 
 		return;
@@ -74,7 +81,13 @@ void Slider::stop(){
 
 	startTime = 0;
 	lv_img_set_src(icon, THEMED_FILE(Icons, LockClosed, theme));
-	lv_obj_set_pos(icon, 6, LockY);
+
+	if(config.start > config.end){
+		lv_img_t* img = (lv_img_t*) icon;
+		lv_obj_set_pos(icon, config.start - img->w, config.y);
+	}else{
+		lv_obj_set_pos(icon, config.start, config.y);
+	}
 
 	activity();
 }

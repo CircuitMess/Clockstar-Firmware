@@ -3,6 +3,7 @@
 
 #include <nvs.h>
 #include "core/lv_theme.h"
+#include "Screens/Lock/Slider.h"
 
 enum class Theme : uint8_t {
 	Theme1 [[maybe_unused]],
@@ -23,6 +24,16 @@ struct ThemeStruct {
 	uint8_t opacity;
 	lv_color_t textColor;
 	lv_color_t clockColor;
+	SliderConfig sliderConfig = {};
+	lv_coord_t sliderY = 0;
+	lv_coord_t clockX = 0;
+	lv_coord_t clockY = 0;
+	lv_coord_t batteryX = 0;
+	lv_coord_t batteryY = 0;
+	lv_coord_t phoneX = 0;
+	lv_coord_t phoneY = 0;
+	bool verticalClock = false;
+	int16_t clockPadding = 0;
 };
 
 inline static ThemeStruct createTheme(Theme theme){
@@ -34,6 +45,16 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(0, 0, 0);
 			data.clockColor = lv_color_make(255, 101, 0);
 			data.opacity = LV_OPA_100;
+			data.sliderConfig.start = 6;
+			data.sliderConfig.end = 122;
+			data.sliderConfig.y = 3;
+			data.sliderY = 111;
+			data.clockY = -8;
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
+
 			break;
 		}
 		case Theme::Theme2:{
@@ -41,6 +62,17 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(0, 0, 0);
 			data.clockColor = lv_color_make(255, 38, 116);
 			data.opacity = LV_OPA_100;
+			data.sliderConfig.start = 108;
+			data.sliderConfig.end = 20;
+			data.sliderConfig.y = 0;
+			data.sliderY = 102;
+			data.clockY = -20;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
+
 			break;
 		}
 		case Theme::Theme3:{
@@ -48,6 +80,17 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(0, 0, 0);
 			data.clockColor = lv_color_make(255, 255, 255);
 			data.opacity = LV_OPA_100;
+			data.sliderConfig.start = 6;
+			data.sliderConfig.end = 122;
+			data.sliderConfig.y = 0;
+			data.sliderY = 106;
+			data.clockY = -18;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
+
 			break;
 		}
 		case Theme::Theme4:{
@@ -55,6 +98,18 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(192, 203, 220);
 			data.clockColor = lv_color_make(38, 43, 68);
 			data.opacity = LV_OPA_100;
+			data.sliderConfig.start = 122;
+			data.sliderConfig.end = 8;
+			data.sliderConfig.y = 3;
+			data.sliderY = 109;
+			data.clockX = -20;
+			data.clockY = -4;
+			data.verticalClock = true;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
 			break;
 		}
 		case Theme::Theme5:{
@@ -62,6 +117,19 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(244, 180, 27);
 			data.clockColor = lv_color_make(244, 180, 27);
 			data.opacity = LV_OPA_0;
+			data.sliderConfig.start = 124;
+			data.sliderConfig.end = 24;
+			data.sliderConfig.y = 3;
+			data.sliderY = 113;
+			data.clockX = -26;
+			data.clockY = -12;
+			data.clockPadding = 6;
+			data.verticalClock = true;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
 			break;
 		}
 		case Theme::Theme6:{
@@ -69,6 +137,17 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(255, 255, 0);
 			data.clockColor = lv_color_make(255, 255, 255);
 			data.opacity = LV_OPA_100;
+			data.sliderConfig.start = 126;
+			data.sliderConfig.end = 2;
+			data.sliderConfig.y = 0;
+			data.sliderY = 110;
+			data.clockY = -30;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
+
 			break;
 		}
 		case Theme::Theme7:{
@@ -76,6 +155,17 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(251, 242, 54);
 			data.clockColor = lv_color_make(251, 247, 54);
 			data.opacity = LV_OPA_0;
+			data.sliderConfig.start = 126;
+			data.sliderConfig.end = 20;
+			data.sliderConfig.y = 3;
+			data.sliderY = 111;
+			data.clockY = -4;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
+
 			break;
 		}
 		case Theme::Theme8:{
@@ -83,6 +173,16 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(0, 0, 0);
 			data.clockColor = lv_color_make(94, 193, 0);
 			data.opacity = LV_OPA_100;
+			data.sliderConfig.start = 122;
+			data.sliderConfig.end = 6;
+			data.sliderConfig.y = 3;
+			data.sliderY = 111;
+			data.clockY = -23;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
 			break;
 		}
 		case Theme::Theme9:{
@@ -90,6 +190,17 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.textColor = lv_color_make(255, 255, 255);
 			data.clockColor = lv_color_make(255, 210, 0);
 			data.opacity = LV_OPA_0;
+			data.sliderConfig.start = 118;
+			data.sliderConfig.end = 8;
+			data.sliderConfig.y = 3;
+			data.sliderY = 109;
+			data.clockY = -18;
+			// TODO
+			data.batteryX = -52;
+			data.batteryY = -57;
+			data.phoneX = 56;
+			data.phoneY = -57;
+
 			break;
 		}
 		default:{
