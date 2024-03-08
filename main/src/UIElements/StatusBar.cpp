@@ -33,6 +33,10 @@ void StatusBar::updateVisuals() noexcept{
 	if(clock != nullptr){
 		clock->updateVisuals();
 	}
+
+	if(batDevice != nullptr){
+		batDevice->updateVisuals();
+	}
 }
 
 void StatusBar::buildUI(){

@@ -28,30 +28,6 @@ BatteryElement::~BatteryElement(){
 	Events::unlisten(&queue);
 }
 
-void BatteryElement::set(BatteryElement::Level level){
-	auto* settings = (Settings*) Services.get(Service::Settings);
-	if(settings == nullptr){
-		return;
-	}
-
-	const Theme theme = settings->get().themeData.theme;
-
-	const char* BatteryIcons[] = {
-			THEMED_FILE(Menu, BatteryEmpty, theme), THEMED_FILE(Menu, BatteryLow, theme), THEMED_FILE(Menu, BatteryMid, theme), THEMED_FILE(Menu, BatteryFull, theme)
-	};
-
-	this->level = level;
-	if(level == Charging){
-		chargingMillis = millis();
-		chargingIndex = 0;
-		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
-		lv_img_set_src(img, BatteryIcons[1]);
-	}else{
-		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
-		lv_img_set_src(img, BatteryIcons[level]);
-	}
-}
-
 void BatteryElement::loop(){
 	Event event{};
 	if(queue.get(event, 0)){
@@ -95,5 +71,33 @@ void BatteryElement::loop(){
 			chargingMillis = millis();
 			lv_img_set_src(img, BatteryIcons[chargingIndex]);
 		}
+	}
+}
+
+void BatteryElement::updateVisuals(){
+	set(level);
+}
+
+void BatteryElement::set(BatteryElement::Level level){
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	const Theme theme = settings->get().themeData.theme;
+
+	const char* BatteryIcons[] = {
+			THEMED_FILE(Menu, BatteryEmpty, theme), THEMED_FILE(Menu, BatteryLow, theme), THEMED_FILE(Menu, BatteryMid, theme), THEMED_FILE(Menu, BatteryFull, theme)
+	};
+
+	this->level = level;
+	if(level == Charging){
+		chargingMillis = millis();
+		chargingIndex = 0;
+		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
+		lv_img_set_src(img, BatteryIcons[1]);
+	}else{
+		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
+		lv_img_set_src(img, BatteryIcons[level]);
 	}
 }
