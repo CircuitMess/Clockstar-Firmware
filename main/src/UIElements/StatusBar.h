@@ -7,7 +7,7 @@
 #include "Notifs/Phone.h"
 #include "Util/Events.h"
 #include "Devices/Battery.h"
-#include "BatteryElement.h"
+#include "Screens/MainMenu/MenuBatteryElement.h"
 #include "PhoneElement.h"
 
 class StatusBar : public LVObject {
@@ -27,7 +27,7 @@ private:
 	lv_obj_t* right;
 
 	ClockLabelSmall* clock = nullptr;
-	BatteryElement* batDevice = nullptr;
+	MenuBatteryElement* batDevice = nullptr;
 	PhoneElement* phone = nullptr;
 
 	void buildUI();

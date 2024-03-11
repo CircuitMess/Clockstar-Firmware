@@ -3,20 +3,14 @@
 #include "Settings/Settings.h"
 #include "Util/Services.h"
 #include "LV_Interface/InputLVGL.h"
+#include "Screens/Lock/Elements/Theme2BatteryElement.h"
+#include "Screens/Lock/Elements/Theme3BatteryElement.h"
+#include "Screens/Lock/Elements/Theme4BatteryElement.h"
+#include "Screens/Lock/Elements/Theme5BatteryElement.h"
 
 LockSkin::LockSkin(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGroup(inputGroup){
 	notifs.reserve(MaxNotifs);
 	notifIcons.reserve(MaxIconsCount);
-}
-
-LockSkin::~LockSkin(){
-	//delete status;
-	delete clock;
-	delete locker;
-
-	//status = nullptr;
-	clock = nullptr;
-	locker = nullptr;
 }
 
 void LockSkin::loop(){
@@ -220,12 +214,55 @@ void LockSkin::buildUI(){
 
 	lv_obj_set_size(main, 128, 128);
 
-	batteryElement = new BatteryElement(main);
-	lv_obj_set_align(*batteryElement, LV_ALIGN_CENTER);
+	switch(themeData.theme){
+		case Theme::Theme1:{
+			batteryElement = new MenuBatteryElement(main);
+			phoneElement = new PhoneElement(main, false, false);
+			break;
+		}
+		case Theme::Theme2:{
+			batteryElement = new Theme2BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, false);
+			break;
+		}
+		case Theme::Theme3:{
+			batteryElement = new Theme3BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, true);
+			break;
+		}
+		case Theme::Theme4:{
+			batteryElement = new Theme4BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, true);
+			break;
+		}
+		case Theme::Theme5:{
+			batteryElement = new Theme5BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, true);
+			break;
+		}
+		case Theme::Theme6:{
+
+		}
+		case Theme::Theme7:{
+
+		}
+		case Theme::Theme8:{
+
+		}
+		case Theme::Theme9:{
+
+		}
+		default:{
+			batteryElement = new MenuBatteryElement(main);
+			phoneElement = new PhoneElement(main, false, false);
+			break;
+		}
+	}
+
+	lv_obj_set_align(*batteryElement, LV_ALIGN_TOP_LEFT);
 	lv_obj_set_x(*batteryElement, themeData.batteryX);
 	lv_obj_set_y(*batteryElement, themeData.batteryY);
 
-	phoneElement = new PhoneElement(main, false);
 	lv_obj_set_align(*phoneElement, LV_ALIGN_CENTER);
 	lv_obj_set_x(*phoneElement, themeData.phoneX);
 	lv_obj_set_y(*phoneElement, themeData.phoneY);

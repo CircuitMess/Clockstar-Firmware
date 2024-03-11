@@ -20,10 +20,10 @@ enum class Theme : uint8_t {
 
 struct ThemeStruct {
 	Theme theme = Theme::Default;
-	lv_color_t primaryColor;
-	uint8_t opacity;
-	lv_color_t textColor;
-	lv_color_t clockColor;
+	lv_color_t primaryColor = lv_color_black();
+	uint8_t opacity = LV_OPA_100;
+	lv_color_t textColor = lv_color_black();
+	lv_color_t clockColor = lv_color_black();
 	SliderConfig sliderConfig = {};
 	lv_coord_t sliderY = 0;
 	lv_coord_t clockX = 0;
@@ -37,7 +37,8 @@ struct ThemeStruct {
 };
 
 inline static ThemeStruct createTheme(Theme theme){
-	ThemeStruct data = {.theme = theme};
+	ThemeStruct data = {};
+	data.theme = theme;
 
 	switch(theme){
 		case Theme::Theme1:{
@@ -50,8 +51,8 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 3;
 			data.sliderY = 111;
 			data.clockY = -8;
-			data.batteryX = -52;
-			data.batteryY = -57;
+			data.batteryX = 4;
+			data.batteryY = 4;
 			data.phoneX = 56;
 			data.phoneY = -57;
 
@@ -67,11 +68,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 0;
 			data.sliderY = 102;
 			data.clockY = -20;
-			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
-			data.phoneX = 56;
-			data.phoneY = -57;
+			data.batteryX = 68;
+			data.batteryY = 10;
+			data.phoneX = -46;
+			data.phoneY = -48;
 
 			break;
 		}
@@ -85,11 +85,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 0;
 			data.sliderY = 106;
 			data.clockY = -18;
-			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
-			data.phoneX = 56;
-			data.phoneY = -57;
+			data.batteryX = 65;
+			data.batteryY = 1;
+			data.phoneX = -44;
+			data.phoneY = -60;
 
 			break;
 		}
@@ -105,11 +104,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.clockX = -20;
 			data.clockY = -4;
 			data.verticalClock = true;
-			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
-			data.phoneX = 56;
-			data.phoneY = -57;
+			data.batteryX = 85;
+			data.batteryY = 20;
+			data.phoneX = 25;
+			data.phoneY = -21;
 			break;
 		}
 		case Theme::Theme5:{
@@ -126,10 +124,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.clockPadding = 6;
 			data.verticalClock = true;
 			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
-			data.phoneX = 56;
-			data.phoneY = -57;
+			data.batteryX = 118;
+			data.batteryY = 20;
+			data.phoneX = 42;
+			data.phoneY = -5;
 			break;
 		}
 		case Theme::Theme6:{

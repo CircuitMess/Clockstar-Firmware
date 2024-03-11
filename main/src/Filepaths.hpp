@@ -34,6 +34,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme1/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
+			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -44,6 +45,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme2/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme2/lock_screen/battery.bin";
+			[[maybe_unused]] constexpr const char* Clock = "S:/theme2/lock_screen/clock.bin";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -54,6 +56,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme3/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme3/lock_screen/phone.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme3/lock_screen/battery.bin";
+			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -62,18 +65,20 @@ namespace File {
 
 		namespace Theme4 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme4/lock_screen/bg.bin";
-			[[maybe_unused]] constexpr const char* Phone = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme4/lock_screen/phone.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
-			[[maybe_unused]] constexpr const char* Battery1 = "S:/theme4/lock_screen/battery1.bin";
-			[[maybe_unused]] constexpr const char* Battery2 = "S:/theme4/lock_screen/battery2.bin";
-			[[maybe_unused]] constexpr const char* Battery3 = "S:/theme4/lock_screen/battery3.bin";
-			[[maybe_unused]] constexpr const char* Battery4 = "S:/theme4/lock_screen/battery4.bin";
+			[[maybe_unused]] constexpr const char* Clock = "S:/theme4/lock_screen/clock.bin";
+			[[maybe_unused]] constexpr const char* Battery1 = "S:/theme4/lock_screen/b1.bin";
+			[[maybe_unused]] constexpr const char* Battery2 = "S:/theme4/lock_screen/b2.bin";
+			[[maybe_unused]] constexpr const char* Battery3 = "S:/theme4/lock_screen/b3.bin";
+			[[maybe_unused]] constexpr const char* Battery4 = "S:/theme4/lock_screen/b4.bin";
 		}
 
 		namespace Theme5 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme5/lock_screen/bg.bin";
-			[[maybe_unused]] constexpr const char* Phone = "";
-			[[maybe_unused]] constexpr const char* BatteryLevel = ""; // TODO: check if those bars are for battery indicators maybe?
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme5/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme5/lock_screen/battery.bin";
+			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -84,6 +89,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme6/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
+			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -94,6 +100,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme7/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme7/lock_screen/phone.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme7/lock_screen/battery.bin";
+			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -104,6 +111,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme8/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme8/lock_screen/battery.bin";
+			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -114,6 +122,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme9/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme9/lock_screen/phone.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
+			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";

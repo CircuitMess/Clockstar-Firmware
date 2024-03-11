@@ -3,8 +3,8 @@
 #include "Filepaths.hpp"
 #include "Settings/Settings.h"
 
-PhoneElement::PhoneElement(lv_obj_t* parent, bool showNotifIcon) : LVObject(parent), showNotifIcon(showNotifIcon),
-																   phone(*((Phone*) Services.get(Service::Phone))){
+PhoneElement::PhoneElement(lv_obj_t* parent, bool showNotifIcon, bool lockScreen) : LVObject(parent), showNotifIcon(showNotifIcon),
+																   phone(*((Phone*) Services.get(Service::Phone))), lockScreen(lockScreen){
 	lv_obj_set_size(*this, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 	lv_obj_set_style_pad_gap(*this, 3, 0);
 	lv_obj_set_flex_flow(*this, LV_FLEX_FLOW_ROW);
@@ -62,9 +62,17 @@ void PhoneElement::setPhoneConnected(){
 	const Theme theme = settings->get().themeData.theme;
 
 	if(connected){
-		lv_img_set_src(phoneIcon, THEMED_FILE(Menu, Phone, theme));
+		if(lockScreen){
+			lv_img_set_src(phoneIcon, THEMED_FILE(LockScreen, Phone, theme));
+		}else{
+			lv_img_set_src(phoneIcon, THEMED_FILE(Menu, Phone, theme));
+		}
 	}else{
-		lv_img_set_src(phoneIcon, THEMED_FILE(Menu, PhoneDisconnected, theme));
+		if(lockScreen){
+			lv_img_set_src(phoneIcon, THEMED_FILE(LockScreen, Phone, theme)); // TODO change to empty path so there is no icon if no phone is connected
+		}else{
+			lv_img_set_src(phoneIcon, THEMED_FILE(Menu, PhoneDisconnected, theme));
+		}
 	}
 }
 

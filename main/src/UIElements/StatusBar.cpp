@@ -53,7 +53,6 @@ void StatusBar::buildUI(){
 	lv_obj_set_flex_flow(left, LV_FLEX_FLOW_ROW);
 	lv_obj_set_flex_align(left, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-	delete phone;
 	phone = new PhoneElement(*this, showExtra);
 
 	if(showExtra){
@@ -62,6 +61,5 @@ void StatusBar::buildUI(){
 		lv_obj_center(*clock);
 	}
 
-	delete batDevice;
-	batDevice = new BatteryElement(left);
+	batDevice = new MenuBatteryElement(left);
 }

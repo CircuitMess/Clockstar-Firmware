@@ -1,0 +1,15 @@
+#ifndef ARTEMIS_FIRMWARE_THEME6BATTERYELEMENT_H
+#define ARTEMIS_FIRMWARE_THEME6BATTERYELEMENT_H
+
+#include "UIElements/BatteryElement.h"
+
+class Theme6BatteryElement : public BatteryElement {
+public:
+	explicit Theme6BatteryElement(lv_obj_t* parent);
+
+protected:
+	virtual void updateChargingVisuals() override;
+	virtual void updateLevelVisuals() override;
+};
+
+#endif //ARTEMIS_FIRMWARE_THEME6BATTERYELEMENT_H

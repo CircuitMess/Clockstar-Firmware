@@ -5,7 +5,6 @@
 
 BatteryElement::BatteryElement(lv_obj_t* parent) : LVObject(parent), battery(*(Battery*) Services.get(Service::Battery)), queue(6){
 	lv_obj_set_size(*this, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-	img = lv_img_create(*this);
 
 	Events::listen(Facility::Battery, &queue);
 
@@ -54,23 +53,13 @@ void BatteryElement::loop(){
 		free(event.data);
 	}
 
-	auto* settings = (Settings*) Services.get(Service::Settings);
-	if(settings == nullptr){
-		return;
-	}
-
-	const Theme theme = settings->get().themeData.theme;
-
-	const char* BatteryIcons[] = {
-			THEMED_FILE(Menu, BatteryEmpty, theme), THEMED_FILE(Menu, BatteryLow, theme), THEMED_FILE(Menu, BatteryMid, theme), THEMED_FILE(Menu, BatteryFull, theme)
-	};
-
 	if(level == Charging){
 		if(millis() - chargingMillis > ChargingAnimTime){
 			chargingIndex = (chargingIndex + 1) % BatteryLevels;
 			chargingMillis = millis();
-			lv_img_set_src(img, BatteryIcons[chargingIndex]);
 		}
+
+		updateChargingVisuals();
 	}
 }
 
@@ -78,26 +67,21 @@ void BatteryElement::updateVisuals(){
 	set(level);
 }
 
+void BatteryElement::updateChargingVisuals(){
+
+}
+
+void BatteryElement::updateLevelVisuals(){
+
+}
+
 void BatteryElement::set(BatteryElement::Level level){
-	auto* settings = (Settings*) Services.get(Service::Settings);
-	if(settings == nullptr){
-		return;
-	}
-
-	const Theme theme = settings->get().themeData.theme;
-
-	const char* BatteryIcons[] = {
-			THEMED_FILE(Menu, BatteryEmpty, theme), THEMED_FILE(Menu, BatteryLow, theme), THEMED_FILE(Menu, BatteryMid, theme), THEMED_FILE(Menu, BatteryFull, theme)
-	};
-
 	this->level = level;
 	if(level == Charging){
 		chargingMillis = millis();
 		chargingIndex = 0;
-		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
-		lv_img_set_src(img, BatteryIcons[1]);
+		updateChargingVisuals();
 	}else{
-		lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
-		lv_img_set_src(img, BatteryIcons[level]);
+		updateLevelVisuals();
 	}
 }

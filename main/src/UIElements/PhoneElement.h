@@ -6,7 +6,7 @@
 
 class PhoneElement : public LVObject {
 public:
-	explicit PhoneElement(lv_obj_t* parent, bool showNotifIcon = true);
+	explicit PhoneElement(lv_obj_t* parent, bool showNotifIcon = true, bool lockScreen = false);
 
 	void loop();
 
@@ -17,6 +17,7 @@ private:
 	Phone& phone;
 	bool connected = false;
 	bool notifPresent = false;
+	bool lockScreen;
 
 	lv_obj_t* phoneIcon;
 	lv_obj_t* notifIcon;

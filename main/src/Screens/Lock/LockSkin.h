@@ -10,7 +10,6 @@
 class LockSkin : public LVObject {
 public:
 	LockSkin(lv_obj_t* parent, 	lv_group_t* inputGroup);
-	virtual ~LockSkin() override;
 
 	inline Slider* getLocker() const { return locker; }
 	inline lv_obj_t* getMain() noexcept { return main; }
