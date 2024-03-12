@@ -55,7 +55,7 @@ void BatteryElement::loop(){
 
 	if(level == Charging){
 		if(millis() - chargingMillis > ChargingAnimTime){
-			chargingIndex = (chargingIndex + 1) % BatteryLevels;
+			chargingIndex = (chargingIndex + 1) % batteryLevels;
 			chargingMillis = millis();
 		}
 

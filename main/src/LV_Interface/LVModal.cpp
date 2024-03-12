@@ -2,10 +2,17 @@
 #include "LVScreen.h"
 #include "InputLVGL.h"
 #include "Filepaths.hpp"
+#include "Settings/Settings.h"
+#include "Util/Services.h"
 
 LVModal* LVModal::current = nullptr;
 
 LVModal::LVModal(LVScreen* parent) : LVObject((lv_obj_t*) *parent), parentScreen(parent){
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
 	delete current;
 	current = this;
 
@@ -21,8 +28,11 @@ LVModal::LVModal(LVScreen* parent) : LVObject((lv_obj_t*) *parent), parentScreen
 
 	lv_obj_set_size(container, 102, 92);
 	lv_obj_set_style_pad_all(container, 8, 0);
-	lv_obj_set_style_bg_img_src(container, File::ModalBackground, 0);
-	lv_obj_set_style_bg_img_opa(container, LV_OPA_COVER, 0);
+	lv_obj_set_style_bg_color(container, settings->get().themeData.backgroundColor, 0);
+	lv_obj_set_style_bg_opa(container, LV_OPA_COVER, 0);
+	lv_obj_set_style_border_color(container, settings->get().themeData.primaryColor, 0);
+	lv_obj_set_style_border_opa(container, LV_OPA_COVER, 0);
+	lv_obj_set_style_border_width(container, 2, 0);
 
 	lv_obj_set_size(*this, 86, 76);
 	lv_obj_set_align(*this, LV_ALIGN_CENTER);

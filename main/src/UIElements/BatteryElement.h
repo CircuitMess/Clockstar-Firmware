@@ -26,6 +26,7 @@ public:
 	virtual void updateLevelVisuals();
 
 protected:
+	uint8_t batteryLevels = 4;
 	uint8_t chargingIndex = 0;
 	Battery& battery;
 
@@ -37,7 +38,6 @@ private:
 	EventQueue queue;
 
 	static constexpr uint32_t ChargingAnimTime = 500;
-	static constexpr uint8_t BatteryLevels = 4;
 	uint32_t chargingMillis = 0;
 };
 

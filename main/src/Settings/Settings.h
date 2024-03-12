@@ -24,6 +24,7 @@ struct ThemeStruct {
 	uint8_t opacity = LV_OPA_100;
 	lv_color_t textColor = lv_color_black();
 	lv_color_t clockColor = lv_color_black();
+	lv_color_t backgroundColor = lv_color_black();
 	SliderConfig sliderConfig = {};
 	lv_coord_t sliderY = 0;
 	lv_coord_t clockX = 0;
@@ -96,6 +97,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.primaryColor = lv_color_make(38, 43, 68);
 			data.textColor = lv_color_make(192, 203, 220);
 			data.clockColor = lv_color_make(38, 43, 68);
+			data.backgroundColor = lv_color_make(192, 203, 220);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 122;
 			data.sliderConfig.end = 8;
@@ -108,12 +110,14 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 20;
 			data.phoneX = 25;
 			data.phoneY = -21;
+
 			break;
 		}
 		case Theme::Theme5:{
 			data.primaryColor = lv_color_make(244, 180, 27);
 			data.textColor = lv_color_make(244, 180, 27);
 			data.clockColor = lv_color_make(244, 180, 27);
+			data.backgroundColor = lv_color_make(55, 66, 99);
 			data.opacity = LV_OPA_0;
 			data.sliderConfig.start = 124;
 			data.sliderConfig.end = 24;
@@ -123,11 +127,11 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.clockY = -12;
 			data.clockPadding = 6;
 			data.verticalClock = true;
-			// TODO
 			data.batteryX = 118;
 			data.batteryY = 20;
 			data.phoneX = 42;
 			data.phoneY = -5;
+
 			break;
 		}
 		case Theme::Theme6:{
@@ -140,10 +144,9 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 0;
 			data.sliderY = 110;
 			data.clockY = -30;
-			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
-			data.phoneX = 56;
+			data.batteryX = 110;
+			data.batteryY = 1;
+			data.phoneX = -56;
 			data.phoneY = -57;
 
 			break;
@@ -158,9 +161,8 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 3;
 			data.sliderY = 111;
 			data.clockY = -4;
-			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
+			data.batteryX = 92;
+			data.batteryY = 3;
 			data.phoneX = 56;
 			data.phoneY = -57;
 
@@ -176,11 +178,11 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 3;
 			data.sliderY = 111;
 			data.clockY = -23;
-			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
+			data.batteryX = 87;
+			data.batteryY = 5;
 			data.phoneX = 56;
 			data.phoneY = -57;
+
 			break;
 		}
 		case Theme::Theme9:{
@@ -193,11 +195,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 3;
 			data.sliderY = 109;
 			data.clockY = -18;
-			// TODO
-			data.batteryX = -52;
-			data.batteryY = -57;
-			data.phoneX = 56;
-			data.phoneY = -57;
+			data.batteryX = 96;
+			data.batteryY = 4;
+			data.phoneX = -46;
+			data.phoneY = -56;
 
 			break;
 		}

@@ -10,6 +10,10 @@ public:
 protected:
 	virtual void updateChargingVisuals() override;
 	virtual void updateLevelVisuals() override;
+	virtual void loop() override;
+
+private:
+	lv_obj_t* batteryPercent;
 };
 
 #endif //ARTEMIS_FIRMWARE_THEME6BATTERYELEMENT_H

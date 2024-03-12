@@ -621,7 +621,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* BatteryLow = "S:/theme7/menu/batteryLow.bin";
 			[[maybe_unused]] constexpr const char* BatteryMid = "S:/theme7/menu/batteryMid.bin";
 			[[maybe_unused]] constexpr const char* BigLowBattery = "";
-			[[maybe_unused]] constexpr const char* Phone = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme7/menu/phone.bin";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme7/menu/bg.bin";
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme7/menu/connection.bin";

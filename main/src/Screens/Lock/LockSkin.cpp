@@ -7,6 +7,10 @@
 #include "Screens/Lock/Elements/Theme3BatteryElement.h"
 #include "Screens/Lock/Elements/Theme4BatteryElement.h"
 #include "Screens/Lock/Elements/Theme5BatteryElement.h"
+#include "Screens/Lock/Elements/Theme6BatteryElement.h"
+#include "Screens/Lock/Elements/Theme9BatteryElement.h"
+#include "Screens/Lock/Elements/Theme7BatteryElement.h"
+#include "Screens/Lock/Elements/Theme8BatteryElement.h"
 
 LockSkin::LockSkin(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGroup(inputGroup){
 	notifs.reserve(MaxNotifs);
@@ -241,16 +245,24 @@ void LockSkin::buildUI(){
 			break;
 		}
 		case Theme::Theme6:{
-
+			batteryElement = new Theme6BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, false);
+			break;
 		}
 		case Theme::Theme7:{
-
+			batteryElement = new Theme7BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, true);
+			break;
 		}
 		case Theme::Theme8:{
-
+			batteryElement = new Theme8BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, true);
+			break;
 		}
 		case Theme::Theme9:{
-
+			batteryElement = new Theme9BatteryElement(main);
+			phoneElement = new PhoneElement(main, false, false);
+			break;
 		}
 		default:{
 			batteryElement = new MenuBatteryElement(main);
