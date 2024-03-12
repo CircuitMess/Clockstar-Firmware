@@ -316,9 +316,9 @@ void LockSkin::buildUI(){
 	lv_obj_set_style_bg_opa(main, LV_OPA_COVER, 0);
 	lv_obj_set_style_bg_img_src(main, THEMED_FILE(LockScreen, Background, themeData.theme), 0);
 
-	lv_obj_set_style_bg_color(rest, lv_color_black(), 0);
+	lv_obj_set_style_bg_color(rest, settings->get().themeData.backgroundColor, 0);
 	lv_obj_set_style_bg_opa(rest, LV_OPA_COVER, 0);
-	lv_obj_set_style_border_color(rest, lv_color_make(255, 101, 0), 0);
+	lv_obj_set_style_border_color(rest, settings->get().themeData.clockColor, 0);
 	lv_obj_set_style_border_opa(rest, LV_OPA_COVER, 0);
 	lv_obj_set_style_border_width(rest, 1, 0);
 
