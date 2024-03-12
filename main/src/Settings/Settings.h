@@ -248,7 +248,7 @@ private:
 	nvs_handle_t handle{};
 	SettingsStruct settingsStruct;
 
-	static constexpr const char* NVSNamespace = "Clockstar";
+	static constexpr const char* NVSNamespace = "Artemis";
 	static constexpr const char* BlobName = "Settings";
 
 	void load();
