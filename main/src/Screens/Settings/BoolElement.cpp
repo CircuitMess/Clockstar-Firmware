@@ -27,7 +27,7 @@ BoolElement::BoolElement(lv_obj_t* parent, const char* name, std::function<void(
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 
 	lv_style_set_border_width(switchStyle, 1);
 	lv_style_set_border_color(switchStyle, settings->get().themeData.primaryColor);
@@ -97,7 +97,7 @@ void BoolElement::updateVisuals(){
 	}
 
 	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 	lv_style_set_border_color(switchStyle, settings->get().themeData.primaryColor);
 	lv_style_set_border_color(switchCheckedStyle, settings->get().themeData.primaryColor);
 	lv_style_set_bg_color(switchCheckedStyle, settings->get().themeData.primaryColor);

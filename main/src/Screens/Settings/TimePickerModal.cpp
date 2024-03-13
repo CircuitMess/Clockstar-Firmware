@@ -30,7 +30,7 @@ void TimePickerModal::buildStyles(){
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 	lv_style_set_text_opa(labelStyle, LV_OPA_COVER);
 	lv_style_set_opa(labelStyle, LV_OPA_COVER);
 	lv_style_set_text_align(labelStyle, LV_TEXT_ALIGN_CENTER);

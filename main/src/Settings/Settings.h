@@ -22,8 +22,8 @@ struct ThemeStruct {
 	Theme theme = Theme::Default;
 	lv_color_t primaryColor = lv_color_black();
 	uint8_t opacity = LV_OPA_100;
-	lv_color_t textColor = lv_color_black();
-	lv_color_t clockColor = lv_color_black();
+	lv_color_t secondatyColor = lv_color_black();
+	lv_color_t highlightColor = lv_color_black();
 	lv_color_t backgroundColor = lv_color_black();
 	SliderConfig sliderConfig = {};
 	lv_coord_t sliderY = 0;
@@ -35,6 +35,20 @@ struct ThemeStruct {
 	lv_coord_t phoneY = 0;
 	bool verticalClock = false;
 	int16_t clockPadding = 0;
+	bool specialPhone = false;
+
+	struct {
+		lv_coord_t x = 0;
+		lv_coord_t y = 0;
+		lv_coord_t w = 128;
+		lv_coord_t h = 11;
+		lv_align_t align = LV_ALIGN_CENTER;
+		lv_coord_t gapPad = 2;
+		lv_flex_flow_t flex = LV_FLEX_FLOW_ROW;
+		lv_flex_align_t mainAlign = LV_FLEX_ALIGN_CENTER;
+		lv_flex_align_t crossAlign = LV_FLEX_ALIGN_CENTER;
+		lv_flex_align_t trackAlign = LV_FLEX_ALIGN_CENTER;
+	} notifData;
 };
 
 inline static ThemeStruct createTheme(Theme theme){
@@ -44,8 +58,8 @@ inline static ThemeStruct createTheme(Theme theme){
 	switch(theme){
 		case Theme::Theme1:{
 			data.primaryColor = lv_color_make(255, 101, 0);
-			data.textColor = lv_color_make(0, 0, 0);
-			data.clockColor = lv_color_make(255, 101, 0);
+			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.highlightColor = lv_color_make(255, 101, 0);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 6;
 			data.sliderConfig.end = 122;
@@ -56,13 +70,15 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 4;
 			data.phoneX = 56;
 			data.phoneY = -57;
+			data.notifData.y = 27;
+			data.notifData.gapPad = 1;
 
 			break;
 		}
 		case Theme::Theme2:{
 			data.primaryColor = lv_color_make(255, 38, 116);
-			data.textColor = lv_color_make(0, 0, 0);
-			data.clockColor = lv_color_make(255, 38, 116);
+			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.highlightColor = lv_color_make(255, 38, 116);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 108;
 			data.sliderConfig.end = 20;
@@ -73,13 +89,14 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 10;
 			data.phoneX = -46;
 			data.phoneY = -48;
+			data.notifData.y = 17;
 
 			break;
 		}
 		case Theme::Theme3:{
 			data.primaryColor = lv_color_make(255, 255, 255);
-			data.textColor = lv_color_make(0, 0, 0);
-			data.clockColor = lv_color_make(255, 255, 255);
+			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.highlightColor = lv_color_make(255, 255, 255);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 6;
 			data.sliderConfig.end = 122;
@@ -90,13 +107,15 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 1;
 			data.phoneX = -44;
 			data.phoneY = -60;
+			data.specialPhone = true;
+			data.notifData.y = 14;
 
 			break;
 		}
 		case Theme::Theme4:{
 			data.primaryColor = lv_color_make(38, 43, 68);
-			data.textColor = lv_color_make(192, 203, 220);
-			data.clockColor = lv_color_make(38, 43, 68);
+			data.secondatyColor = lv_color_make(192, 203, 220);
+			data.highlightColor = lv_color_make(38, 43, 68);
 			data.backgroundColor = lv_color_make(192, 203, 220);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 122;
@@ -110,13 +129,24 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 20;
 			data.phoneX = 25;
 			data.phoneY = -21;
+			data.specialPhone = true;
+			data.notifData.x = 85;
+			data.notifData.y = 58;
+			data.notifData.w = 42;
+			data.notifData.h = 41;
+			data.notifData.gapPad = 2;
+			data.notifData.mainAlign = LV_FLEX_ALIGN_START;
+			data.notifData.trackAlign = LV_FLEX_ALIGN_START;
+			data.notifData.crossAlign = LV_FLEX_ALIGN_START;
+			data.notifData.flex = LV_FLEX_FLOW_ROW_WRAP;
+			data.notifData.align = LV_ALIGN_TOP_LEFT;
 
 			break;
 		}
 		case Theme::Theme5:{
 			data.primaryColor = lv_color_make(244, 180, 27);
-			data.textColor = lv_color_make(244, 180, 27);
-			data.clockColor = lv_color_make(244, 180, 27);
+			data.secondatyColor = lv_color_make(244, 180, 27);
+			data.highlightColor = lv_color_make(244, 180, 27);
 			data.backgroundColor = lv_color_make(55, 66, 99);
 			data.opacity = LV_OPA_0;
 			data.sliderConfig.start = 124;
@@ -131,13 +161,23 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 20;
 			data.phoneX = 42;
 			data.phoneY = -5;
+			data.specialPhone = true;
+			data.notifData.x = 78;
+			data.notifData.y = 6;
+			data.notifData.w = 11;
+			data.notifData.h = 94;
+			data.notifData.gapPad = 8;
+			data.notifData.mainAlign = LV_FLEX_ALIGN_START;
+			data.notifData.trackAlign = LV_FLEX_ALIGN_START;
+			data.notifData.flex = LV_FLEX_FLOW_ROW_WRAP;
+			data.notifData.align = LV_ALIGN_TOP_LEFT;
 
 			break;
 		}
 		case Theme::Theme6:{
 			data.primaryColor = lv_color_make(0, 0, 255);
-			data.textColor = lv_color_make(255, 255, 0);
-			data.clockColor = lv_color_make(255, 255, 255);
+			data.secondatyColor = lv_color_make(255, 255, 0);
+			data.highlightColor = lv_color_make(255, 255, 255);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 126;
 			data.sliderConfig.end = 2;
@@ -148,13 +188,22 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 1;
 			data.phoneX = -56;
 			data.phoneY = -57;
+			data.notifData.y = 61;
+			data.notifData.x = 2;
+			data.notifData.w = 128;
+			data.notifData.h = 42;
+			data.notifData.gapPad = 6;
+			data.notifData.mainAlign = LV_FLEX_ALIGN_START;
+			data.notifData.trackAlign = LV_FLEX_ALIGN_START;
+			data.notifData.flex = LV_FLEX_FLOW_ROW_WRAP;
+			data.notifData.align = LV_ALIGN_TOP_LEFT;
 
 			break;
 		}
 		case Theme::Theme7:{
 			data.primaryColor = lv_color_make(251, 247, 54);
-			data.textColor = lv_color_make(251, 242, 54);
-			data.clockColor = lv_color_make(251, 247, 54);
+			data.secondatyColor = lv_color_make(251, 242, 54);
+			data.highlightColor = lv_color_make(251, 247, 54);
 			data.opacity = LV_OPA_0;
 			data.sliderConfig.start = 126;
 			data.sliderConfig.end = 20;
@@ -165,13 +214,15 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 3;
 			data.phoneX = 56;
 			data.phoneY = -57;
+			data.specialPhone = true;
+			data.notifData.y = 24;
 
 			break;
 		}
 		case Theme::Theme8:{
 			data.primaryColor = lv_color_make(94, 193, 0);
-			data.textColor = lv_color_make(0, 0, 0);
-			data.clockColor = lv_color_make(94, 193, 0);
+			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.highlightColor = lv_color_make(94, 193, 0);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 122;
 			data.sliderConfig.end = 6;
@@ -182,13 +233,15 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 5;
 			data.phoneX = 56;
 			data.phoneY = -57;
+			data.specialPhone = true;
+			data.notifData.y = 26;
 
 			break;
 		}
 		case Theme::Theme9:{
 			data.primaryColor = lv_color_make(255, 255, 0);
-			data.textColor = lv_color_make(255, 255, 255);
-			data.clockColor = lv_color_make(255, 210, 0);
+			data.secondatyColor = lv_color_make(255, 255, 255);
+			data.highlightColor = lv_color_make(255, 210, 0);
 			data.opacity = LV_OPA_0;
 			data.sliderConfig.start = 118;
 			data.sliderConfig.end = 8;
@@ -199,6 +252,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 4;
 			data.phoneX = -46;
 			data.phoneY = -56;
+			data.notifData.y = 22;
 
 			break;
 		}

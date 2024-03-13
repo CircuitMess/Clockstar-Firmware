@@ -11,10 +11,10 @@
 #include "Screens/Lock/Elements/Theme9BatteryElement.h"
 #include "Screens/Lock/Elements/Theme7BatteryElement.h"
 #include "Screens/Lock/Elements/Theme8BatteryElement.h"
+#include "UIElements/NotifIconsElement.h"
 
 LockSkin::LockSkin(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGroup(inputGroup){
 	notifs.reserve(MaxNotifs);
-	notifIcons.reserve(MaxIconsCount);
 }
 
 void LockSkin::loop(){
@@ -133,39 +133,23 @@ void LockSkin::notifsClear(){
 	notifs.clear(); // This has to precede rest clearing
 	lv_obj_clean(rest);
 
-	notifIcons.clear();
-	lv_obj_clean(icons);
-}
-
-void LockSkin::addNotifIcon(const char* path){
-	if(path == nullptr) return;
-
-	if(notifIcons.count(path)){
-		notifIcons[path].count++;
+	if(icons == nullptr){
 		return;
 	}
 
-	if(notifIcons.size() >= MaxIconsCount) return;
+	icons->clear();
+}
 
+void LockSkin::addNotifIcon(const char* path){
+	if(path == nullptr || icons == nullptr) return;
 
-	lv_obj_t* icon = lv_img_create(icons);
-	lv_img_set_src(icon, path);
-
-	NotifIcon notifIcon = { 1, icon };
-	notifIcons.insert({ path, notifIcon });
+	icons->add(path);
 }
 
 void LockSkin::removeNotifIcon(const char* path){
-	if(path == nullptr) return;
+	if(path == nullptr || icons == nullptr) return;
 
-	auto pair = notifIcons.find(path);
-	if(pair == notifIcons.end()) return;
-
-	pair->second.count -= 1;
-	if(pair->second.count > 0) return;
-
-	lv_obj_del(pair->second.icon);
-	notifIcons.erase(pair);
+	icons->remove(path);
 }
 
 void LockSkin::updateNotifs(){
@@ -176,24 +160,24 @@ void LockSkin::updateNotifs(){
 
 	const auto set = phone->getNotifs();
 	auto find = [&set](uint32_t uid) -> const Notif*{
-		for(auto& notif : set){
+		for(auto& notif: set){
 			if(notif.uid == uid) return &notif;
 		}
 		return nullptr;
 	};
 
 	std::unordered_set<uint32_t> forRem;
-	for(const auto& pair : notifs){
+	for(const auto& pair: notifs){
 		auto exists = find(pair.first);
 		if(!exists){
 			forRem.insert(pair.first);
 		}
 	}
-	for(uint32_t uid : forRem){
+	for(uint32_t uid: forRem){
 		notifRem(uid);
 	}
 
-	for(const auto& notif : set){
+	for(const auto& notif: set){
 		if(notifs.count(notif.uid) == 0){
 			notifAdd(notif);
 		}
@@ -218,55 +202,56 @@ void LockSkin::buildUI(){
 
 	lv_obj_set_size(main, 128, 128);
 
+	icons = new NotifIconsElement(main);
+	lv_obj_set_x(*icons, themeData.notifData.x);
+	lv_obj_set_y(*icons, themeData.notifData.y);
+	lv_obj_set_style_min_height(*icons, 1, 0);
+	lv_obj_set_size(*icons, themeData.notifData.w, themeData.notifData.h);
+	lv_obj_set_align(*icons, themeData.notifData.align);
+	lv_obj_set_flex_flow(*icons, themeData.notifData.flex);
+	lv_obj_set_flex_align(*icons, themeData.notifData.mainAlign, themeData.notifData.crossAlign, themeData.notifData.trackAlign);
+	lv_obj_set_style_pad_gap(*icons, themeData.notifData.gapPad, 0);
+
+	phoneElement = new PhoneElement(main, false, themeData.specialPhone);
+
 	switch(themeData.theme){
 		case Theme::Theme1:{
 			batteryElement = new MenuBatteryElement(main);
-			phoneElement = new PhoneElement(main, false, false);
 			break;
 		}
 		case Theme::Theme2:{
 			batteryElement = new Theme2BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, false);
 			break;
 		}
 		case Theme::Theme3:{
 			batteryElement = new Theme3BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, true);
 			break;
 		}
 		case Theme::Theme4:{
 			batteryElement = new Theme4BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, true);
 			break;
 		}
 		case Theme::Theme5:{
 			batteryElement = new Theme5BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, true);
 			break;
 		}
 		case Theme::Theme6:{
 			batteryElement = new Theme6BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, false);
 			break;
 		}
 		case Theme::Theme7:{
 			batteryElement = new Theme7BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, true);
 			break;
 		}
 		case Theme::Theme8:{
 			batteryElement = new Theme8BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, true);
 			break;
 		}
 		case Theme::Theme9:{
 			batteryElement = new Theme9BatteryElement(main);
-			phoneElement = new PhoneElement(main, false, false);
 			break;
 		}
 		default:{
-			batteryElement = new MenuBatteryElement(main);
-			phoneElement = new PhoneElement(main, false, false);
 			break;
 		}
 	}
@@ -283,17 +268,6 @@ void LockSkin::buildUI(){
 	lv_obj_set_align(*clock, LV_ALIGN_CENTER);
 	lv_obj_set_x(*clock, themeData.clockX);
 	lv_obj_set_y(*clock, themeData.clockY);
-
-	icons = lv_obj_create(main);
-	if(icons == nullptr){
-		return;
-	}
-
-	lv_obj_set_size(icons, 128, 11);
-	lv_obj_set_style_min_height(icons, 1, 0);
-	lv_obj_set_flex_flow(icons, LV_FLEX_FLOW_ROW);
-	lv_obj_set_flex_align(icons, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-	lv_obj_set_style_pad_gap(icons, 2, 0);
 
 	locker = new Slider(main, themeData.sliderConfig);
 	lv_obj_set_y(*locker, themeData.sliderY);
@@ -318,7 +292,7 @@ void LockSkin::buildUI(){
 
 	lv_obj_set_style_bg_color(rest, settings->get().themeData.backgroundColor, 0);
 	lv_obj_set_style_bg_opa(rest, LV_OPA_COVER, 0);
-	lv_obj_set_style_border_color(rest, settings->get().themeData.clockColor, 0);
+	lv_obj_set_style_border_color(rest, settings->get().themeData.highlightColor, 0);
 	lv_obj_set_style_border_opa(rest, LV_OPA_COVER, 0);
 	lv_obj_set_style_border_width(rest, 1, 0);
 

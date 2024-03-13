@@ -20,7 +20,7 @@ DiscreteSliderElement::DiscreteSliderElement(lv_obj_t* parent, const char* name,
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 
 	lv_style_set_bg_opa(sliderMainStyle, LV_OPA_0);
 	lv_style_set_bg_color(sliderMainStyle, lv_color_hex3(0xbbb));
@@ -110,7 +110,7 @@ void DiscreteSliderElement::updateVisuals(){
 	lv_obj_set_style_bg_color(slider, settings->get().themeData.primaryColor, LV_PART_KNOB | LV_STATE_DEFAULT);
 
 	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 	lv_style_set_border_color(sliderMainStyle, settings->get().themeData.primaryColor);
 
 	lv_obj_add_style(*this, focusedStyle, selFocus);

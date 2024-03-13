@@ -11,7 +11,7 @@ ClockLabelSmall::ClockLabelSmall(lv_obj_t* parent) : ClockLabel(parent){
 
 	clock = lv_label_create(obj);
 	lv_obj_set_style_text_font(clock, &devin2, 0);
-	lv_obj_set_style_text_color(clock, settings->get().themeData.clockColor, 0);
+	lv_obj_set_style_text_color(clock, settings->get().themeData.highlightColor, 0);
 
 	updateTime(ts.getTime());
 }
@@ -22,7 +22,7 @@ void ClockLabelSmall::updateVisuals(){
 		return;
 	}
 
-	lv_obj_set_style_text_color(clock, settings->get().themeData.clockColor, 0);
+	lv_obj_set_style_text_color(clock, settings->get().themeData.highlightColor, 0);
 }
 
 void ClockLabelSmall::updateUI(const char* clockText, const char* ps){

@@ -69,7 +69,7 @@ void PhoneElement::setPhoneConnected(){
 		}
 	}else{
 		if(lockScreen){
-			lv_img_set_src(phoneIcon, THEMED_FILE(LockScreen, Phone, theme)); // TODO change to empty path so there is no icon if no phone is connected
+			lv_img_set_src(phoneIcon, "");
 		}else{
 			lv_img_set_src(phoneIcon, THEMED_FILE(Menu, PhoneDisconnected, theme));
 		}

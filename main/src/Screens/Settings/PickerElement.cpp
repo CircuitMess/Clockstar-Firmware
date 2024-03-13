@@ -18,7 +18,7 @@ void PickerElement::updateVisuals(){
 	}
 
 	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 
 	lv_obj_add_style(*this, focusedStyle, LV_PART_MAIN | LV_STATE_FOCUSED);
 	lv_obj_add_style(label, labelStyle, 0);
@@ -43,7 +43,7 @@ void PickerElement::buildStyles(){
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 	lv_style_set_text_opa(labelStyle, LV_OPA_COVER);
 	lv_style_set_opa(labelStyle, LV_OPA_COVER);
 	lv_style_set_text_align(labelStyle, LV_TEXT_ALIGN_CENTER);

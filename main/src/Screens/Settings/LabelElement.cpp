@@ -23,7 +23,7 @@ LabelElement::LabelElement(lv_obj_t* parent, const char* name, std::function<voi
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 
 	lv_obj_set_height(*this, Height);
 	lv_obj_set_width(*this, lv_pct(100));
@@ -50,7 +50,7 @@ void LabelElement::updateVisuals(){
 	}
 
 	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
-	lv_style_set_text_color(labelStyle, settings->get().themeData.clockColor);
+	lv_style_set_text_color(labelStyle, settings->get().themeData.highlightColor);
 
 	lv_obj_add_style(*this, focusedStyle, SelFocus);
 	lv_obj_add_style(label, labelStyle, 0);
