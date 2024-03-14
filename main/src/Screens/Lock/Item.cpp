@@ -84,7 +84,7 @@ Item::Item(lv_obj_t* parent, std::function<void()> dismiss) : LVSelectable(paren
 }
 
 void Item::update(const Notif& notif){
-	iPath = ::iconPath(notif);
+	iPath = ::iconPath(notif, true);
 	lv_img_set_src(icon, iPath);
 
 	lv_label_set_text(label, notif.title.c_str());

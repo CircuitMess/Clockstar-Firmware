@@ -21,7 +21,7 @@ PhoneElement::PhoneElement(lv_obj_t* parent, bool showNotifIcon, bool lockScreen
 
 		const Theme theme = settings->get().themeData.theme;
 
-		lv_img_set_src(notifIcon, THEMED_FILE(Icons, CatOther, theme));
+		lv_img_set_src(notifIcon, THEMED_FILE(SmallIcons, CatOther, theme));
 		setNotifIcon();
 	}
 	phoneIcon = lv_img_create(*this);
@@ -46,7 +46,7 @@ void PhoneElement::updateVisuals(){
 
 	const Theme theme = settings->get().themeData.theme;
 
-	lv_img_set_src(notifIcon, THEMED_FILE(Icons, CatOther, theme));
+	lv_img_set_src(notifIcon, THEMED_FILE(SmallIcons, CatOther, theme));
 
 	setPhoneConnected();
 }

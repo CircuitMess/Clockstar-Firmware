@@ -512,6 +512,76 @@ namespace File {
 		}
 	}
 
+	namespace SmallIcons {
+		namespace Theme1 = Icons::Theme1;
+
+		namespace Theme2 = Icons::Theme2;
+
+		namespace Theme3 = Icons::Theme3;
+
+		namespace Theme4 = Icons::Theme4;
+
+		namespace Theme5 = Icons::Theme5;
+
+		namespace Theme6 {
+			[[maybe_unused]] constexpr const char* AppInst = "S:/theme6/small/app_inst.bin";
+			[[maybe_unused]] constexpr const char* AppMess = "S:/theme6/small/app_mess.bin";
+			[[maybe_unused]] constexpr const char* AppSms = "S:/theme6/small/app_sms.bin";
+			[[maybe_unused]] constexpr const char* AppSnap = "S:/theme6/small/app_snap.bin";
+			[[maybe_unused]] constexpr const char* AppTiktok = "S:/theme6/small/app_tiktok.bin";
+			[[maybe_unused]] constexpr const char* AppWapp = "S:/theme6/small/app_wapp.bin";
+			[[maybe_unused]] constexpr const char* Back = "";
+			[[maybe_unused]] constexpr const char* BackSel = "";
+			[[maybe_unused]] constexpr const char* CallIn = "S:/theme6/small/call_in.bin";
+			[[maybe_unused]] constexpr const char* CallMiss = "S:/theme6/small/call_miss.bin";
+			[[maybe_unused]] constexpr const char* CallOut = "S:/theme6/small/call_out.bin";
+			[[maybe_unused]] constexpr const char* CatEmail = "S:/theme6/small/cat_email.bin";
+			[[maybe_unused]] constexpr const char* CatEntert = "S:/theme6/small/cat_entert.bin";
+			[[maybe_unused]] constexpr const char* CatFin = "S:/theme6/small/cat_fin.bin";
+			[[maybe_unused]] constexpr const char* CatHealth = "S:/theme6/small/cat_health.bin";
+			[[maybe_unused]] constexpr const char* CatLoc = "S:/theme6/small/cat_loc.bin";
+			[[maybe_unused]] constexpr const char* CatNews = "S:/theme6/small/cat_news.bin";
+			[[maybe_unused]] constexpr const char* CatOther = "S:/theme6/small/cat_other.bin";
+			[[maybe_unused]] constexpr const char* CatSched = "S:/theme6/small/cat_sched.bin";
+			[[maybe_unused]] constexpr const char* CatSoc = "S:/theme6/small/cat_soc.bin";
+			[[maybe_unused]] constexpr const char* LockClosed = "S:/theme6/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* LockOpen = "S:/theme6/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* Trash = "";
+			[[maybe_unused]] constexpr const char* TrashSel = "";
+		}
+
+		namespace Theme7 = Icons::Theme7;
+
+		namespace Theme8 {
+			[[maybe_unused]] constexpr const char* AppInst = Icons::Theme8::AppInst;
+			[[maybe_unused]] constexpr const char* AppMess = Icons::Theme8::AppMess;
+			[[maybe_unused]] constexpr const char* AppSms = Icons::Theme8::AppSms;
+			[[maybe_unused]] constexpr const char* AppSnap = Icons::Theme8::AppSnap;
+			[[maybe_unused]] constexpr const char* AppTiktok = Icons::Theme8::AppTiktok;
+			[[maybe_unused]] constexpr const char* AppWapp = Icons::Theme8::AppWapp;
+			[[maybe_unused]] constexpr const char* Back = Icons::Theme8::Back;
+			[[maybe_unused]] constexpr const char* BackSel = Icons::Theme8::BackSel;
+			[[maybe_unused]] constexpr const char* CallIn = Icons::Theme8::CallIn;
+			[[maybe_unused]] constexpr const char* CallMiss = Icons::Theme8::CallMiss;
+			[[maybe_unused]] constexpr const char* CallOut = Icons::Theme8::CallOut;
+			[[maybe_unused]] constexpr const char* CatEmail = Icons::Theme8::CatEmail;
+			[[maybe_unused]] constexpr const char* CatEntert = Icons::Theme8::CatEntert;
+			[[maybe_unused]] constexpr const char* CatFin = Icons::Theme8::CatFin;
+			[[maybe_unused]] constexpr const char* CatHealth = Icons::Theme8::CatHealth;
+			[[maybe_unused]] constexpr const char* CatLoc = Icons::Theme8::CatLoc;
+			[[maybe_unused]] constexpr const char* CatNews = Icons::Theme8::CatNews;
+			[[maybe_unused]] constexpr const char* CatOther = "S:/theme8/small/cat_other.bin";
+			[[maybe_unused]] constexpr const char* CatSched = Icons::Theme8::CatSched;
+			[[maybe_unused]] constexpr const char* CatSoc = Icons::Theme8::CatSoc;
+			[[maybe_unused]] constexpr const char* LockClosed = Icons::Theme8::LockClosed;
+			[[maybe_unused]] constexpr const char* LockOpen = Icons::Theme8::LockOpen;
+			[[maybe_unused]] constexpr const char* Trash = Icons::Theme8::Trash;
+			[[maybe_unused]] constexpr const char* TrashSel = Icons::Theme8::TrashSel;
+		}
+
+		namespace Theme9 = Icons::Theme9;
+	}
+
 	namespace Menu {
 		namespace Theme1 {
 			[[maybe_unused]] constexpr const char* BatteryEmpty = "S:/theme1/menu/batteryEmpty.bin";

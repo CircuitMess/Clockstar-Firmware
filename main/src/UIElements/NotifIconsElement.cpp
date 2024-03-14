@@ -2,6 +2,9 @@
 
 NotifIconsElement::NotifIconsElement(lv_obj_t* parent, uint8_t maxIcons) : LVObject(parent), maxIconsCount(maxIcons){
 	notifIcons.reserve(maxIconsCount);
+
+	/*lv_obj_set_style_bg_opa(*this, 100, 0);
+	lv_obj_set_style_bg_color(*this, lv_color_make(255, 0, 0), 0);*/
 }
 
 void NotifIconsElement::clear(){
