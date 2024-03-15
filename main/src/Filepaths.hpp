@@ -39,6 +39,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "";
 		}
 
 		namespace Theme2 {
@@ -50,6 +51,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "";
 		}
 
 		namespace Theme3 {
@@ -61,6 +63,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "";
 		}
 
 		namespace Theme4 {
@@ -72,6 +75,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "S:/theme4/lock_screen/b2.bin";
 			[[maybe_unused]] constexpr const char* Battery3 = "S:/theme4/lock_screen/b3.bin";
 			[[maybe_unused]] constexpr const char* Battery4 = "S:/theme4/lock_screen/b4.bin";
+			[[maybe_unused]] constexpr const char* Charging = "";
 		}
 
 		namespace Theme5 {
@@ -83,6 +87,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "";
 		}
 
 		namespace Theme6 {
@@ -94,6 +99,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "S:/theme6/lock_screen/chrg.bin";
 		}
 
 		namespace Theme7 {
@@ -105,6 +111,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "";
 		}
 
 		namespace Theme8 {
@@ -116,6 +123,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "";
 		}
 
 		namespace Theme9 {
@@ -127,6 +135,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
+			[[maybe_unused]] constexpr const char* Charging = "S:/theme9/lock_screen/chrg.bin";
 		}
 	}
 
