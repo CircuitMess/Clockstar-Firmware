@@ -756,10 +756,6 @@ namespace File {
 	}
 }
 
-// TODO some themes have extra UI elements... add those once figured out which exactly are they
-// TODO theme5 health category??
-// TODO theme 8 same as 7 with battery icon, number of lines represent battery level (need to change things up a bit with this)
-
 #define THEMED_FILE(Category, Filename, theme) 									\
 	theme == Theme::Theme1 ? File::Category::Theme1::Filename : 				\
 	theme == Theme::Theme2 ? File::Category::Theme2::Filename : 				\

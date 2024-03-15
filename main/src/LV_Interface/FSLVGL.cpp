@@ -6,75 +6,15 @@
 #include <string>
 #include <algorithm>
 #include <unordered_map>
-
-static constexpr const char* Cached[] = {
-		"/lock_screen/bg.bin",
-
-		"/menu/bg.bin",
-		"/menu/batteryFull.bin",
-		"/menu/batteryLow.bin",
-		"/menu/batteryMid.bin",
-		"/menu/phone.bin",
-		"/menu/phoneDc.bin",
-
-		"/icon/app_inst.bin",
-		"/icon/app_mess.bin",
-		"/icon/app_sms.bin",
-		"/icon/app_snap.bin",
-		"/icon/app_tiktok.bin",
-		"/icon/app_wapp.bin",
-		"/icon/call_in.bin",
-		"/icon/call_miss.bin",
-		"/icon/call_out.bin",
-		"/icon/cat_email.bin",
-		"/icon/cat_entert.bin",
-		"/icon/cat_fin.bin",
-		"/icon/cat_health.bin",
-		"/icon/cat_loc.bin",
-		"/icon/cat_news.bin",
-		"/icon/cat_other.bin",
-		"/icon/cat_sched.bin",
-		"/icon/cat_soc.bin",
-		"/icon/etc.bin",
-		"/icon/lock_closed.bin",
-		"/icon/lock_open.bin",
-		"/icon/trash.bin",
-		"/icon/trash_sel.bin",
-		"/icon/back.bin",
-		"/icon/back_sel.bin",
-
-		"/clock/0.bin",
-		"/clock/1.bin",
-		"/clock/2.bin",
-		"/clock/3.bin",
-		"/clock/4.bin",
-		"/clock/5.bin",
-		"/clock/6.bin",
-		"/clock/7.bin",
-		"/clock/8.bin",
-		"/clock/9.bin",
-		"/clock/colon.bin",
-		"/clock/space.bin"
-
-};
-
-static constexpr const char* ThemeDirs[] = {
-		"/theme1",
-		"/theme2",
-		"/theme3",
-		"/theme4",
-		"/theme5",
-		"/theme6",
-		"/theme7",
-		"/theme8",
-		"/theme9"
-};
+#include "Filepaths.hpp"
 
 const char* TAG = "FSLVGL";
 std::unordered_set<FSLVGL::FileResource, std::hash<RamFile*>> FSLVGL::cache;
 
+static constexpr size_t CacheReserveSize = 85;
+
 FSLVGL::FSLVGL(char letter){
-	cache.reserve(sizeof(Cached) / sizeof(Cached[0]) + 16);
+	cache.reserve(CacheReserveSize + 16);
 
 	esp_vfs_spiffs_conf_t conf = {
 			.base_path = "/spiffs",
@@ -178,11 +118,99 @@ void FSLVGL::removeFromCache(const char* path){
 }
 
 void FSLVGL::loadCache(Theme theme){
-	std::string themeDir = ThemeDirs[(uint8_t) theme];
+	const char* Cached[] = {
+			THEMED_FILE(LockScreen, Background, theme),
+			THEMED_FILE(LockScreen, Phone, theme),
+			THEMED_FILE(LockScreen, BatteryLevel, theme),
+			THEMED_FILE(LockScreen, Clock, theme),
+			THEMED_FILE(LockScreen, Battery1, theme),
+			THEMED_FILE(LockScreen, Battery2, theme),
+			THEMED_FILE(LockScreen, Battery3, theme),
+			THEMED_FILE(LockScreen, Battery4, theme),
+			THEMED_FILE(LockScreen, Charging, theme),
+
+			THEMED_FILE(Clock, Num0, theme),
+			THEMED_FILE(Clock, Num1, theme),
+			THEMED_FILE(Clock, Num2, theme),
+			THEMED_FILE(Clock, Num3, theme),
+			THEMED_FILE(Clock, Num4, theme),
+			THEMED_FILE(Clock, Num5, theme),
+			THEMED_FILE(Clock, Num6, theme),
+			THEMED_FILE(Clock, Num7, theme),
+			THEMED_FILE(Clock, Num8, theme),
+			THEMED_FILE(Clock, Num9, theme),
+			THEMED_FILE(Clock, Colon, theme),
+			THEMED_FILE(Clock, Space, theme),
+
+			THEMED_FILE(Icons, AppInst, theme),
+			THEMED_FILE(Icons, AppMess, theme),
+			THEMED_FILE(Icons, AppSms, theme),
+			THEMED_FILE(Icons, AppSnap, theme),
+			THEMED_FILE(Icons, AppTiktok, theme),
+			THEMED_FILE(Icons, AppWapp, theme),
+			THEMED_FILE(Icons, Back, theme),
+			THEMED_FILE(Icons, BackSel, theme),
+			THEMED_FILE(Icons, CallIn, theme),
+			THEMED_FILE(Icons, CallMiss, theme),
+			THEMED_FILE(Icons, CallOut, theme),
+			THEMED_FILE(Icons, CatEmail, theme),
+			THEMED_FILE(Icons, CatEntert, theme),
+			THEMED_FILE(Icons, CatFin, theme),
+			THEMED_FILE(Icons, CatHealth, theme),
+			THEMED_FILE(Icons, CatLoc, theme),
+			THEMED_FILE(Icons, CatNews, theme),
+			THEMED_FILE(Icons, CatOther, theme),
+			THEMED_FILE(Icons, CatSched, theme),
+			THEMED_FILE(Icons, CatSoc, theme),
+			THEMED_FILE(Icons, LockOpen, theme),
+			THEMED_FILE(Icons, LockClosed, theme),
+			THEMED_FILE(Icons, Trash, theme),
+			THEMED_FILE(Icons, TrashSel, theme),
+
+			THEMED_FILE(SmallIcons, AppInst, theme),
+			THEMED_FILE(SmallIcons, AppMess, theme),
+			THEMED_FILE(SmallIcons, AppSms, theme),
+			THEMED_FILE(SmallIcons, AppSnap, theme),
+			THEMED_FILE(SmallIcons, AppTiktok, theme),
+			THEMED_FILE(SmallIcons, AppWapp, theme),
+			THEMED_FILE(SmallIcons, Back, theme),
+			THEMED_FILE(SmallIcons, BackSel, theme),
+			THEMED_FILE(SmallIcons, CallIn, theme),
+			THEMED_FILE(SmallIcons, CallMiss, theme),
+			THEMED_FILE(SmallIcons, CallOut, theme),
+			THEMED_FILE(SmallIcons, CatEmail, theme),
+			THEMED_FILE(SmallIcons, CatEntert, theme),
+			THEMED_FILE(SmallIcons, CatFin, theme),
+			THEMED_FILE(SmallIcons, CatHealth, theme),
+			THEMED_FILE(SmallIcons, CatLoc, theme),
+			THEMED_FILE(SmallIcons, CatNews, theme),
+			THEMED_FILE(SmallIcons, CatOther, theme),
+			THEMED_FILE(SmallIcons, CatSched, theme),
+			THEMED_FILE(SmallIcons, CatSoc, theme),
+			THEMED_FILE(SmallIcons, LockOpen, theme),
+			THEMED_FILE(SmallIcons, LockClosed, theme),
+			THEMED_FILE(SmallIcons, Trash, theme),
+			THEMED_FILE(SmallIcons, TrashSel, theme),
+
+			THEMED_FILE(Menu, BatteryEmpty, theme),
+			THEMED_FILE(Menu, BatteryFull, theme),
+			THEMED_FILE(Menu, BatteryLow, theme),
+			THEMED_FILE(Menu, BatteryMid, theme),
+			THEMED_FILE(Menu, BigLowBattery, theme),
+			THEMED_FILE(Menu, Phone, theme),
+			THEMED_FILE(Menu, PhoneDisconnected, theme),
+			THEMED_FILE(Menu, Background, theme),
+			THEMED_FILE(Menu, SettingsBackground, theme),
+			THEMED_FILE(Menu, Connection, theme),
+			THEMED_FILE(Menu, Find, theme),
+			THEMED_FILE(Menu, Level, theme),
+			THEMED_FILE(Menu, Settings, theme),
+			THEMED_FILE(Menu, Theremin, theme),
+			THEMED_FILE(Menu, Lunar, theme)
+	};
+
 	for(const auto& p: Cached){
-		std::string filePath = themeDir;
-		filePath += p;
-		addToCache(filePath.c_str());
+		addToCache(p);
 	}
 }
 

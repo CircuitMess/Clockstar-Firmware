@@ -66,6 +66,8 @@ void SettingsScreen::onStop(){
 	auto status = (StatusCenter*) Services.get(Service::Status);
 	status->blockAudio(false);
 	status->updateLED();
+
+	FSLVGL::loadCache(settings.get().themeData.theme);
 }
 
 void SettingsScreen::onStarting(){
