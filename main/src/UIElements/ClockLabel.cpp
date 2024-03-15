@@ -50,7 +50,7 @@ void ClockLabel::updateTime(const tm& time){
 		if(hh == 0){
 			hh = 12;
 		}
-		snprintf(clockText, sizeof(clockText), "%d%c%02d", hh, time.tm_sec % 2 ? ':' : ' ', time.tm_min);
+		snprintf(clockText, sizeof(clockText), "%02d%c%02d", hh, time.tm_sec % 2 ? ':' : ' ', time.tm_min);
 	}
 
 	updateUI(clockText, ampm);

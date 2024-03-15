@@ -167,7 +167,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Num8 = "S:/theme2/clock/8.bin";
 			[[maybe_unused]] constexpr const char* Num9 = "S:/theme2/clock/9.bin";
 			[[maybe_unused]] constexpr const char* Colon = "S:/theme2/clock/colon.bin";
-			[[maybe_unused]] constexpr const char* Space = "";
+			[[maybe_unused]] constexpr const char* Space = "S:/theme2/clock/space.bin";
 		}
 
 		namespace Theme3 {
@@ -182,7 +182,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Num8 = "S:/theme3/clock/8.bin";
 			[[maybe_unused]] constexpr const char* Num9 = "S:/theme3/clock/9.bin";
 			[[maybe_unused]] constexpr const char* Colon = "S:/theme3/clock/colon.bin";
-			[[maybe_unused]] constexpr const char* Space = "";
+			[[maybe_unused]] constexpr const char* Space = "S:/theme3/clock/space.bin";
 		}
 
 		namespace Theme4 {
@@ -227,7 +227,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Num8 = "S:/theme6/clock/8.bin";
 			[[maybe_unused]] constexpr const char* Num9 = "S:/theme6/clock/9.bin";
 			[[maybe_unused]] constexpr const char* Colon = "S:/theme6/clock/colon.bin";
-			[[maybe_unused]] constexpr const char* Space = "";
+			[[maybe_unused]] constexpr const char* Space = "S:/theme6/clock/space.bin";
 		}
 
 		namespace Theme7 {
@@ -242,7 +242,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Num8 = "S:/theme7/clock/8.bin";
 			[[maybe_unused]] constexpr const char* Num9 = "S:/theme7/clock/9.bin";
 			[[maybe_unused]] constexpr const char* Colon = "S:/theme7/clock/colon.bin";
-			[[maybe_unused]] constexpr const char* Space = "";
+			[[maybe_unused]] constexpr const char* Space = "S:/theme7/clock/space.bin";
 		}
 
 		namespace Theme8 {
@@ -257,7 +257,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Num8 = "S:/theme8/clock/8.bin";
 			[[maybe_unused]] constexpr const char* Num9 = "S:/theme8/clock/9.bin";
 			[[maybe_unused]] constexpr const char* Colon = "S:/theme8/clock/colon.bin";
-			[[maybe_unused]] constexpr const char* Space = "";
+			[[maybe_unused]] constexpr const char* Space = "S:/theme8/clock/space.bin";
 		}
 
 		namespace Theme9 {
@@ -272,7 +272,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Num8 = "S:/theme9/clock/8.bin";
 			[[maybe_unused]] constexpr const char* Num9 = "S:/theme9/clock/9.bin";
 			[[maybe_unused]] constexpr const char* Colon = "S:/theme9/clock/colon.bin";
-			[[maybe_unused]] constexpr const char* Space = "";
+			[[maybe_unused]] constexpr const char* Space = "S:/theme9/clock/space.bin";
 		}
 	}
 
