@@ -10,9 +10,13 @@ Theme9BatteryElement::Theme9BatteryElement(lv_obj_t* parent) : BatteryElement(pa
 
 	const Theme theme = settings->get().themeData.theme;
 
+	lv_obj_set_layout(*this, LV_LAYOUT_FLEX);
+
 	batteryPercent = lv_label_create(*this);
-	lv_obj_set_style_text_font(batteryPercent, &devin, 0); // TODO need a new font for this most likely
+	lv_obj_set_style_text_font(batteryPercent, &batteryFont, 0);
 	lv_obj_set_style_text_color(batteryPercent, lv_color_white(), 0);
+	lv_obj_set_style_pad_top(batteryPercent, 1, 0);
+	lv_obj_add_flag(batteryPercent, LV_OBJ_FLAG_HIDDEN);
 
 	chargingImg = lv_img_create(*this);
 	lv_img_set_src(chargingImg, THEMED_FILE(LockScreen, Charging, theme));

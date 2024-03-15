@@ -10,9 +10,12 @@ Theme6BatteryElement::Theme6BatteryElement(lv_obj_t* parent) : BatteryElement(pa
 
 	const Theme theme = settings->get().themeData.theme;
 
+	lv_obj_set_layout(*this, LV_LAYOUT_FLEX);
+
 	batteryPercent = lv_label_create(*this);
-	lv_obj_set_style_text_font(batteryPercent, &devin, 0); // TODO need a new font for this most likely
+	lv_obj_set_style_text_font(batteryPercent, &landerfont, 0);
 	lv_obj_set_style_text_color(batteryPercent, lv_color_make(255, 255, 0), 0);
+	lv_obj_set_style_pad_top(batteryPercent, 1, 0);
 
 	chargingImg = lv_img_create(*this);
 	lv_img_set_src(chargingImg, THEMED_FILE(LockScreen, Charging, theme));
@@ -24,8 +27,8 @@ Theme6BatteryElement::Theme6BatteryElement(lv_obj_t* parent) : BatteryElement(pa
 }
 
 void Theme6BatteryElement::updateChargingVisuals(){
-	lv_obj_clear_flag(chargingImg, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(batteryPercent, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_clear_flag(chargingImg, LV_OBJ_FLAG_HIDDEN);
 }
 
 void Theme6BatteryElement::updateLevelVisuals(){
