@@ -89,7 +89,7 @@ void SettingsScreen::updateVisuals(){
 	const Theme theme = settings.get().themeData.theme;
 
 	if(bg != nullptr){
-		lv_obj_set_style_bg_img_src(bg, THEMED_FILE(Menu, Background, theme), 0);
+		lv_obj_set_style_bg_img_src(bg, THEMED_FILE(Menu, SettingsBackground, theme), 0);
 	}
 
 	if(statusBar != nullptr){
@@ -147,7 +147,7 @@ void SettingsScreen::buildUI(){
 	lv_obj_set_size(bg, 128, 128);
 	lv_obj_set_pos(bg, 0, 0);
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
-	lv_obj_set_style_bg_img_src(bg, THEMED_FILE(Menu, Background, theme), 0);
+	lv_obj_set_style_bg_img_src(bg, THEMED_FILE(Menu, SettingsBackground, theme), 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
 
 	container = lv_obj_create(*this);

@@ -601,6 +601,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme1/menu/phone.bin";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme1/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme1/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = "S:/theme1/menu/bg2.bin";
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme1/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme1/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme1/menu/level.bin";
@@ -618,6 +619,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme2/menu/phone.bin";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme2/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme2/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme2/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme2/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme2/menu/level.bin";
@@ -635,6 +637,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme3/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme3/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme3/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme3/menu/level.bin";
@@ -652,6 +655,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme4/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme4/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme4/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme4/menu/level.bin";
@@ -669,6 +673,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme5/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme5/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme5/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme5/menu/level.bin";
@@ -686,6 +691,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme6/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme6/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme6/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme6/menu/level.bin";
@@ -703,6 +709,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme7/menu/phone.bin";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme7/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme7/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme7/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme7/menu/level.bin";
@@ -720,6 +727,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme8/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme8/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme8/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme8/menu/level.bin";
@@ -737,6 +745,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme9/menu/phone.bin";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme9/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme9/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme9/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme9/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme9/menu/level.bin";
