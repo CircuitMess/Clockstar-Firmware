@@ -28,7 +28,12 @@ Theme9BatteryElement::Theme9BatteryElement(lv_obj_t* parent) : BatteryElement(pa
 }
 
 void Theme9BatteryElement::updateChargingVisuals(){
-	lv_obj_clear_flag(chargingImg, LV_OBJ_FLAG_HIDDEN);
+	if(chargingIndex % 2 == 0){
+		lv_obj_add_flag(chargingImg, LV_OBJ_FLAG_HIDDEN);
+	}else{
+		lv_obj_clear_flag(chargingImg, LV_OBJ_FLAG_HIDDEN);
+	}
+
 	lv_obj_add_flag(batteryPercent, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -45,8 +50,5 @@ void Theme9BatteryElement::loop(){
 		lv_obj_clear_flag(batteryPercent, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_clear_flag(batteryPercent, LV_OBJ_FLAG_HIDDEN);
 		lv_label_set_text(batteryPercent, std::to_string(battery.getPerc()).c_str());
-	}else{
-		lv_obj_clear_flag(chargingImg, LV_OBJ_FLAG_HIDDEN);
-		lv_obj_add_flag(batteryPercent, LV_OBJ_FLAG_HIDDEN);
 	}
 }

@@ -63,7 +63,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
-			[[maybe_unused]] constexpr const char* Charging = "";
+			[[maybe_unused]] constexpr const char* Charging = "S:/theme6/lock_screen/chrg.bin";
 		}
 
 		namespace Theme4 {

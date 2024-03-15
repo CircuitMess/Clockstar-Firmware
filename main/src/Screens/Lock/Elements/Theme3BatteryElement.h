@@ -15,6 +15,7 @@ protected:
 private:
 	lv_obj_t* batteryPercent;
 	lv_obj_t* batteryImg;
+	lv_obj_t* chargingImg;
 };
 
 #endif //ARTEMIS_FIRMWARE_THEME3BATTERYELEMENT_H
