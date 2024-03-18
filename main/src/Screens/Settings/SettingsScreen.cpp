@@ -193,7 +193,7 @@ void SettingsScreen::buildUI(){
 	lv_group_add_obj(inputGroup, *themePicker);
 
 	dateFormatPicker = new PickerElement(container, "Date format", (uint16_t) startingSettings.dateFormat,
-									"DD.MM.YYYY\nMM.DD.YYY",
+									"DD.MM.YYYY\nMM.DD.YYYY",
 									[this](uint16_t selected){
 										SettingsStruct sett = settings.get();
 										sett.dateFormat = (DateFormat) selected;
