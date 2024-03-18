@@ -67,7 +67,10 @@ void SettingsScreen::onStop(){
 	status->blockAudio(false);
 	status->updateLED();
 
-	FSLVGL::loadCache(settings.get().themeData.theme);
+	if(oldTheme != settings.get().themeData.theme){
+		FSLVGL::unloadCache();
+		FSLVGL::loadCache(settings.get().themeData.theme);
+	}
 }
 
 void SettingsScreen::onStarting(){
@@ -85,6 +88,8 @@ void SettingsScreen::onStart(){
 
 	auto status = (StatusCenter*) Services.get(Service::Status);
 	status->blockAudio(true);
+
+	oldTheme = settings.get().themeData.theme;
 }
 
 void SettingsScreen::updateVisuals(){
@@ -178,7 +183,7 @@ void SettingsScreen::buildUI(){
 
 	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.themeData.theme,
 									"Default \nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9",
-									[&startingSettings, this](uint16_t selected){
+									[this](uint16_t selected){
 										SettingsStruct sett = settings.get();
 										sett.themeData = createTheme((Theme) selected);
 										settings.set(sett);

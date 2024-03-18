@@ -77,6 +77,10 @@ auto FSLVGL::findCache(void* ptr){
 }
 
 void FSLVGL::addToCache(const char* path, bool use32bAligned){
+	if(path == nullptr || std::string(path).empty()){
+		return;
+	}
+
 	std::string p;
 	if(strchr(path, DriveSeparator) != nullptr){
 		p = std::string(path + 2);
