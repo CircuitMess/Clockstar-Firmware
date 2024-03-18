@@ -12,6 +12,7 @@
 #include "Screens/Lock/Elements/Theme7BatteryElement.h"
 #include "Screens/Lock/Elements/Theme8BatteryElement.h"
 #include "UIElements/NotifIconsElement.h"
+#include "Theme/theme.h"
 
 LockSkin::LockSkin(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGroup(inputGroup){
 	notifs.reserve(MaxNotifs);
@@ -268,6 +269,16 @@ void LockSkin::buildUI(){
 	lv_obj_set_align(*clock, LV_ALIGN_CENTER);
 	lv_obj_set_x(*clock, themeData.clockX);
 	lv_obj_set_y(*clock, themeData.clockY);
+
+	date = lv_label_create(main);
+	if(date == nullptr){
+		return;
+	}
+
+	lv_obj_set_style_text_font(date, &landerfont, 0);
+	lv_obj_set_align(date, LV_ALIGN_CENTER);
+	lv_obj_set_x(date, themeData.dateX);
+	lv_obj_set_y(date, themeData.dateY);
 
 	locker = new Slider(main, themeData.sliderConfig);
 	lv_obj_set_y(*locker, themeData.sliderY);

@@ -24,15 +24,14 @@ public:
 private:
 	lv_group_t* inputGroup = nullptr;
 	lv_obj_t* main = nullptr;
-	//StatusBar* status = nullptr;
 	PhoneElement* phoneElement;
 	BatteryElement* batteryElement;
 	lv_obj_t* battery;
-	lv_obj_t* statusCenter;
 	ClockLabelBig* clock = nullptr;
 	class NotifIconsElement* icons = nullptr;
 	Slider* locker = nullptr;
 	lv_obj_t* rest = nullptr;
+	lv_obj_t* date = nullptr;
 
 	static constexpr uint8_t MaxNotifs = 20;
 	std::unordered_map<uint32_t, Item*> notifs;

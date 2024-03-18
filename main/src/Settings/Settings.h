@@ -33,6 +33,8 @@ struct ThemeStruct {
 	lv_coord_t batteryY = 0;
 	lv_coord_t phoneX = 0;
 	lv_coord_t phoneY = 0;
+	lv_coord_t dateX = 0;
+	lv_coord_t dateY = 0;
 	bool verticalClock = false;
 	int16_t clockPadding = 0;
 	bool specialPhone = false;
@@ -275,6 +277,11 @@ const static inline ThemeStruct Theme8 = createTheme(Theme::Theme8);
 const static inline ThemeStruct Theme9 = createTheme(Theme::Theme9);
 const static inline ThemeStruct Default = Theme1;
 
+enum class DateFormat : uint8_t {
+	Regular,
+	Reverse
+};
+
 struct SettingsStruct {
 	bool notificationSounds = true;
 	uint8_t screenBrightness = 100;
@@ -284,6 +291,7 @@ struct SettingsStruct {
 	bool screenRotate = false;
 	bool timeFormat24h = true;
 	ThemeStruct themeData = Default;
+	DateFormat dateFormat = DateFormat::Regular;
 };
 
 class Settings {

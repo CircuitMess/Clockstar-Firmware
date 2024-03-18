@@ -182,7 +182,7 @@ void SettingsScreen::buildUI(){
 	lv_group_add_obj(inputGroup, *timeFormatSwitch);
 
 	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.themeData.theme,
-									"Default \nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9",
+									"Default\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9",
 									[this](uint16_t selected){
 										SettingsStruct sett = settings.get();
 										sett.themeData = createTheme((Theme) selected);
@@ -191,6 +191,15 @@ void SettingsScreen::buildUI(){
 										updateVisuals();
 									});
 	lv_group_add_obj(inputGroup, *themePicker);
+
+	dateFormatPicker = new PickerElement(container, "Date format", (uint16_t) startingSettings.dateFormat,
+									"DD.MM.YYYY\nMM.DD.YYY",
+									[this](uint16_t selected){
+										SettingsStruct sett = settings.get();
+										sett.dateFormat = (DateFormat) selected;
+										settings.set(sett);
+									});
+	lv_group_add_obj(inputGroup, *dateFormatPicker);
 
 	manualTime = new LabelElement(container, "Adjust date/time", [this](){
 		timePickerModal = new TimePickerModal(this, ts.getTime());

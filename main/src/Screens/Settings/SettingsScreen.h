@@ -33,6 +33,7 @@ private:
 	lv_obj_t* bg = nullptr;
 	lv_obj_t* container = nullptr;
 	class PickerElement* themePicker = nullptr;
+	PickerElement* dateFormatPicker = nullptr;
 	class LabelElement* manualTime = nullptr;
 	class BoolElement* audioSwitch = nullptr;
 	class SliderElement* brightnessSlider = nullptr;
