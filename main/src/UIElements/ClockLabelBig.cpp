@@ -4,6 +4,11 @@
 #include "Util/Services.h"
 
 ClockLabelBig::ClockLabelBig(lv_obj_t* parent, bool vertical, int16_t verticalPad) : ClockLabel(parent), vertical(vertical){
+	auto* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
 	lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
 	if(vertical){
@@ -13,7 +18,12 @@ ClockLabelBig::ClockLabelBig(lv_obj_t* parent, bool vertical, int16_t verticalPa
 	}
 
 	lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-	lv_obj_set_style_pad_gap(obj, 4, 0);
+
+	if(settings->get().themeData.theme == Theme::Theme3 || settings->get().themeData.theme == Theme::Theme4){
+		lv_obj_set_style_pad_gap(obj, 0, 0);
+	}else{
+		lv_obj_set_style_pad_gap(obj, 4, 0);
+	}
 
 	hours = lv_obj_create(obj);
 	minutes = lv_obj_create(obj);

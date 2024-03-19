@@ -73,7 +73,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.phoneX = 56;
 			data.phoneY = -57;
 			data.notifData.y = 27;
-			data.notifData.gapPad = 1;
+			data.notifData.gapPad = 3;
 
 			break;
 		}
@@ -85,6 +85,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.start = 108;
 			data.sliderConfig.end = 20;
 			data.sliderConfig.y = 0;
+			data.sliderConfig.neverHide = true;
 			data.sliderY = 102;
 			data.clockY = -20;
 			data.batteryX = 68;
@@ -123,6 +124,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.start = 122;
 			data.sliderConfig.end = 8;
 			data.sliderConfig.y = 3;
+			data.sliderConfig.neverHide = true;
 			data.sliderY = 109;
 			data.clockX = -20;
 			data.clockY = -4;
@@ -151,9 +153,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.highlightColor = lv_color_make(244, 180, 27);
 			data.backgroundColor = lv_color_make(55, 66, 99);
 			data.opacity = LV_OPA_0;
-			data.sliderConfig.start = 124;
+			data.sliderConfig.start = 122;
 			data.sliderConfig.end = 24;
 			data.sliderConfig.y = 3;
+			data.sliderConfig.neverHide = true;
 			data.sliderY = 113;
 			data.clockX = -26;
 			data.clockY = -12;
@@ -184,6 +187,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.start = 126;
 			data.sliderConfig.end = 2;
 			data.sliderConfig.y = 0;
+			data.sliderConfig.neverHide = true;
 			data.sliderY = 110;
 			data.clockY = -30;
 			data.batteryX = 110;
@@ -207,9 +211,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.secondatyColor = lv_color_make(251, 242, 54);
 			data.highlightColor = lv_color_make(251, 247, 54);
 			data.opacity = LV_OPA_0;
-			data.sliderConfig.start = 126;
+			data.sliderConfig.start = 122;
 			data.sliderConfig.end = 20;
 			data.sliderConfig.y = 3;
+			data.sliderConfig.neverHide = true;
 			data.sliderY = 111;
 			data.clockY = -4;
 			data.batteryX = 92;
@@ -218,6 +223,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.phoneY = -57;
 			data.specialPhone = true;
 			data.notifData.y = 24;
+			data.notifData.h = 15;
 
 			break;
 		}
@@ -229,6 +235,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.start = 122;
 			data.sliderConfig.end = 6;
 			data.sliderConfig.y = 3;
+			data.sliderConfig.neverHide = true;
 			data.sliderY = 111;
 			data.clockY = -23;
 			data.batteryX = 87;
@@ -237,6 +244,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.phoneY = -57;
 			data.specialPhone = true;
 			data.notifData.y = 26;
+			data.notifData.h = 15;
 
 			break;
 		}
@@ -248,6 +256,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.start = 118;
 			data.sliderConfig.end = 8;
 			data.sliderConfig.y = 3;
+			data.sliderConfig.neverHide = true;
 			data.sliderY = 109;
 			data.clockY = -18;
 			data.batteryX = 96;

@@ -38,6 +38,30 @@ void LockSkin::loop(){
 	if(clock != nullptr){
 		clock->loop();
 	}
+
+	Settings* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	Time* time = (Time*) Services.get(Service::Time);
+	if(time == nullptr){
+		return;
+	}
+
+	const tm tm = time->getTime();
+
+	std::string dateString;
+
+	if(settings->get().dateFormat == DateFormat::Regular){
+		dateString += std::to_string(tm.tm_mday) + "." + std::to_string(tm.tm_mon);
+	}else{
+		dateString += std::to_string(tm.tm_mon) + "." + std::to_string(tm.tm_mday);
+	}
+
+	dateString += "." + std::to_string(tm.tm_year);
+
+	lv_label_set_text(date, dateString.c_str());
 }
 
 void LockSkin::prepare(){

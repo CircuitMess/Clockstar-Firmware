@@ -7,6 +7,7 @@ struct SliderConfig {
 	lv_coord_t start = 0;
 	lv_coord_t end = 0;
 	lv_coord_t y = 0;
+	bool neverHide = false;
 };
 
 class Slider : public LVObject {

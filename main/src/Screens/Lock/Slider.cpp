@@ -51,6 +51,12 @@ void Slider::loop(){
 
 	if(millis() - activityTime >= InactivityTimeout){
 		hide();
+		if(config.start > config.end){
+			lv_img_t* img = (lv_img_t*) icon;
+			lv_obj_set_pos(icon, config.start - img->w, config.y);
+		}else{
+			lv_obj_set_pos(icon, config.start, config.y);
+		}
 	}
 }
 
@@ -99,5 +105,10 @@ void Slider::activity(){
 
 void Slider::hide(){
 	activityTime = 0;
+
+	if(config.neverHide){
+		return;
+	}
+
 	lv_obj_add_flag(icon, LV_OBJ_FLAG_HIDDEN);
 }
