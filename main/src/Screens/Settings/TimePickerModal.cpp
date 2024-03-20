@@ -149,13 +149,17 @@ void TimePickerModal::buildUI(){
 		modal->setDateLimits();
 	}, LV_EVENT_VALUE_CHANGED, this);
 
-	lv_obj_set_size(timeCont, lv_pct(100), LV_SIZE_CONTENT);
-	lv_obj_set_size(dateCont, lv_pct(100), LV_SIZE_CONTENT);
+	lv_obj_set_size(timeCont, lv_pct(110), LV_SIZE_CONTENT);
+	lv_obj_set_size(dateCont, lv_pct(110), LV_SIZE_CONTENT);
 
 	saveButton = new LabelElement(*this, "Save", [this](){
 		saveTime();
 		delete this;
-	});
+	}, true, LV_ALIGN_CENTER);
+
+	lv_obj_set_width(*saveButton, 32);
+	lv_obj_set_align(*saveButton, LV_ALIGN_CENTER);
+
 	lv_group_add_obj(inputGroup, *saveButton);
 }
 

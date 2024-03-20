@@ -22,7 +22,7 @@ struct ThemeStruct {
 	Theme theme = Theme::Default;
 	lv_color_t primaryColor = lv_color_black();
 	uint8_t opacity = LV_OPA_100;
-	lv_color_t secondatyColor = lv_color_black();
+	lv_color_t secondaryColor = lv_color_black();
 	lv_color_t highlightColor = lv_color_black();
 	lv_color_t backgroundColor = lv_color_black();
 	SliderConfig sliderConfig = {};
@@ -60,7 +60,7 @@ inline static ThemeStruct createTheme(Theme theme){
 	switch(theme){
 		case Theme::Theme1:{
 			data.primaryColor = lv_color_make(255, 101, 0);
-			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.secondaryColor = lv_color_make(0, 0, 0);
 			data.highlightColor = lv_color_make(255, 101, 0);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 6;
@@ -79,7 +79,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme2:{
 			data.primaryColor = lv_color_make(255, 38, 116);
-			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.secondaryColor = lv_color_make(0, 0, 0);
 			data.highlightColor = lv_color_make(255, 38, 116);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 108;
@@ -98,7 +98,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme3:{
 			data.primaryColor = lv_color_make(255, 255, 255);
-			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.secondaryColor = lv_color_make(0, 0, 0);
 			data.highlightColor = lv_color_make(255, 255, 255);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 6;
@@ -117,7 +117,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme4:{
 			data.primaryColor = lv_color_make(38, 43, 68);
-			data.secondatyColor = lv_color_make(192, 203, 220);
+			data.secondaryColor = lv_color_make(192, 203, 220);
 			data.highlightColor = lv_color_make(38, 43, 68);
 			data.backgroundColor = lv_color_make(192, 203, 220);
 			data.opacity = LV_OPA_100;
@@ -149,7 +149,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme5:{
 			data.primaryColor = lv_color_make(244, 180, 27);
-			data.secondatyColor = lv_color_make(244, 180, 27);
+			data.secondaryColor = lv_color_make(244, 180, 27);
 			data.highlightColor = lv_color_make(244, 180, 27);
 			data.backgroundColor = lv_color_make(55, 66, 99);
 			data.opacity = LV_OPA_0;
@@ -181,7 +181,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme6:{
 			data.primaryColor = lv_color_make(0, 0, 255);
-			data.secondatyColor = lv_color_make(255, 255, 0);
+			data.secondaryColor = lv_color_make(255, 255, 0);
 			data.highlightColor = lv_color_make(255, 255, 255);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 126;
@@ -208,7 +208,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme7:{
 			data.primaryColor = lv_color_make(251, 247, 54);
-			data.secondatyColor = lv_color_make(251, 242, 54);
+			data.secondaryColor = lv_color_make(251, 242, 54);
 			data.highlightColor = lv_color_make(251, 247, 54);
 			data.opacity = LV_OPA_0;
 			data.sliderConfig.start = 122;
@@ -229,7 +229,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme8:{
 			data.primaryColor = lv_color_make(94, 193, 0);
-			data.secondatyColor = lv_color_make(0, 0, 0);
+			data.secondaryColor = lv_color_make(0, 0, 0);
 			data.highlightColor = lv_color_make(94, 193, 0);
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 122;
@@ -250,7 +250,7 @@ inline static ThemeStruct createTheme(Theme theme){
 		}
 		case Theme::Theme9:{
 			data.primaryColor = lv_color_make(255, 255, 0);
-			data.secondatyColor = lv_color_make(255, 255, 255);
+			data.secondaryColor = lv_color_make(255, 255, 255);
 			data.highlightColor = lv_color_make(255, 210, 0);
 			data.opacity = LV_OPA_0;
 			data.sliderConfig.start = 118;

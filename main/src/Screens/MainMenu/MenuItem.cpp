@@ -34,7 +34,7 @@ MenuItem::MenuItem(lv_obj_t* parent, const char* imagePath, const char* labelTex
 	lv_obj_set_style_pad_ver(label, 3, 0);
 	lv_obj_set_style_bg_opa(label, settings->get().themeData.opacity, 0);
 	lv_obj_set_style_bg_color(label, settings->get().themeData.primaryColor, 0);
-	lv_obj_set_style_text_color(label, settings->get().themeData.secondatyColor, 0);
+	lv_obj_set_style_text_color(label, settings->get().themeData.secondaryColor, 0);
 
 
 	lv_obj_add_event_cb(*this, [](lv_event_t* e){
