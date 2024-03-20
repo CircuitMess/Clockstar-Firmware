@@ -202,7 +202,7 @@ void SettingsScreen::buildUI(){
 	lv_group_add_obj(inputGroup, *themePicker);
 
 	dateFormatPicker = new PickerElement(container, "Date format", (uint16_t) startingSettings.dateFormat,
-									"DD.MM.YYYY\nMM.DD.YYYY",
+									"D.M.Y\nM.D.Y",
 									[this](uint16_t selected){
 										SettingsStruct sett = settings.get();
 										sett.dateFormat = (DateFormat) selected;
@@ -210,7 +210,7 @@ void SettingsScreen::buildUI(){
 									});
 	lv_group_add_obj(inputGroup, *dateFormatPicker);
 
-	manualTime = new LabelElement(container, "Adjust date/time", [this](){
+	manualTime = new LabelElement(container, "Adjust time/date", [this](){
 		timePickerModal = new TimePickerModal(this, ts.getTime());
 	});
 	lv_group_add_obj(inputGroup, *manualTime);
