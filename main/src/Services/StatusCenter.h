@@ -13,6 +13,7 @@
 class StatusCenter : public Threaded {
 public:
 	StatusCenter();
+	~StatusCenter();
 
 	void blockAudio(bool block);
 

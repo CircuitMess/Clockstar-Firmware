@@ -59,7 +59,7 @@ void LockSkin::loop(){
 		dateString += std::to_string(tm.tm_mon) + "." + std::to_string(tm.tm_mday);
 	}
 
-	dateString += "." + std::to_string(tm.tm_year);
+	dateString += "." + std::to_string(tm.tm_year + 1900);
 
 	lv_label_set_text(date, dateString.c_str());
 }

@@ -142,6 +142,10 @@ void SettingsScreen::updateVisuals(){
 	if(saveAndExit != nullptr){
 		saveAndExit->updateVisuals();
 	}
+
+	if(dateFormatPicker != nullptr){
+		dateFormatPicker->updateVisuals();
+	}
 }
 
 void SettingsScreen::buildUI(){

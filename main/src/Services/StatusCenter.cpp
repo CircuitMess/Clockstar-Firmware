@@ -33,6 +33,10 @@ settings(*((Settings*) Services.get(Service::Settings)))
 	start();
 }
 
+StatusCenter::~StatusCenter(){
+	Events::unlisten(&events);
+}
+
 void StatusCenter::loop(){
 	Event evt;
 	if(!events.get(evt, portMAX_DELAY)) return;

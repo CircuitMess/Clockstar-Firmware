@@ -33,6 +33,7 @@ private:
 	struct FileResource {
 		RamFile* ramFile;
 		mutable bool deleteFlag;
+		mutable size_t openCount = 0;
 
 		bool operator==(const FileResource& other) const{
 			return other.ramFile == ramFile;

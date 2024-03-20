@@ -220,7 +220,9 @@ void FSLVGL::loadCache(Theme theme){
 
 void FSLVGL::unloadCache(){
 	for(auto it = cache.begin(); it != cache.end();){
-		if(it->deleteFlag){
+		it->deleteFlag = true;
+
+		if(it->openCount == 0){
 			delete it->ramFile;
 			it = cache.erase(it);
 		}else{
@@ -236,6 +238,7 @@ bool FSLVGL::ready_cb(struct _lv_fs_drv_t* drv){
 void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t mode){
 	auto cached = findCache(path);
 	if(cached != cache.end()){
+		cached->openCount++;
 		(*cached).ramFile->seek(0);
 		return (*cached).ramFile;
 	}
@@ -257,6 +260,10 @@ void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t m
 lv_fs_res_t FSLVGL::close_cb(struct _lv_fs_drv_t* drv, void* file_p){
 	auto it = findCache(file_p);
 	if(it != cache.end()){
+		if(it->openCount != 0){
+			it->openCount--;
+		}
+
 		if(it->deleteFlag){
 			delete it->ramFile;
 			cache.erase(it);
