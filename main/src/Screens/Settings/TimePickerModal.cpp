@@ -55,7 +55,6 @@ void TimePickerModal::buildUI(){
 	lv_obj_set_layout(dateCont, LV_LAYOUT_FLEX);
 	lv_obj_set_flex_align(dateCont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 	lv_obj_set_flex_flow(dateCont, LV_FLEX_FLOW_ROW);
-	lv_obj_set_style_border_color(timeCont, settings->get().themeData.primaryColor, 0);
 
 	if(timeFormat24h){
 		hour = createPicker(timeCont, time.tm_hour, 0, 23);
@@ -149,8 +148,8 @@ void TimePickerModal::buildUI(){
 		modal->setDateLimits();
 	}, LV_EVENT_VALUE_CHANGED, this);
 
-	lv_obj_set_size(timeCont, lv_pct(110), LV_SIZE_CONTENT);
-	lv_obj_set_size(dateCont, lv_pct(110), LV_SIZE_CONTENT);
+	lv_obj_set_size(timeCont, lv_pct(108), LV_SIZE_CONTENT);
+	lv_obj_set_size(dateCont, lv_pct(108), LV_SIZE_CONTENT);
 
 	saveButton = new LabelElement(*this, "Save", [this](){
 		saveTime();
