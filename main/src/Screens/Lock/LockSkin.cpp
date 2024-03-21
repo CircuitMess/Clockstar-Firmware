@@ -51,15 +51,13 @@ void LockSkin::loop(){
 
 	const tm tm = time->getTime();
 
-	std::string dateString;
+	constexpr static const char* months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
-	if(settings->get().dateFormat == DateFormat::Regular){
-		dateString += std::to_string(tm.tm_mday) + "." + std::to_string(tm.tm_mon);
-	}else{
-		dateString += std::to_string(tm.tm_mon) + "." + std::to_string(tm.tm_mday);
-	}
+	const std::string day = std::to_string(tm.tm_mday) + (tm.tm_mday == 1 ? "ST" : tm.tm_mday == 2 ? "ND" : tm.tm_mday == 3 ? "RD" : "TH");
+	const std::string month = months[tm.tm_mon];
 
-	dateString += "." + std::to_string(tm.tm_year + 1900);
+	const std::string dateString = (settings->get().dateFormat == DateFormat::Regular ? day : month) + " " +
+			(settings->get().dateFormat == DateFormat::Regular ? month : day) + " " + std::to_string(tm.tm_year + 1900);
 
 	lv_label_set_text(date, dateString.c_str());
 }
