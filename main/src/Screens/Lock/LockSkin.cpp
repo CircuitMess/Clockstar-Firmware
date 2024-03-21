@@ -303,6 +303,7 @@ void LockSkin::buildUI(){
 	lv_obj_set_align(date, LV_ALIGN_CENTER);
 	lv_obj_set_x(date, themeData.dateX);
 	lv_obj_set_y(date, themeData.dateY);
+	lv_obj_set_style_text_color(date, themeData.dateColor, 0);
 
 	locker = new Slider(main, themeData.sliderConfig);
 	lv_obj_set_y(*locker, themeData.sliderY);
