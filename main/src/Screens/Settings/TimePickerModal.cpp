@@ -55,6 +55,7 @@ void TimePickerModal::buildUI(){
 	lv_obj_set_layout(dateCont, LV_LAYOUT_FLEX);
 	lv_obj_set_flex_align(dateCont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 	lv_obj_set_flex_flow(dateCont, LV_FLEX_FLOW_ROW);
+	lv_obj_set_style_pad_left(dateCont, 1, 0);
 
 	if(timeFormat24h){
 		hour = createPicker(timeCont, time.tm_hour, 0, 23);
@@ -135,8 +136,7 @@ void TimePickerModal::buildUI(){
 		}
 	}, LV_EVENT_FOCUSED, this);
 
-
-	year = createPicker(*this, time.tm_year + 1900, 1900, 9999);
+	year = createPicker(dateCont, time.tm_year + 1900, 1900, 9999);
 
 	lv_obj_add_event_cb(month, [](lv_event_t* e){
 		auto modal = (TimePickerModal*) e->user_data;

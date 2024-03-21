@@ -27,7 +27,7 @@ LVModal::LVModal(LVScreen* parent) : LVObject((lv_obj_t*) *parent), parentScreen
 	}, LV_EVENT_DELETE, container);
 
 	lv_obj_set_size(container, 110, 92);
-	lv_obj_set_style_pad_all(container, 8, 0);
+	lv_obj_set_style_pad_all(container, 6, 0);
 	lv_obj_set_style_bg_color(container, settings->get().themeData.backgroundColor, 0);
 	lv_obj_set_style_bg_opa(container, LV_OPA_COVER, 0);
 	lv_obj_set_style_border_color(container, settings->get().themeData.primaryColor, 0);

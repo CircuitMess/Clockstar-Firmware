@@ -19,7 +19,7 @@ LabelElement::LabelElement(lv_obj_t* parent, const char* name, std::function<voi
 	lv_style_set_bg_opa(defaultStyle, 0);
 
 	lv_style_set_border_width(focusedStyle, 1);
-	lv_style_set_border_color(focusedStyle, settings->get().themeData.primaryColor);
+	lv_style_set_border_color(focusedStyle, reverseColor ? settings->get().themeData.secondaryColor : settings->get().themeData.primaryColor);
 	lv_style_set_border_opa(focusedStyle, LV_OPA_COVER);
 
 	lv_style_set_text_font(labelStyle, &devin);
