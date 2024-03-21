@@ -33,6 +33,7 @@ namespace File {
 		namespace Theme1 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme1/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
 			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
@@ -45,6 +46,7 @@ namespace File {
 		namespace Theme2 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme2/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme2/lock_screen/battery.bin";
 			[[maybe_unused]] constexpr const char* Clock = "S:/theme2/lock_screen/clock.bin";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
@@ -57,18 +59,20 @@ namespace File {
 		namespace Theme3 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme3/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme3/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme3/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme3/lock_screen/battery.bin";
 			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
 			[[maybe_unused]] constexpr const char* Battery4 = "";
-			[[maybe_unused]] constexpr const char* Charging = "S:/theme6/lock_screen/chrg.bin";
+			[[maybe_unused]] constexpr const char* Charging = "S:/theme3/lock_screen/chrg.bin";
 		}
 
 		namespace Theme4 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme4/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme4/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme4/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
 			[[maybe_unused]] constexpr const char* Clock = "S:/theme4/lock_screen/clock.bin";
 			[[maybe_unused]] constexpr const char* Battery1 = "S:/theme4/lock_screen/b1.bin";
@@ -81,6 +85,7 @@ namespace File {
 		namespace Theme5 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme5/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme5/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme5/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme5/lock_screen/battery.bin";
 			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
@@ -92,7 +97,8 @@ namespace File {
 
 		namespace Theme6 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme6/lock_screen/bg.bin";
-			[[maybe_unused]] constexpr const char* Phone = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme6/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme6/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
 			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
@@ -105,6 +111,7 @@ namespace File {
 		namespace Theme7 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme7/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme7/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme7/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme7/lock_screen/battery.bin";
 			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
@@ -116,7 +123,8 @@ namespace File {
 
 		namespace Theme8 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme8/lock_screen/bg.bin";
-			[[maybe_unused]] constexpr const char* Phone = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme8/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme8/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme8/lock_screen/battery.bin";
 			[[maybe_unused]] constexpr const char* Clock = "";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
@@ -129,8 +137,9 @@ namespace File {
 		namespace Theme9 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme9/lock_screen/bg.bin";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme9/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme9/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "";
-			[[maybe_unused]] constexpr const char* Clock = "";
+			[[maybe_unused]] constexpr const char* Clock = "S:/theme9/lock_screen/clock.bin";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
 			[[maybe_unused]] constexpr const char* Battery2 = "";
 			[[maybe_unused]] constexpr const char* Battery3 = "";
@@ -528,9 +537,59 @@ namespace File {
 
 		namespace Theme3 = Icons::Theme3;
 
-		namespace Theme4 = Icons::Theme4;
+		namespace Theme4 {
+			[[maybe_unused]] constexpr const char* AppInst = "S:/theme4/small/app_inst.bin";
+			[[maybe_unused]] constexpr const char* AppMess = "S:/theme4/small/app_mess.bin";
+			[[maybe_unused]] constexpr const char* AppSms = "S:/theme4/small/app_sms.bin";
+			[[maybe_unused]] constexpr const char* AppSnap = "S:/theme4/small/app_snap.bin";
+			[[maybe_unused]] constexpr const char* AppTiktok = "S:/theme4/small/app_tiktok.bin";
+			[[maybe_unused]] constexpr const char* AppWapp = "S:/theme4/small/app_wapp.bin";
+			[[maybe_unused]] constexpr const char* Back = "";
+			[[maybe_unused]] constexpr const char* BackSel = "";
+			[[maybe_unused]] constexpr const char* CallIn = "S:/theme4/small/call_in.bin";
+			[[maybe_unused]] constexpr const char* CallMiss = "S:/theme4/small/call_miss.bin";
+			[[maybe_unused]] constexpr const char* CallOut = "S:/theme4/small/call_out.bin";
+			[[maybe_unused]] constexpr const char* CatEmail = "S:/theme4/small/cat_email.bin";
+			[[maybe_unused]] constexpr const char* CatEntert = "S:/theme4/small/cat_entert.bin";
+			[[maybe_unused]] constexpr const char* CatFin = "S:/theme4/small/cat_fin.bin";
+			[[maybe_unused]] constexpr const char* CatHealth = "S:/theme4/small/cat_health.bin";
+			[[maybe_unused]] constexpr const char* CatLoc = "S:/theme4/small/cat_loc.bin";
+			[[maybe_unused]] constexpr const char* CatNews = "S:/theme4/small/cat_news.bin";
+			[[maybe_unused]] constexpr const char* CatOther = "S:/theme4/small/cat_other.bin";
+			[[maybe_unused]] constexpr const char* CatSched = "S:/theme4/small/cat_sched.bin";
+			[[maybe_unused]] constexpr const char* CatSoc = "S:/theme4/small/cat_soc.bin";
+			[[maybe_unused]] constexpr const char* LockClosed = "S:/theme4/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* LockOpen = "S:/theme4/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* Trash = "";
+			[[maybe_unused]] constexpr const char* TrashSel = "";
+		}
 
-		namespace Theme5 = Icons::Theme5;
+		namespace Theme5 {
+			[[maybe_unused]] constexpr const char* AppInst = "S:/theme5/small/app_inst.bin";
+			[[maybe_unused]] constexpr const char* AppMess = "S:/theme5/small/app_mess.bin";
+			[[maybe_unused]] constexpr const char* AppSms = "S:/theme5/small/app_sms.bin";
+			[[maybe_unused]] constexpr const char* AppSnap = "S:/theme5/small/app_snap.bin";
+			[[maybe_unused]] constexpr const char* AppTiktok = "S:/theme5/small/app_tiktok.bin";
+			[[maybe_unused]] constexpr const char* AppWapp = "S:/theme5/small/app_wapp.bin";
+			[[maybe_unused]] constexpr const char* Back = "";
+			[[maybe_unused]] constexpr const char* BackSel = "";
+			[[maybe_unused]] constexpr const char* CallIn = "S:/theme5/small/call_in.bin";
+			[[maybe_unused]] constexpr const char* CallMiss = "S:/theme5/small/call_miss.bin";
+			[[maybe_unused]] constexpr const char* CallOut = "S:/theme5/small/call_out.bin";
+			[[maybe_unused]] constexpr const char* CatEmail = "S:/theme5/small/cat_email.bin";
+			[[maybe_unused]] constexpr const char* CatEntert = "S:/theme5/small/cat_entert.bin";
+			[[maybe_unused]] constexpr const char* CatFin = "S:/theme5/small/cat_fin.bin";
+			[[maybe_unused]] constexpr const char* CatHealth = "S:/theme5/small/cat_health.bin";
+			[[maybe_unused]] constexpr const char* CatLoc = "S:/theme5/small/cat_loc.bin";
+			[[maybe_unused]] constexpr const char* CatNews = "S:/theme5/small/cat_news.bin";
+			[[maybe_unused]] constexpr const char* CatOther = "S:/theme5/small/cat_other.bin";
+			[[maybe_unused]] constexpr const char* CatSched = "S:/theme5/small/cat_sched.bin";
+			[[maybe_unused]] constexpr const char* CatSoc = "S:/theme5/small/cat_soc.bin";
+			[[maybe_unused]] constexpr const char* LockClosed = "S:/theme5/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* LockOpen = "S:/theme5/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* Trash = "";
+			[[maybe_unused]] constexpr const char* TrashSel = "";
+		}
 
 		namespace Theme6 {
 			[[maybe_unused]] constexpr const char* AppInst = "S:/theme6/small/app_inst.bin";
@@ -559,33 +618,58 @@ namespace File {
 			[[maybe_unused]] constexpr const char* TrashSel = "";
 		}
 
-		namespace Theme7 = Icons::Theme7;
+		namespace Theme7 {
+			[[maybe_unused]] constexpr const char* AppInst = "S:/theme7/small/app_inst.bin";
+			[[maybe_unused]] constexpr const char* AppMess = "S:/theme7/small/app_mess.bin";
+			[[maybe_unused]] constexpr const char* AppSms = "S:/theme7/small/app_sms.bin";
+			[[maybe_unused]] constexpr const char* AppSnap = "S:/theme7/small/app_snap.bin";
+			[[maybe_unused]] constexpr const char* AppTiktok = "S:/theme7/small/app_tiktok.bin";
+			[[maybe_unused]] constexpr const char* AppWapp = "S:/theme7/small/app_wapp.bin";
+			[[maybe_unused]] constexpr const char* Back = "";
+			[[maybe_unused]] constexpr const char* BackSel = "";
+			[[maybe_unused]] constexpr const char* CallIn = "S:/theme7/small/call_in.bin";
+			[[maybe_unused]] constexpr const char* CallMiss = "S:/theme7/small/call_miss.bin";
+			[[maybe_unused]] constexpr const char* CallOut = "S:/theme7/small/call_out.bin";
+			[[maybe_unused]] constexpr const char* CatEmail = "S:/theme7/small/cat_email.bin";
+			[[maybe_unused]] constexpr const char* CatEntert = "S:/theme7/small/cat_entert.bin";
+			[[maybe_unused]] constexpr const char* CatFin = "S:/theme7/small/cat_fin.bin";
+			[[maybe_unused]] constexpr const char* CatHealth = "S:/theme7/small/cat_health.bin";
+			[[maybe_unused]] constexpr const char* CatLoc = "S:/theme7/small/cat_loc.bin";
+			[[maybe_unused]] constexpr const char* CatNews = "S:/theme7/small/cat_news.bin";
+			[[maybe_unused]] constexpr const char* CatOther = "S:/theme7/small/cat_other.bin";
+			[[maybe_unused]] constexpr const char* CatSched = "S:/theme7/small/cat_sched.bin";
+			[[maybe_unused]] constexpr const char* CatSoc = "S:/theme7/small/cat_soc.bin";
+			[[maybe_unused]] constexpr const char* LockClosed = "S:/theme7/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* LockOpen = "S:/theme7/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* Trash = "";
+			[[maybe_unused]] constexpr const char* TrashSel = "";
+		}
 
 		namespace Theme8 {
-			[[maybe_unused]] constexpr const char* AppInst = Icons::Theme8::AppInst;
-			[[maybe_unused]] constexpr const char* AppMess = Icons::Theme8::AppMess;
-			[[maybe_unused]] constexpr const char* AppSms = Icons::Theme8::AppSms;
-			[[maybe_unused]] constexpr const char* AppSnap = Icons::Theme8::AppSnap;
-			[[maybe_unused]] constexpr const char* AppTiktok = Icons::Theme8::AppTiktok;
-			[[maybe_unused]] constexpr const char* AppWapp = Icons::Theme8::AppWapp;
-			[[maybe_unused]] constexpr const char* Back = Icons::Theme8::Back;
-			[[maybe_unused]] constexpr const char* BackSel = Icons::Theme8::BackSel;
-			[[maybe_unused]] constexpr const char* CallIn = Icons::Theme8::CallIn;
-			[[maybe_unused]] constexpr const char* CallMiss = Icons::Theme8::CallMiss;
-			[[maybe_unused]] constexpr const char* CallOut = Icons::Theme8::CallOut;
-			[[maybe_unused]] constexpr const char* CatEmail = Icons::Theme8::CatEmail;
-			[[maybe_unused]] constexpr const char* CatEntert = Icons::Theme8::CatEntert;
-			[[maybe_unused]] constexpr const char* CatFin = Icons::Theme8::CatFin;
-			[[maybe_unused]] constexpr const char* CatHealth = Icons::Theme8::CatHealth;
-			[[maybe_unused]] constexpr const char* CatLoc = Icons::Theme8::CatLoc;
-			[[maybe_unused]] constexpr const char* CatNews = Icons::Theme8::CatNews;
+			[[maybe_unused]] constexpr const char* AppInst = "S:/theme8/small/app_inst.bin";
+			[[maybe_unused]] constexpr const char* AppMess = "S:/theme8/small/app_mess.bin";
+			[[maybe_unused]] constexpr const char* AppSms = "S:/theme8/small/app_sms.bin";
+			[[maybe_unused]] constexpr const char* AppSnap = "S:/theme8/small/app_snap.bin";
+			[[maybe_unused]] constexpr const char* AppTiktok = "S:/theme8/small/app_tiktok.bin";
+			[[maybe_unused]] constexpr const char* AppWapp = "S:/theme8/small/app_wapp.bin";
+			[[maybe_unused]] constexpr const char* Back = "";
+			[[maybe_unused]] constexpr const char* BackSel = "";
+			[[maybe_unused]] constexpr const char* CallIn = "S:/theme8/small/call_in.bin";
+			[[maybe_unused]] constexpr const char* CallMiss = "S:/theme8/small/call_miss.bin";
+			[[maybe_unused]] constexpr const char* CallOut = "S:/theme8/small/call_out.bin";
+			[[maybe_unused]] constexpr const char* CatEmail = "S:/theme8/small/cat_email.bin";
+			[[maybe_unused]] constexpr const char* CatEntert = "S:/theme8/small/cat_entert.bin";
+			[[maybe_unused]] constexpr const char* CatFin = "S:/theme8/small/cat_fin.bin";
+			[[maybe_unused]] constexpr const char* CatHealth = "S:/theme8/small/cat_health.bin";
+			[[maybe_unused]] constexpr const char* CatLoc = "S:/theme8/small/cat_loc.bin";
+			[[maybe_unused]] constexpr const char* CatNews = "S:/theme8/small/cat_news.bin";
 			[[maybe_unused]] constexpr const char* CatOther = "S:/theme8/small/cat_other.bin";
-			[[maybe_unused]] constexpr const char* CatSched = Icons::Theme8::CatSched;
-			[[maybe_unused]] constexpr const char* CatSoc = Icons::Theme8::CatSoc;
-			[[maybe_unused]] constexpr const char* LockClosed = Icons::Theme8::LockClosed;
-			[[maybe_unused]] constexpr const char* LockOpen = Icons::Theme8::LockOpen;
-			[[maybe_unused]] constexpr const char* Trash = Icons::Theme8::Trash;
-			[[maybe_unused]] constexpr const char* TrashSel = Icons::Theme8::TrashSel;
+			[[maybe_unused]] constexpr const char* CatSched = "S:/theme8/small/cat_sched.bin";
+			[[maybe_unused]] constexpr const char* CatSoc = "S:/theme8/small/cat_soc.bin";
+			[[maybe_unused]] constexpr const char* LockClosed = "S:/theme8/small/lock_closed.bin";
+			[[maybe_unused]] constexpr const char* LockOpen = "S:/theme8/small/lock_open.bin";
+			[[maybe_unused]] constexpr const char* Trash = "";
+			[[maybe_unused]] constexpr const char* TrashSel = "";
 		}
 
 		namespace Theme9 = Icons::Theme9;
@@ -608,6 +692,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme1/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme1/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme1/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme1/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme1/menu/notif.bin";
 		}
 
 		namespace Theme2 {
@@ -626,6 +712,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme2/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme2/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme2/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme2/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme2/menu/notif.bin";
 		}
 
 		namespace Theme3 {
@@ -634,8 +722,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* BatteryLow = "S:/theme3/menu/batteryLow.bin";
 			[[maybe_unused]] constexpr const char* BatteryMid = "S:/theme3/menu/batteryMid.bin";
 			[[maybe_unused]] constexpr const char* BigLowBattery = "";
-			[[maybe_unused]] constexpr const char* Phone = "";
-			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme3/menu/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme3/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme3/menu/bg.bin";
 			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme3/menu/connection.bin";
@@ -644,6 +732,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme3/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme3/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme3/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme3/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme3/menu/notif.bin";
 		}
 
 		namespace Theme4 {
@@ -652,8 +742,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* BatteryLow = "S:/theme4/menu/batteryLow.bin";
 			[[maybe_unused]] constexpr const char* BatteryMid = "S:/theme4/menu/batteryMid.bin";
 			[[maybe_unused]] constexpr const char* BigLowBattery = "";
-			[[maybe_unused]] constexpr const char* Phone = "";
-			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme4/menu/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme4/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme4/menu/bg.bin";
 			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme4/menu/connection.bin";
@@ -662,6 +752,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme4/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme4/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme4/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme4/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme4/menu/notif.bin";
 		}
 
 		namespace Theme5 {
@@ -670,8 +762,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* BatteryLow = "S:/theme5/menu/batteryLow.bin";
 			[[maybe_unused]] constexpr const char* BatteryMid = "S:/theme5/menu/batteryMid.bin";
 			[[maybe_unused]] constexpr const char* BigLowBattery = "";
-			[[maybe_unused]] constexpr const char* Phone = "";
-			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme5/menu/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme5/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme5/menu/bg.bin";
 			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme5/menu/connection.bin";
@@ -680,6 +772,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme5/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme5/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme5/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme5/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme5/menu/notif.bin";
 		}
 
 		namespace Theme6 {
@@ -688,8 +782,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* BatteryLow = "S:/theme6/menu/batteryLow.bin";
 			[[maybe_unused]] constexpr const char* BatteryMid = "S:/theme6/menu/batteryMid.bin";
 			[[maybe_unused]] constexpr const char* BigLowBattery = "";
-			[[maybe_unused]] constexpr const char* Phone = "";
-			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme6/menu/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme6/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme6/menu/bg.bin";
 			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme6/menu/connection.bin";
@@ -698,6 +792,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme6/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme6/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme6/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme6/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme6/menu/notif.bin";
 		}
 
 		namespace Theme7 {
@@ -707,15 +803,17 @@ namespace File {
 			[[maybe_unused]] constexpr const char* BatteryMid = "S:/theme7/menu/batteryMid.bin";
 			[[maybe_unused]] constexpr const char* BigLowBattery = "";
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme7/menu/phone.bin";
-			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme7/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme7/menu/bg.bin";
-			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
+			[[maybe_unused]] constexpr const char* SettingsBackground = "S:/theme7/menu/bg.bin";
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme7/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme7/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme7/menu/level.bin";
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme7/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme7/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme7/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme7/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme7/menu/notif.bin";
 		}
 
 		namespace Theme8 {
@@ -724,8 +822,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* BatteryLow = "S:/theme8/menu/batteryLow.bin";
 			[[maybe_unused]] constexpr const char* BatteryMid = "S:/theme8/menu/batteryMid.bin";
 			[[maybe_unused]] constexpr const char* BigLowBattery = "";
-			[[maybe_unused]] constexpr const char* Phone = "";
-			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme8/menu/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme8/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme8/menu/bg.bin";
 			[[maybe_unused]] constexpr const char* SettingsBackground = Background;
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme8/menu/connection.bin";
@@ -734,6 +832,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme8/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme8/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme8/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme8/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme8/menu/notif.bin";
 		}
 
 		namespace Theme9 {
@@ -752,6 +852,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Settings = "S:/theme9/menu/settings.bin";
 			[[maybe_unused]] constexpr const char* Theremin = "S:/theme9/menu/theremin.bin";
 			[[maybe_unused]] constexpr const char* Lunar = "S:/theme9/menu/lunar.bin";
+			[[maybe_unused]] constexpr const char* Rover = "S:/theme9/menu/rover.bin";
+			[[maybe_unused]] constexpr const char* Notification = "S:/theme9/menu/notif.bin";
 		}
 	}
 }

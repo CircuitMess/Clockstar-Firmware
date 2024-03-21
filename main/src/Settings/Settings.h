@@ -88,9 +88,9 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.neverHide = true;
 			data.sliderY = 102;
 			data.clockY = -20;
-			data.batteryX = 68;
+			data.batteryX = 22;
 			data.batteryY = 10;
-			data.phoneX = -46;
+			data.phoneX = 42;
 			data.phoneY = -48;
 			data.notifData.y = 17;
 
@@ -106,9 +106,9 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.y = 0;
 			data.sliderY = 106;
 			data.clockY = -18;
-			data.batteryX = 65;
+			data.batteryX = 1;
 			data.batteryY = 1;
-			data.phoneX = -44;
+			data.phoneX = 44;
 			data.phoneY = -60;
 			data.specialPhone = true;
 			data.notifData.y = 14;
@@ -164,8 +164,8 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.verticalClock = true;
 			data.batteryX = 118;
 			data.batteryY = 20;
-			data.phoneX = 42;
-			data.phoneY = -5;
+			data.phoneX = 40;
+			data.phoneY = 0;
 			data.specialPhone = true;
 			data.notifData.x = 76;
 			data.notifData.y = 6;
@@ -190,10 +190,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.neverHide = true;
 			data.sliderY = 110;
 			data.clockY = -30;
-			data.batteryX = 110;
+			data.batteryX = 1;
 			data.batteryY = 1;
-			data.phoneX = -56;
-			data.phoneY = -57;
+			data.phoneX = 46;
+			data.phoneY = -59;
 			data.notifData.y = 62;
 			data.notifData.x = 4;
 			data.notifData.w = 128;
@@ -203,6 +203,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.notifData.trackAlign = LV_FLEX_ALIGN_START;
 			data.notifData.flex = LV_FLEX_FLOW_ROW_WRAP;
 			data.notifData.align = LV_ALIGN_TOP_LEFT;
+			data.specialPhone = true;
 
 			break;
 		}
@@ -217,7 +218,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.neverHide = true;
 			data.sliderY = 111;
 			data.clockY = -4;
-			data.batteryX = 92;
+			data.batteryX = 5;
 			data.batteryY = 3;
 			data.phoneX = 56;
 			data.phoneY = -57;
@@ -238,10 +239,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.neverHide = true;
 			data.sliderY = 111;
 			data.clockY = -23;
-			data.batteryX = 87;
-			data.batteryY = 5;
-			data.phoneX = 56;
-			data.phoneY = -57;
+			data.batteryX = 8;
+			data.batteryY = 6;
+			data.phoneX = 50;
+			data.phoneY = -55;
 			data.specialPhone = true;
 			data.notifData.y = 26;
 			data.notifData.h = 15;
@@ -259,11 +260,12 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderConfig.neverHide = true;
 			data.sliderY = 109;
 			data.clockY = -18;
-			data.batteryX = 96;
+			data.batteryX = 6;
 			data.batteryY = 4;
-			data.phoneX = -46;
+			data.phoneX = 56;
 			data.phoneY = -56;
 			data.notifData.y = 22;
+			data.specialPhone = true;
 
 			break;
 		}

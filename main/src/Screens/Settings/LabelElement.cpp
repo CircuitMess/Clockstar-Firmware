@@ -24,8 +24,13 @@ LabelElement::LabelElement(lv_obj_t* parent, const char* name, std::function<voi
 
 	lv_style_set_text_font(labelStyle, &devin);
 	lv_style_set_text_color(labelStyle, reverseColor ? settings->get().themeData.backgroundColor : settings->get().themeData.highlightColor);
-	lv_obj_set_style_bg_color(*this, reverseColor ? settings->get().themeData.highlightColor : settings->get().themeData.backgroundColor, 0);
-	lv_obj_set_style_bg_opa(*this, LV_OPA_COVER, 0);
+
+	if(reverseColor){
+		lv_obj_set_style_bg_color(*this, settings->get().themeData.highlightColor, 0);
+		lv_obj_set_style_bg_opa(*this, LV_OPA_COVER, 0);
+	}else{
+		lv_obj_set_style_bg_opa(*this, 0, 0);
+	}
 
 	lv_obj_set_height(*this, Height);
 	lv_obj_set_width(*this, lv_pct(100));
