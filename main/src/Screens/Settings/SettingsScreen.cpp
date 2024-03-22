@@ -211,7 +211,10 @@ void SettingsScreen::buildUI(){
 	lv_group_add_obj(inputGroup, *dateFormatPicker);
 
 	manualTime = new LabelElement(container, "Adjust time/date", [this](){
-		timePickerModal = new TimePickerModal(this, ts.getTime());
+		timePickerModal = new TimePickerModal(this, ts.getTime(), [this]() {
+			delete timePickerModal;
+			timePickerModal = nullptr;
+		});
 	});
 	lv_group_add_obj(inputGroup, *manualTime);
 

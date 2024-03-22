@@ -6,7 +6,7 @@
 #include <Util/Services.h>
 #include <valarray>
 
-TimePickerModal::TimePickerModal(LVScreen* parent, tm time) : LVModal(parent), time(time),
+TimePickerModal::TimePickerModal(LVScreen* parent, tm time, const std::function<void()>& onSaved) : LVModal(parent), time(time), onSaved(onSaved),
 															  startingInputInversion(InputLVGL::getInstance()->getInvertDirections()),
 															  timeFormat24h(((Settings*) Services.get(Service::Settings))->get().timeFormat24h){
 	buildStyles();
@@ -153,7 +153,10 @@ void TimePickerModal::buildUI(){
 
 	saveButton = new LabelElement(*this, "Save", [this](){
 		saveTime();
-		delete this;
+
+		if(onSaved){
+			onSaved();
+		}
 	}, true, LV_ALIGN_CENTER);
 
 	lv_obj_set_width(*saveButton, 32);

@@ -7,7 +7,7 @@
 
 class TimePickerModal : public LVModal {
 public:
-	TimePickerModal(LVScreen* parent, tm time);
+	TimePickerModal(LVScreen* parent, tm time, const std::function<void()>& onSaved = nullptr);
 
 private:
 	void buildStyles();
@@ -28,6 +28,8 @@ private:
 	LVStyle defaultStyle;
 	LVStyle focusedStyle;
 	LVStyle labelStyle;
+
+	std::function<void()> onSaved;
 
 	const bool startingInputInversion;
 	const bool timeFormat24h;
