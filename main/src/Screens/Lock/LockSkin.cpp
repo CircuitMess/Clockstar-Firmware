@@ -53,7 +53,10 @@ void LockSkin::loop(){
 
 	constexpr static const char* months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
-	const std::string day = std::to_string(tm.tm_mday) + (tm.tm_mday == 1 ? "ST" : tm.tm_mday == 2 ? "ND" : tm.tm_mday == 3 ? "RD" : "TH");
+	const std::string day = std::to_string(tm.tm_mday) +
+			(tm.tm_mday % 10 == 1 && tm.tm_mday / 10 != 1 ? "ST" :
+			tm.tm_mday % 10 == 2 && tm.tm_mday / 10 != 1 ? "ND" :
+			tm.tm_mday % 10 == 3 && tm.tm_mday / 10 != 1 ? "RD" : "TH");
 	const std::string month = months[tm.tm_mon];
 
 	const std::string dateString = (settings->get().dateFormat == DateFormat::Regular ? day : month) + " " +

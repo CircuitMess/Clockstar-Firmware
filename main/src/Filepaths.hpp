@@ -45,8 +45,8 @@ namespace File {
 
 		namespace Theme2 {
 			[[maybe_unused]] constexpr const char* Background = "S:/theme2/lock_screen/bg.bin";
-			[[maybe_unused]] constexpr const char* Phone = "";
-			[[maybe_unused]] constexpr const char* PhoneDisconnected = "";
+			[[maybe_unused]] constexpr const char* Phone = "S:/theme2/lock_screen/phone.bin";
+			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme2/lock_screen/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* BatteryLevel = "S:/theme2/lock_screen/battery.bin";
 			[[maybe_unused]] constexpr const char* Clock = "S:/theme2/lock_screen/clock.bin";
 			[[maybe_unused]] constexpr const char* Battery1 = "";
