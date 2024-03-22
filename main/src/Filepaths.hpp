@@ -805,7 +805,7 @@ namespace File {
 			[[maybe_unused]] constexpr const char* Phone = "S:/theme7/menu/phone.bin";
 			[[maybe_unused]] constexpr const char* PhoneDisconnected = "S:/theme7/menu/phoneDc.bin";
 			[[maybe_unused]] constexpr const char* Background = "S:/theme7/menu/bg.bin";
-			[[maybe_unused]] constexpr const char* SettingsBackground = "S:/theme7/menu/bg.bin";
+			[[maybe_unused]] constexpr const char* SettingsBackground = "S:/theme7/menu/bg2.bin";
 			[[maybe_unused]] constexpr const char* Connection = "S:/theme7/menu/connection.bin";
 			[[maybe_unused]] constexpr const char* Find = "S:/theme7/menu/find.bin";
 			[[maybe_unused]] constexpr const char* Level = "S:/theme7/menu/level.bin";
