@@ -41,6 +41,7 @@ private:
 	void removeNotifIcon(const char* path);
 	void updateNotifs();
 	void buildUI();
+	void setDateLabel();
 };
 
 #endif //ARTEMIS_FIRMWARE_LOCKSKIN_H

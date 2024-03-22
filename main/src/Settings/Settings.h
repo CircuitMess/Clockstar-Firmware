@@ -51,6 +51,7 @@ struct ThemeStruct {
 		lv_flex_align_t mainAlign = LV_FLEX_ALIGN_CENTER;
 		lv_flex_align_t crossAlign = LV_FLEX_ALIGN_CENTER;
 		lv_flex_align_t trackAlign = LV_FLEX_ALIGN_CENTER;
+		size_t maxNotifs = 20;
 	} notifData;
 };
 
@@ -77,6 +78,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.notifData.y = 27;
 			data.notifData.gapPad = 3;
 			data.dateY = 14;
+			data.notifData.maxNotifs = 10;
 
 			break;
 		}
@@ -99,6 +101,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.notifData.y = 17;
 			data.specialPhone = true;
 			data.dateY = 2;
+			data.notifData.maxNotifs = 6;
 
 			break;
 		}
@@ -120,6 +123,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.specialPhone = true;
 			data.notifData.y = 14;
 			data.dateY = -40;
+			data.notifData.maxNotifs = 9;
 
 			break;
 		}
@@ -155,6 +159,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.notifData.align = LV_ALIGN_TOP_LEFT;
 			data.dateY = 42;
 			data.dateX = -22;
+			data.notifData.maxNotifs = 14;
 
 			break;
 		}
@@ -190,6 +195,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.notifData.align = LV_ALIGN_TOP_LEFT;
 			data.dateY = 28;
 			data.dateX = -28;
+			data.notifData.maxNotifs = 5;
 
 			break;
 		}
@@ -220,6 +226,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.notifData.align = LV_ALIGN_TOP_LEFT;
 			data.specialPhone = true;
 			data.dateY = -46;
+			data.notifData.maxNotifs = 10;
 
 			break;
 		}
@@ -240,9 +247,11 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.phoneX = 56;
 			data.phoneY = -57;
 			data.specialPhone = true;
-			data.notifData.y = 24;
+			data.notifData.y = 27;
+			data.notifData.x = 3;
 			data.notifData.h = 15;
 			data.dateY = 10;
+			data.notifData.maxNotifs = 7;
 
 			break;
 		}
@@ -263,10 +272,11 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.phoneX = 50;
 			data.phoneY = -55;
 			data.specialPhone = true;
-			data.notifData.y = 26;
+			data.notifData.y = 28;
 			data.notifData.h = 15;
 			data.dateY = 9;
 			data.dateX = 18;
+			data.notifData.maxNotifs = 7;
 
 			break;
 		}
@@ -286,9 +296,10 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 4;
 			data.phoneX = 56;
 			data.phoneY = -56;
-			data.notifData.y = 22;
+			data.notifData.y = 24;
 			data.specialPhone = true;
 			data.dateY = 4;
+			data.notifData.maxNotifs = 8;
 
 			break;
 		}

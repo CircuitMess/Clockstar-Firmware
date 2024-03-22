@@ -39,30 +39,7 @@ void LockSkin::loop(){
 		clock->loop();
 	}
 
-	Settings* settings = (Settings*) Services.get(Service::Settings);
-	if(settings == nullptr){
-		return;
-	}
-
-	Time* time = (Time*) Services.get(Service::Time);
-	if(time == nullptr){
-		return;
-	}
-
-	const tm tm = time->getTime();
-
-	constexpr static const char* months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-
-	const std::string day = std::to_string(tm.tm_mday) +
-			(tm.tm_mday % 10 == 1 && tm.tm_mday / 10 != 1 ? "ST" :
-			tm.tm_mday % 10 == 2 && tm.tm_mday / 10 != 1 ? "ND" :
-			tm.tm_mday % 10 == 3 && tm.tm_mday / 10 != 1 ? "RD" : "TH");
-	const std::string month = months[tm.tm_mon];
-
-	const std::string dateString = (settings->get().dateFormat == DateFormat::Regular ? day : month) + " " +
-			(settings->get().dateFormat == DateFormat::Regular ? month : day) + " " + std::to_string(tm.tm_year + 1900);
-
-	lv_label_set_text(date, dateString.c_str());
+	setDateLabel();
 }
 
 void LockSkin::prepare(){
@@ -228,7 +205,7 @@ void LockSkin::buildUI(){
 
 	lv_obj_set_size(main, 128, 128);
 
-	icons = new NotifIconsElement(main);
+	icons = new NotifIconsElement(main, themeData.notifData.maxNotifs);
 	lv_obj_set_x(*icons, themeData.notifData.x);
 	lv_obj_set_y(*icons, themeData.notifData.y);
 	lv_obj_set_style_min_height(*icons, 1, 0);
@@ -305,6 +282,7 @@ void LockSkin::buildUI(){
 	lv_obj_set_x(date, themeData.dateX);
 	lv_obj_set_y(date, themeData.dateY);
 	lv_obj_set_style_text_color(date, themeData.dateColor, 0);
+	setDateLabel();
 
 	locker = new Slider(main, themeData.sliderConfig);
 	lv_obj_set_y(*locker, themeData.sliderY);
@@ -344,4 +322,35 @@ void LockSkin::buildUI(){
 	lv_group_set_wrap(inputGroup, false);
 	lv_obj_add_flag(main, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 	lv_obj_clear_flag(main, LV_OBJ_FLAG_SCROLLABLE);
+}
+
+void LockSkin::setDateLabel(){
+	if(date == nullptr){
+		return;
+	}
+
+	Settings* settings = (Settings*) Services.get(Service::Settings);
+	if(settings == nullptr){
+		return;
+	}
+
+	const Time* time = (Time*) Services.get(Service::Time);
+	if(time == nullptr){
+		return;
+	}
+
+	const tm tm = time->getTime();
+
+	constexpr static const char* months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+
+	const std::string day = std::to_string(tm.tm_mday) +
+							(tm.tm_mday % 10 == 1 && tm.tm_mday / 10 != 1 ? "ST" :
+							 tm.tm_mday % 10 == 2 && tm.tm_mday / 10 != 1 ? "ND" :
+							 tm.tm_mday % 10 == 3 && tm.tm_mday / 10 != 1 ? "RD" : "TH");
+	const std::string month = months[tm.tm_mon];
+
+	const std::string dateString = (settings->get().dateFormat == DateFormat::Regular ? day : month) + " " +
+								   (settings->get().dateFormat == DateFormat::Regular ? month : day) + " " + std::to_string(tm.tm_year + 1900);
+
+	lv_label_set_text(date, dateString.c_str());
 }
