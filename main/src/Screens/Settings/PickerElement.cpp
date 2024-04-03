@@ -72,7 +72,7 @@ void PickerElement::buildUI(const std::string& name){
 	lv_obj_set_style_pad_hor(picker, 1, LV_PART_SELECTED);
 	lv_obj_set_style_radius(picker, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_anim_time(picker, 250, LV_PART_MAIN);
-	lv_obj_set_style_text_line_space(picker, 2, LV_PART_MAIN);
+	lv_obj_set_style_text_line_space(picker, 5, LV_PART_MAIN);
 	lv_group_add_obj(inputGroup, picker);
 
 	lv_obj_set_height(*this, 25);
