@@ -260,7 +260,7 @@ void SettingsScreen::buildUI(){
 	}, startingSettings.notificationSounds);
 	lv_group_add_obj(inputGroup, *motionSwitch);
 
-	rotationSwitch = new BoolElement(container, "Flip screen", [this](bool value){
+	rotationSwitch = new BoolElement(container, "Left-hand mode", [this](bool value){
 		auto s = settings.get();
 		s.motionDetection = value;
 		settings.set(s);
