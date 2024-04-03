@@ -14,6 +14,7 @@
 #include "Filepaths.hpp"
 #include "LV_Interface/InputLVGL.h"
 #include "LV_Interface/FSLVGL.h"
+#include "LoadingModal.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
@@ -68,8 +69,12 @@ void SettingsScreen::onStop(){
 	status->updateLED();
 
 	if(oldTheme != settings.get().themeData.theme){
+		//loadingModal = new LoadingModal(this);
+
 		FSLVGL::unloadCache();
 		FSLVGL::loadCache(settings.get().themeData.theme);
+
+		//delete loadingModal;
 	}
 }
 
