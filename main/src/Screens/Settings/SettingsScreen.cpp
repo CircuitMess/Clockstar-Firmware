@@ -215,7 +215,7 @@ void SettingsScreen::buildUI(){
 			delete timePickerModal;
 			timePickerModal = nullptr;
 		});
-	});
+	}, false,  LV_ALIGN_LEFT_MID);
 	lv_group_add_obj(inputGroup, *manualTime);
 
 	audioSwitch = new BoolElement(container, "Sound", [](bool value){
@@ -272,7 +272,7 @@ void SettingsScreen::buildUI(){
 
 	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
 		transition([](){ return std::make_unique<MainMenu>(); });
-	});
+	}, false, LV_ALIGN_LEFT_MID);
 	lv_group_add_obj(inputGroup, *saveAndExit);
 
 	for(int i = 0; i < lv_obj_get_child_cnt(container); ++i){
