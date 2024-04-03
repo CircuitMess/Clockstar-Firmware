@@ -191,7 +191,7 @@ void SettingsScreen::buildUI(){
 	lv_group_add_obj(inputGroup, *timeFormatSwitch);
 
 	themePicker = new PickerElement(container, "Change theme", (uint16_t) startingSettings.themeData.theme,
-									"Default\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8\nTheme 9",
+									"Default\nArcade\nAnalog\nDuotone\nMachine\nTXT\nCY-PUNK\nCipher\n1-Up",
 									[this](uint16_t selected){
 										SettingsStruct sett = settings.get();
 										sett.themeData = createTheme((Theme) selected);
