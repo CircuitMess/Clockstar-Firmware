@@ -6,7 +6,6 @@
 class MenuBatteryElement : public BatteryElement {
 public:
 	explicit MenuBatteryElement(lv_obj_t* parent);
-	virtual void updateVisuals() override;
 
 protected:
 	virtual void updateChargingVisuals() override;

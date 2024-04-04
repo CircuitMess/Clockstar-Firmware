@@ -136,12 +136,13 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.opacity = LV_OPA_100;
 			data.sliderConfig.start = 122;
 			data.sliderConfig.end = 8;
-			data.sliderConfig.y = 3;
+			data.sliderConfig.y = 4;
 			data.sliderConfig.neverHide = true;
 			data.sliderY = 109;
 			data.clockX = -24;
 			data.clockY = -8;
 			data.verticalClock = true;
+			data.clockPadding = 1;
 			data.batteryX = 85;
 			data.batteryY = 20;
 			data.phoneX = 25;
@@ -212,7 +213,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.sliderY = 110;
 			data.clockY = -26;
 			data.batteryX = 1;
-			data.batteryY = 1;
+			data.batteryY = 2;
 			data.phoneX = 46;
 			data.phoneY = -59;
 			data.notifData.y = 62;
