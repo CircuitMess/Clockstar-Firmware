@@ -75,7 +75,7 @@ inline static ThemeStruct createTheme(Theme theme){
 			data.batteryY = 4;
 			data.phoneX = 56;
 			data.phoneY = -57;
-			data.notifData.y = 27;
+			data.notifData.y = 32;
 			data.notifData.gapPad = 3;
 			data.dateY = 14;
 			data.notifData.maxNotifs = 10;

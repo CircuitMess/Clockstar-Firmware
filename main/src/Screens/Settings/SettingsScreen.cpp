@@ -28,14 +28,13 @@ void SettingsScreen::loop(){
 		if(evt.facility == Facility::Input){
 			auto eventData = (Input::Data*) evt.data;
 			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
-				if(timePickerModal){
-					delete timePickerModal;
-					timePickerModal = nullptr;
-				}else{
-					free(evt.data);
-					transition([](){ return std::make_unique<MainMenu>(); });
-					return;
-				}
+				delete timePickerModal;
+				timePickerModal = nullptr;
+				delete loadingModal;
+				loadingModal = nullptr;
+				free(evt.data);
+				transition([](){ return std::make_unique<MainMenu>(); });
+				return;
 			}
 		}
 		free(evt.data);
@@ -69,12 +68,8 @@ void SettingsScreen::onStop(){
 	status->updateLED();
 
 	if(oldTheme != settings.get().themeData.theme){
-		//loadingModal = new LoadingModal(this);
-
 		FSLVGL::unloadCache();
 		FSLVGL::loadCache(settings.get().themeData.theme);
-
-		//delete loadingModal;
 	}
 }
 
