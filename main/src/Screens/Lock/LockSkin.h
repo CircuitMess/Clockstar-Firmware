@@ -31,6 +31,7 @@ private:
 	class NotifIconsElement* icons = nullptr;
 	Slider* locker = nullptr;
 	lv_obj_t* rest = nullptr;
+	lv_obj_t* notifList = nullptr;
 	lv_obj_t* date = nullptr;
 
 	static constexpr uint8_t MaxNotifs = 20;

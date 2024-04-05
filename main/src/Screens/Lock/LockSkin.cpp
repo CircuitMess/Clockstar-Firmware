@@ -77,7 +77,7 @@ void LockSkin::notifAdd(const Notif& notif){
 		isModify = false;
 
 		auto uid = notif.uid;
-		auto item = new Item(rest, [this, uid](){
+		auto item = new Item(notifList, [this, uid](){
 			notifRem(uid);
 
 			if(Phone* phone = (Phone*) Services.get(Service::Phone)){
@@ -94,8 +94,8 @@ void LockSkin::notifAdd(const Notif& notif){
 		lv_obj_move_to_index(*item, 0);
 		lv_group_remove_all_objs(inputGroup);
 		lv_group_add_obj(inputGroup, getMain());
-		for(int j = 0; j < lv_obj_get_child_cnt(rest); ++j){
-			lv_group_add_obj(inputGroup, lv_obj_get_child(rest, j));
+		for(int j = 0; j < lv_obj_get_child_cnt(notifList); ++j){
+			lv_group_add_obj(inputGroup, lv_obj_get_child(notifList, j));
 		}
 
 		lv_group_focus_obj(focused);
@@ -134,7 +134,7 @@ void LockSkin::notifRem(uint32_t id){
 
 void LockSkin::notifsClear(){
 	notifs.clear(); // This has to precede rest clearing
-	lv_obj_clean(rest);
+	lv_obj_clean(notifList);
 
 	if(icons == nullptr){
 		return;
@@ -293,11 +293,19 @@ void LockSkin::buildUI(){
 	}
 
 	lv_obj_set_size(rest, 128, 128);
-	lv_obj_set_flex_flow(rest, LV_FLEX_FLOW_COLUMN);
-	lv_obj_set_flex_align(rest, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-	lv_obj_set_style_pad_hor(rest, 4, 0);
-	lv_obj_set_style_pad_ver(rest, 3, 0);
-	lv_obj_set_style_pad_gap(rest, 3, 0);
+
+	notifList = lv_obj_create(rest);
+	if(notifList == nullptr){
+		return;
+	}
+
+	lv_obj_set_size(notifList, 128, 126);
+	lv_obj_set_align(notifList, LV_ALIGN_CENTER);
+	lv_obj_set_flex_flow(notifList, LV_FLEX_FLOW_COLUMN);
+	lv_obj_set_flex_align(notifList, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+	lv_obj_set_style_pad_hor(notifList, 4, 0);
+	lv_obj_set_style_pad_ver(notifList, 3, 0);
+	lv_obj_set_style_pad_gap(notifList, 3, 0);
 
 	// BG
 
