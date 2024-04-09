@@ -125,9 +125,9 @@ void StatusCenter::circularBlink(){
 
 void StatusCenter::beep(){
 	chirp.play({
-		Chirp{ .startFreq = 400, .endFreq = 600, .duration = 50 },
+		Chirp{ .startFreq = 600, .endFreq = 600, .duration = 50 },
 		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
-		Chirp{ .startFreq = 600, .endFreq = 400, .duration = 50 }
+		Chirp{ .startFreq = 400, .endFreq = 400, .duration = 50 }
 	});
 }
 
