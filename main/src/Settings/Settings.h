@@ -336,8 +336,8 @@ struct SettingsStruct {
 	bool motionDetection = true;
 	bool screenRotate = false;
 	bool timeFormat24h = true;
-	ThemeStruct themeData = Default;
 	DateFormat dateFormat = DateFormat::Regular;
+	ThemeStruct themeData = Default;
 };
 
 class Settings {
