@@ -3,6 +3,8 @@
 #include "Screens/Lock/LockScreen.h"
 #include "LV_Interface/FSLVGL.h"
 #include "Filepaths.hpp"
+#include "Services/StatusCenter.h"
+#include "Util/Services.h"
 
 IntroScreen::IntroScreen(){
 	bg = lv_obj_create(*this);
@@ -34,6 +36,10 @@ IntroScreen::~IntroScreen(){
 }
 
 void IntroScreen::onStart(){
+	if(StatusCenter* status = (StatusCenter*) Services.get(Service::Status)){
+		status->circularBlink();
+	}
+
 	animTime = millis();
 	lv_anim_init(&anim);
 	lv_anim_set_exec_cb(&anim, animFuncScroll);
@@ -43,6 +49,10 @@ void IntroScreen::onStart(){
 }
 
 void IntroScreen::onStop(){
+	if(StatusCenter* status = (StatusCenter*) Services.get(Service::Status)){
+		status->circularBlink();
+	}
+
 	lv_anim_del(*this, nullptr);
 }
 

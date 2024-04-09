@@ -19,6 +19,7 @@ public:
 
 	void updateLED();
 	void blink();
+	void circularBlink();
 	void beep();
 	void shutdown();
 

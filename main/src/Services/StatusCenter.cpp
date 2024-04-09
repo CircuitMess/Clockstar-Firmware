@@ -62,7 +62,7 @@ void StatusCenter::processPhone(const Phone::Event& evt){
 		}
 
 		if(settings.get().ledEnable){
-			blink();
+			circularBlink();
 		}
 	}
 }
@@ -113,6 +113,13 @@ void StatusCenter::blink(){
 
 	for(const std::shared_ptr<DigitalLEDController>& singleLed : singleLeds){
 		singleLed->blinkTwice(0xFF);
+	}
+}
+
+void StatusCenter::circularBlink(){
+	for(const std::shared_ptr<DigitalLEDController>& singleLed : singleLeds){
+		singleLed->blinkTwice(0xFF, 100, 300);
+		vTaskDelay(50);
 	}
 }
 
