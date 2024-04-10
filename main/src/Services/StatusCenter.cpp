@@ -62,7 +62,7 @@ void StatusCenter::processPhone(const Phone::Event& evt){
 		}
 
 		if(settings.get().ledEnable){
-			blink();
+			circularBlink();
 		}
 	}
 }
@@ -116,11 +116,18 @@ void StatusCenter::blink(){
 	}
 }
 
+void StatusCenter::circularBlink(){
+	for(const std::shared_ptr<DigitalLEDController>& singleLed : singleLeds){
+		singleLed->blinkTwice(0xFF, 100, 300);
+		vTaskDelay(50);
+	}
+}
+
 void StatusCenter::beep(){
 	chirp.play({
-		Chirp{ .startFreq = 400, .endFreq = 600, .duration = 50 },
+		Chirp{ .startFreq = 600, .endFreq = 600, .duration = 50 },
 		Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
-		Chirp{ .startFreq = 600, .endFreq = 400, .duration = 50 }
+		Chirp{ .startFreq = 400, .endFreq = 400, .duration = 50 }
 	});
 }
 

@@ -133,20 +133,26 @@ void init(){
 	// Load start screen here
 	lvgl->startScreen([](){ return std::make_unique<IntroScreen>(); });
 
-	if(settings->get().notificationSounds){
-		audio->play({
-							Chirp{ .startFreq = NOTE_E4, .endFreq = NOTE_GS4, .duration = 100 },
-							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
-							Chirp{ .startFreq = NOTE_GS4, .endFreq = NOTE_B4, .duration = 100 },
-							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
-							Chirp{ .startFreq = NOTE_B4, .endFreq = NOTE_E5, .duration = 100 }
-					});
-	}
-
 	// Start UI thread after initialization
 	lvgl->start();
 
 	bl->fadeIn();
+
+	if(settings->get().notificationSounds){
+		audio->play({
+							Chirp{ .startFreq = 250, .endFreq = 250, .duration = 500 },
+							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+							Chirp{ .startFreq = 500, .endFreq = 500, .duration = 500 },
+							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
+							Chirp{ .startFreq = 1000, .endFreq = 1000, .duration = 500 }
+					});
+
+		vTaskDelay(2500);
+
+		audio->play({
+							Chirp{ .startFreq = 125, .endFreq = 125, .duration = 1000 }
+					});
+	}
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress
