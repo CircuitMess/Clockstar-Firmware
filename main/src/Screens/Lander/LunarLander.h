@@ -37,6 +37,10 @@ private:
 	void stopFireAnim();
 	float fuel = 100;
 
+	uint32_t score = 0;
+	static constexpr float calculateBonusMultiplier(float angle, float shuttlePlatformOffset, float speed,
+													float leftoverFuel, float platformWidth, uint64_t elapsedTime);
+
 	void setShuttlePos();
 
 	glm::mat3 view;
@@ -73,6 +77,15 @@ private:
 	void updateUI();
 
 	static constexpr float LandingSpeedThreshold = 2.5f;
+	static constexpr float LandingSpeedBonusThreshold = 0.5f; //under this speed bonus is guaranteed
+	static constexpr float LandingAngleThreshold = 10.0f;
+
+	static constexpr float MaxFlatWidth = 20.0f;
+
+	static constexpr uint32_t LandingBaseReward = 50;
+	static constexpr float PerfectLandingMultiplier = 3.0f;
+	static constexpr uint64_t PerfectTimeBonusThreshold = 20000; //20s
+	static constexpr uint64_t MinTimeBonusThreshold = 60000; //60s
 
 	static constexpr uint32_t FireAnimationTime = 100; //[ms], time between fire images switching when playing animation
 

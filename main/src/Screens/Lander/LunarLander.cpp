@@ -164,7 +164,7 @@ void LunarLander::checkCollision(){
 		}while(angle < -180);
 	}
 
-	if(abs(angle) > 10){ // not straight
+	if(abs(angle) > LandingAngleThreshold){ // not straight
 		printf("Angle: %.2f\n", angle);
 		lv_obj_del(shuttle);
 		gameOver = true;
@@ -173,6 +173,17 @@ void LunarLander::checkCollision(){
 
 	gameOver = true;
 	printf("Win!\n");
+
+	score += LandingBaseReward;
+	const float targetFlatWidth = (targetFlat->second.x - targetFlat->first.x);
+	const float targetFlatCenter = targetFlat->first.x + (targetFlatWidth / 2.0f);
+	const float shuttlePlatformOffset = abs(pos.x - targetFlatCenter);
+	const float multiplier = calculateBonusMultiplier(angle, shuttlePlatformOffset, glm::length(speed), fuel, targetFlatWidth, endTime - startTime);
+
+	printf("bonus multiplier: %.2f\n", multiplier);
+	score += ceil(LandingBaseReward * multiplier * PerfectLandingMultiplier);
+
+	score = std::min((uint32_t) 9999, score);
 }
 
 void LunarLander::buildTerrain(){
@@ -208,10 +219,10 @@ void LunarLander::buildTerrain(){
 		}else if(y >= 127){
 			terrainPoints.emplace_back(x, 127);
 			y = 127;
-			x += 20;
+			x += MaxFlatWidth;
 			dir = -(1 + rand() % 4);
 			lastFlat = x;
-		}else if(dir <= 0.2 && (lastFlat == -1 || x - lastFlat > 20)){
+		}else if(dir <= 0.2 && (lastFlat == -1 || x - lastFlat > MaxFlatWidth)){
 			terrainPoints.emplace_back(x, y);
 			x += 10 * (rand() % 2 + 1);
 			dir = (rand() % 10) - 5;
@@ -413,7 +424,7 @@ void LunarLander::updateUI(){
 	sprintf(text, "%02llu:%02llu", mins, secs);
 	lv_label_set_text(lbTime, text);
 
-	sprintf(text, "0000");
+	sprintf(text, "%04lu", score);
 	lv_label_set_text(lbScore, text);
 
 	for(int i = 1; i < terrainPoints.size(); i++){
@@ -490,4 +501,18 @@ void LunarLander::stopFireAnim(){
 		extern const lv_img_dsc_t Shuttle_small;
 		lv_img_set_src(shuttle, &Shuttle_small);
 	}
+}
+
+constexpr float LunarLander::calculateBonusMultiplier(float angle, float shuttlePlatformOffset, float speed,
+													  float leftoverFuel, float platformWidth, uint64_t timeElapsed){
+	const float angleMatch = 1.0f - (abs(angle) / LandingAngleThreshold);
+	const float offsetMatch = 1.0f - shuttlePlatformOffset / (MaxFlatWidth / 2.0f);
+	const float speedMatch = speed < LandingSpeedBonusThreshold ? 1.0f : (1.0f - (speed / LandingSpeedThreshold));
+	const float fuelMatch = sqrt(leftoverFuel / 100.0f); //fuel should be used, so sqrt() to not penalize some usage
+	const float platformWidthMatch = 1.0f - (platformWidth / MaxFlatWidth);
+	const float timeMatch = timeElapsed < PerfectTimeBonusThreshold ? 1.0f : (timeElapsed > MinTimeBonusThreshold ? 0.0f :
+																			  1.0f - ((float) (timeElapsed - PerfectTimeBonusThreshold) /
+																					  (MinTimeBonusThreshold - PerfectTimeBonusThreshold)));
+
+	return (angleMatch + offsetMatch + speedMatch + fuelMatch + platformWidthMatch + timeMatch) / 6.0f;
 }
