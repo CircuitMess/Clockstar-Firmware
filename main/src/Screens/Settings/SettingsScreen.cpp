@@ -28,19 +28,31 @@ void SettingsScreen::loop(){
 		if(evt.facility == Facility::Input){
 			auto eventData = (Input::Data*) evt.data;
 			if(eventData->btn == Input::Alt && eventData->action == Input::Data::Press){
-				delete timePickerModal;
-				timePickerModal = nullptr;
-				delete loadingModal;
-				loadingModal = nullptr;
-				free(evt.data);
-				transition([](){ return std::make_unique<MainMenu>(); });
-				return;
+				shouldTransition = true;
 			}
 		}
+
 		free(evt.data);
 	}
 
 	statusBar->loop();
+
+	if(shouldTransition){
+		delete timePickerModal;
+		timePickerModal = nullptr;
+
+		lv_obj_add_flag(container, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_clear_flag(*loadingText, LV_OBJ_FLAG_HIDDEN);
+		lv_timer_handler();
+
+		if(oldTheme != settings.get().themeData.theme){
+			FSLVGL::unloadCache();
+			FSLVGL::loadCache(settings.get().themeData.theme);
+		}
+
+		transition([](){ return std::make_unique<MainMenu>(); });
+		return;
+	}
 }
 
 void SettingsScreen::onStop(){
@@ -66,11 +78,6 @@ void SettingsScreen::onStop(){
 	auto status = (StatusCenter*) Services.get(Service::Status);
 	status->blockAudio(false);
 	status->updateLED();
-
-	if(oldTheme != settings.get().themeData.theme){
-		FSLVGL::unloadCache();
-		FSLVGL::loadCache(settings.get().themeData.theme);
-	}
 }
 
 void SettingsScreen::onStarting(){
@@ -150,6 +157,10 @@ void SettingsScreen::updateVisuals(){
 
 	if(dateFormatPicker != nullptr){
 		dateFormatPicker->updateVisuals();
+	}
+
+	if(loadingText != nullptr){
+		loadingText->updateVisuals();
 	}
 }
 
@@ -271,11 +282,15 @@ void SettingsScreen::buildUI(){
 	lv_group_add_obj(inputGroup, *rotationSwitch);
 
 	saveAndExit = new LabelElement(container, "Save and Exit", [this](){
-		transition([](){ return std::make_unique<MainMenu>(); });
+		shouldTransition = true;
 	}, false, LV_ALIGN_LEFT_MID);
 	lv_group_add_obj(inputGroup, *saveAndExit);
 
 	for(int i = 0; i < lv_obj_get_child_cnt(container); ++i){
 		lv_obj_add_flag(lv_obj_get_child(container, i), LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 	}
+
+	loadingText = new LabelElement(*this, "Loading...", [](){}, false, LV_ALIGN_CENTER);
+	lv_obj_set_align(*loadingText, LV_ALIGN_CENTER);
+	lv_obj_add_flag(*loadingText, LV_OBJ_FLAG_HIDDEN);
 }

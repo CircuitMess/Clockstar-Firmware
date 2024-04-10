@@ -44,9 +44,11 @@ private:
 	BoolElement* motionSwitch = nullptr;
 	BoolElement* rotationSwitch = nullptr;
 	BoolElement* timeFormatSwitch = nullptr;
+	LabelElement* loadingText;
+
+	bool shouldTransition = false;
 
 	TimePickerModal* timePickerModal = nullptr;
-	class LoadingModal* loadingModal = nullptr;
 
 	static constexpr uint8_t TopPadding = 13;
 	static constexpr const char* ThemeNames = "Default \nTheme 1\nTheme 2\nTheme 3\nTheme 4\nTheme 5\nTheme 6\nTheme 7\nTheme 8";
