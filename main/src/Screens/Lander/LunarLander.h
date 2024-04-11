@@ -56,7 +56,9 @@ private:
 	EventQueue evts;
 
 	bool gameOver = false;
+	bool paused = false;
 	void resetLevel();
+	void crashed();
 
 	static const lv_color_t Color;
 
@@ -76,6 +78,10 @@ private:
 
 	void buildUI();
 	void updateUI();
+
+	class LVModal* modal = nullptr;
+
+	bool exitFlag = false;
 
 	static constexpr glm::vec2 StartPos = { 10, 36 };
 	static constexpr glm::vec2 StartSpeed = { 3, 0 };

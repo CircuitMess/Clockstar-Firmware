@@ -2,6 +2,8 @@
 #include "Util/stdafx.h"
 #include "Devices/Input.h"
 #include "LV_Interface/LVGIF.h"
+#include "GameOverPopup.h"
+#include "Screens/MainMenu/MainMenu.h"
 #include <cmath>
 #include <gtx/rotate_vector.hpp>
 #include <gtx/closest_point.hpp>
@@ -57,31 +59,42 @@ void LunarLander::loop(){
 
 	Event evt{};
 	if(evts.get(evt, 0)){
-		auto data = (Input::Data*) evt.data;
 
-		if(data->action == Input::Data::Press && data->btn == Input::Up){
-			angleDir = -1;
-		}else if(data->action == Input::Data::Press && data->btn == Input::Down){
-			angleDir = 1;
-		}else if(data->action == Input::Data::Release && (data->btn == Input::Up || data->btn == Input::Down)){
-			angleDir = 0;
-		}else if(data->btn == Input::Select){
-			fire = data->action == Input::Data::Press;
-			if(fire){
-				startFireAnim();
-			}else{
-				stopFireAnim();
+		if(modal == nullptr){
+
+			auto data = (Input::Data*) evt.data;
+
+			if(data->action == Input::Data::Press && data->btn == Input::Up){
+				angleDir = -1;
+			}else if(data->action == Input::Data::Press && data->btn == Input::Down){
+				angleDir = 1;
+			}else if(data->action == Input::Data::Release && (data->btn == Input::Up || data->btn == Input::Down)){
+				angleDir = 0;
+			}else if(data->btn == Input::Select){
+				fire = data->action == Input::Data::Press;
+				if(fire){
+					startFireAnim();
+				}else{
+					stopFireAnim();
+				}
+			}else if(data->btn == Input::Alt && data->action == Input::Data::Press){
+				//TODO - pause popup
+				endTime = millis();
+				paused = true;
 			}
-		}else if(data->btn == Input::Alt && data->action == Input::Data::Press){
-			free(evt.data);
-			transition([](){ return std::make_unique<LunarLander>(); });
-			return;
 		}
 
 		free(evt.data);
 	}
 
-	if(gameOver){
+	if(exitFlag){
+		delete modal;
+		modal = nullptr;
+		transition([](){ return std::make_unique<MainMenu>(); });
+		return;
+	}
+
+	if(gameOver || paused){
 		updateUI();
 		return;
 	}
@@ -122,9 +135,9 @@ void LunarLander::loop(){
 	if(toTerrain <= 5){
 		speed = {};
 		endTime = now;
-		fire = false;
 		stopFireAnim();
 		checkCollision();
+		fire = false;
 	}
 
 	updateUI();
@@ -142,15 +155,13 @@ void LunarLander::checkCollision(){
 
 	if(!targetFlat){ // hit terrain, player loses
 		printf("Not above terrain\n");
-		lv_obj_del(shuttle);
-		gameOver = true;
+		crashed();
 		return;
 	}
 
 	if(glm::length(speed) > LandingSpeedThreshold){ // too fast
 		printf("Speed: %.2f\n", glm::length(speed));
-		lv_obj_del(shuttle);
-		gameOver = true;
+		crashed();
 		return;
 	}
 
@@ -166,8 +177,7 @@ void LunarLander::checkCollision(){
 
 	if(abs(angle) > LandingAngleThreshold){ // not straight
 		printf("Angle: %.2f\n", angle);
-		lv_obj_del(shuttle);
-		gameOver = true;
+		crashed();
 		return;
 	}
 
@@ -421,7 +431,7 @@ void LunarLander::updateUI(){
 	char text[99];
 
 	const auto now = millis();
-	const auto diff = gameOver ? (endTime - startTime) : (now - startTime);
+	const auto diff = (gameOver || paused) ? (endTime - startTime) : (now - startTime);
 
 	auto mins = diff / (60 * 1000);
 	const auto secs = diff / 1000 - mins * 60;
@@ -544,4 +554,25 @@ void LunarLander::resetLevel(){
 	stopFireAnim();
 
 	lastMillis = startTime = millis();
+}
+
+void LunarLander::crashed(){
+	lv_obj_del(shuttle);
+	gameOver = true;
+
+	modal = new GameOverPopup(this, [this](){
+		score = 0;
+
+		shuttle = lv_img_create(*this);
+		extern const lv_img_dsc_t Shuttle_small;
+		lv_img_set_src(shuttle, &Shuttle_small);
+		lv_img_set_pivot(shuttle, 5, 4);
+		lv_img_set_antialias(shuttle, true);
+
+		resetLevel();
+		modal = nullptr;
+	}, [this](){
+		exitFlag = true;
+		modal = nullptr;
+	}, score, fire);
 }
