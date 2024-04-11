@@ -2,7 +2,7 @@
 #include "Util/stdafx.h"
 #include "Devices/Input.h"
 #include "LV_Interface/LVGIF.h"
-#include <math.h>
+#include <cmath>
 #include <gtx/rotate_vector.hpp>
 #include <gtx/closest_point.hpp>
 #include <optional>
@@ -184,6 +184,13 @@ void LunarLander::checkCollision(){
 	score += ceil(LandingBaseReward * multiplier * PerfectLandingMultiplier);
 
 	score = std::min((uint32_t) 9999, score);
+
+	//TODO - win sound
+
+	vTaskDelay(2000);
+
+	resetLevel();
+
 }
 
 void LunarLander::buildTerrain(){
@@ -483,8 +490,8 @@ void LunarLander::startFireAnim(){
 	lv_anim_init(&fireAnim);
 	lv_anim_set_exec_cb(&fireAnim, zoomed ? bigCB : smallCB);
 	lv_anim_set_values(&fireAnim, 0, 1);
-	lv_anim_set_time(&fireAnim, 200);
-	lv_anim_set_playback_time(&fireAnim, 200);
+	lv_anim_set_time(&fireAnim, FireAnimationTime);
+	lv_anim_set_playback_time(&fireAnim, FireAnimationTime);
 	lv_anim_set_path_cb(&fireAnim, lv_anim_path_step);
 	lv_anim_set_repeat_count(&fireAnim, LV_ANIM_REPEAT_INFINITE);
 	lv_anim_set_var(&fireAnim, shuttle);
@@ -515,4 +522,26 @@ constexpr float LunarLander::calculateBonusMultiplier(float angle, float shuttle
 																					  (MinTimeBonusThreshold - PerfectTimeBonusThreshold)));
 
 	return (angleMatch + offsetMatch + speedMatch + fuelMatch + platformWidthMatch + timeMatch) / 6.0f;
+}
+
+void LunarLander::resetLevel(){
+	pos = StartPos;
+	speed = StartSpeed;
+	angle = 0;
+	angleDir = 0;
+	fire = false;
+	fuel = 100;
+
+	view = glm::identity<glm::mat3>();
+	zoomed = false;
+	gameOver = false;
+
+	buildTerrain();
+	drawTerrain();
+	setShuttlePos();
+	updateUI();
+
+	stopFireAnim();
+
+	lastMillis = startTime = millis();
 }

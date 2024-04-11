@@ -11,7 +11,7 @@
 class LunarLander : public LVScreen {
 public:
 	LunarLander();
-	virtual ~LunarLander();
+	~LunarLander() override;
 
 private:
 	std::vector<uint8_t> canvData;
@@ -27,8 +27,8 @@ private:
 	lv_obj_t* shuttle;
 
 	uint64_t lastMillis;
-	glm::vec2 pos = { 10, 36 };
-	glm::vec2 speed = { 3, 0 };
+	glm::vec2 pos = StartPos;
+	glm::vec2 speed = StartSpeed;
 	float angle = 0;
 	float angleDir = 0;
 	bool fire = false;
@@ -56,6 +56,7 @@ private:
 	EventQueue evts;
 
 	bool gameOver = false;
+	void resetLevel();
 
 	static const lv_color_t Color;
 
@@ -76,6 +77,9 @@ private:
 	void buildUI();
 	void updateUI();
 
+	static constexpr glm::vec2 StartPos = { 10, 36 };
+	static constexpr glm::vec2 StartSpeed = { 3, 0 };
+
 	static constexpr float LandingSpeedThreshold = 2.5f;
 	static constexpr float LandingSpeedBonusThreshold = 0.5f; //under this speed bonus is guaranteed
 	static constexpr float LandingAngleThreshold = 10.0f;
@@ -87,7 +91,7 @@ private:
 	static constexpr uint64_t PerfectTimeBonusThreshold = 20000; //20s
 	static constexpr uint64_t MinTimeBonusThreshold = 60000; //60s
 
-	static constexpr uint32_t FireAnimationTime = 100; //[ms], time between fire images switching when playing animation
+	static constexpr uint32_t FireAnimationTime = 200; //[ms], time between fire images switching when playing animation
 
 };
 
