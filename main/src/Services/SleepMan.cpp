@@ -19,6 +19,10 @@ SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
 	actTime = millis();
 }
 
+SleepMan::~SleepMan(){
+	Events::unlisten(&events);
+}
+
 void SleepMan::goSleep(){
 	auto battery = (Battery*) Services.get(Service::Battery);
 	if(!battery || battery->isShutdown()) return;
