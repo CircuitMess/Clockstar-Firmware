@@ -41,11 +41,11 @@ void SettingsScreen::loop(){
 		delete timePickerModal;
 		timePickerModal = nullptr;
 
-		lv_obj_add_flag(container, LV_OBJ_FLAG_HIDDEN);
-		lv_obj_clear_flag(*loadingText, LV_OBJ_FLAG_HIDDEN);
-		lv_timer_handler();
-
 		if(oldTheme != settings.get().themeData.theme){
+			lv_obj_add_flag(container, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_clear_flag(*loadingText, LV_OBJ_FLAG_HIDDEN);
+			lv_timer_handler();
+
 			FSLVGL::unloadCache();
 			FSLVGL::loadCache(settings.get().themeData.theme);
 		}
