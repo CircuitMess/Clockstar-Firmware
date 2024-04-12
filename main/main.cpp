@@ -30,6 +30,7 @@
 #include "Util/Notes.h"
 #include "Screens/Intro/IntroScreen.h"
 #include "Filepaths.hpp"
+#include "Screens/Lander/LunarLander.h"
 
 LVGL* lvgl;
 BacklightBrightness* bl;
@@ -131,7 +132,7 @@ void init(){
 	FSLVGL::loadCache(settings->get().themeData.theme);
 
 	// Load start screen here
-	lvgl->startScreen([](){ return std::make_unique<IntroScreen>(); });
+	lvgl->startScreen([](){ return std::make_unique<LunarLander>(); });
 
 	// Start UI thread after initialization
 	lvgl->start();
@@ -139,7 +140,7 @@ void init(){
 	bl->fadeIn();
 
 	if(settings->get().notificationSounds){
-		audio->play({
+		/*audio->play({
 							Chirp{ .startFreq = 250, .endFreq = 250, .duration = 500 },
 							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
 							Chirp{ .startFreq = 500, .endFreq = 500, .duration = 500 },
@@ -151,7 +152,7 @@ void init(){
 
 		audio->play({
 							Chirp{ .startFreq = 125, .endFreq = 125, .duration = 1000 }
-					});
+					});*/
 	}
 
 	// Start Battery scanning after everything else, otherwise Critical

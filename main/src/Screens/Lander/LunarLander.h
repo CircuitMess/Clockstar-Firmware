@@ -14,6 +14,8 @@ public:
 	~LunarLander() override;
 
 private:
+	virtual void onStop() override;
+
 	std::vector<uint8_t> canvData;
 	lv_obj_t* canvas;
 
@@ -70,6 +72,8 @@ private:
 	lv_obj_t* lbSpdVer;
 	lv_obj_t* imgSpdHor;
 	lv_obj_t* imgSpdVer;
+
+	lv_obj_t* loadingText;
 
 	LVStyle textStyle;
 

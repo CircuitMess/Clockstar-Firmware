@@ -4,6 +4,9 @@
 #include "LV_Interface/LVGIF.h"
 #include "GameOverPopup.h"
 #include "Screens/MainMenu/MainMenu.h"
+#include "Theme/theme.h"
+#include "LV_Interface/FSLVGL.h"
+#include "Util/Services.h"
 #include <cmath>
 #include <gtx/rotate_vector.hpp>
 #include <gtx/closest_point.hpp>
@@ -12,16 +15,16 @@
 const lv_color_t LunarLander::Color = lv_color_make(255, 101, 0);
 
 LunarLander::LunarLander() : evts(6){
-	lv_obj_set_style_bg_color(*this, lv_color_black(), 0);
+	FSLVGL::unloadCache();
 
-	heapRep();
+	lv_obj_set_style_bg_color(*this, lv_color_black(), 0);
 
 	canvas = lv_canvas_create(*this);
 	lv_obj_set_pos(canvas, 0, 0);
 	lv_obj_set_size(canvas, 128, 128);
 
-	canvData.resize(128 * 128 * 2);
-	lv_canvas_set_buffer(canvas, canvData.data(), 128, 128, LV_IMG_CF_TRUE_COLOR);
+	canvData.resize(LV_CANVAS_BUF_SIZE_INDEXED_2BIT(128, 128));
+	lv_canvas_set_buffer(canvas, canvData.data(), 128, 128, LV_IMG_CF_INDEXED_2BIT);
 	lv_canvas_set_palette(canvas, 0, lv_color_black());
 	lv_canvas_set_palette(canvas, 1, Color);
 	lv_canvas_set_palette(canvas, 2, lv_color_white());
@@ -37,7 +40,6 @@ LunarLander::LunarLander() : evts(6){
 	lv_img_set_pivot(shuttle, 5, 4);
 	lv_img_set_antialias(shuttle, true);
 
-
 	setShuttlePos();
 
 	buildUI();
@@ -50,6 +52,26 @@ LunarLander::LunarLander() : evts(6){
 
 LunarLander::~LunarLander(){
 	Events::unlisten(&evts);
+}
+
+void LunarLander::onStop(){
+	lv_obj_clean(*this);
+
+	loadingText = lv_label_create(*this);
+	if(loadingText == nullptr){
+		return;
+	}
+
+	lv_obj_set_align(loadingText, LV_ALIGN_CENTER);
+	lv_label_set_text(loadingText, "Loading...");
+	lv_obj_set_style_text_font(loadingText, &devin, 0);
+	lv_obj_set_style_text_color(loadingText, LunarLander::Color, 0);
+
+	lv_timer_handler();
+
+	if(Settings* settings = (Settings*) Services.get(Service::Settings)){
+		FSLVGL::loadCache(settings->get().themeData.theme);
+	}
 }
 
 void LunarLander::loop(){
@@ -107,7 +129,7 @@ void LunarLander::loop(){
 	if(fire){
 		const auto fireDir = glm::rotate(glm::vec2{ 0, -1 }, (float) M_PI * angle / 180);
 		speed += fireDir * dt * 5.0f;
-		fuel = std::clamp(fuel - 15.0f * dt, 0.0f, 100.0f);
+//		fuel = std::clamp(fuel - 15.0f * dt, 0.0f, 100.0f);
 	}
 
 	pos += speed * dt;
@@ -282,19 +304,26 @@ void LunarLander::drawTerrain(){
 										  lv_point_t{ (lv_coord_t) secondMoved.x, (lv_coord_t) secondMoved.y }));
 	}
 
-	lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
+	lv_color_t color = Color;
+	color.full = 0;
+	lv_canvas_fill_bg(canvas, color, LV_OPA_COVER);
 
 	lv_draw_line_dsc_t draw;
 	lv_draw_line_dsc_init(&draw);
 
 	draw.color = Color;
+	draw.color.full = 1;
 	lv_canvas_draw_line(canvas, terrain.data(), terrain.size(), &draw);
 
 	draw.color = lv_color_white();
+	draw.color.full = 2;
 	for(const auto& flat: flats){
 		lv_point_t points[2] = { flat.first, flat.second };
 		points[0].x++;
 		lv_canvas_draw_line(canvas, points, 2, &draw);
+		lv_canvas_set_px(canvas, points[0].x, points[0].y, draw.color);
+		lv_canvas_set_px(canvas, points[1].x, points[1].y, draw.color);
+		// TODO: cannot draw lines on indexed canvas for some fucking stupid reason
 	}
 }
 
@@ -424,7 +453,6 @@ void LunarLander::buildUI(){
 
 	lv_slider_set_range(fuelGauge, 0, 100);
 	lv_slider_set_value(fuelGauge, 100, LV_ANIM_OFF);
-
 }
 
 void LunarLander::updateUI(){
