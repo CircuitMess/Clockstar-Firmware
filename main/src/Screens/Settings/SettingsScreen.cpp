@@ -44,6 +44,8 @@ void SettingsScreen::loop(){
 		if(oldTheme != settings.get().themeData.theme){
 			lv_obj_add_flag(container, LV_OBJ_FLAG_HIDDEN);
 			lv_obj_clear_flag(*loadingText, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_invalidate(*this);
+			vTaskDelay(LV_DISP_DEF_REFR_PERIOD);
 			lv_timer_handler();
 
 			FSLVGL::unloadCache();
