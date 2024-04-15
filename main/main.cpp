@@ -138,7 +138,7 @@ void init(){
 	FSLVGL::loadCache(settings->get().themeData.theme);
 
 	// Load start screen here
-	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
+	lvgl->startScreen([](){ return std::make_unique<IntroScreen>(); });
 
 	// Start UI thread after initialization
 	lvgl->start();

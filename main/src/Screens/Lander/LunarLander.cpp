@@ -8,6 +8,8 @@
 #include "LV_Interface/FSLVGL.h"
 #include "Util/Services.h"
 #include "PausedPopup.h"
+#include "Services/ChirpSystem.h"
+#include "Util/Notes.h"
 #include <cmath>
 #include <gtx/rotate_vector.hpp>
 #include <gtx/closest_point.hpp>
@@ -181,6 +183,16 @@ void LunarLander::loop(){
 		fire = false;
 	}
 
+	if(fire){
+		if(Settings* settings = (Settings*) Services.get(Service::Settings)){
+			if(settings->get().notificationSounds){
+				if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+					audio->play({ Chirp{ .startFreq = 750, .endFreq = 850, .duration = 6 } });
+				}
+			}
+		}
+	}
+
 	updateUI();
 }
 
@@ -231,7 +243,20 @@ void LunarLander::checkCollision(){
 
 	score = std::min((uint32_t) 9999, score);
 
-	//TODO - win sound
+	if(Settings* settings = (Settings*) Services.get(Service::Settings)){
+		if(settings->get().notificationSounds){
+			if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+				audio->play({ Chirp{ .startFreq = NOTE_C4, .endFreq = NOTE_C4, .duration = 100 },
+							  Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+							  Chirp{ .startFreq = NOTE_C4, .endFreq = NOTE_C4, .duration = 100 },
+							  Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+							  Chirp{ .startFreq = NOTE_C4, .endFreq = NOTE_C4, .duration = 100 },
+							  Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+							  Chirp{ .startFreq = NOTE_C4, .endFreq = NOTE_C4, .duration = 600 }
+							});
+			}
+		}
+	}
 
 	vTaskDelay(2000);
 
