@@ -1,5 +1,7 @@
 #include <driver/gpio.h>
 #include <nvs_flash.h>
+#include <bootloader_random.h>
+#include <esp_random.h>
 #include "Settings/Settings.h"
 #include "Pins.hpp"
 #include "Periph/I2C.h"
@@ -121,6 +123,10 @@ void init(){
 	auto time = new Time(*rtc);
 	Services.set(Service::Time, time); // Time service is required as soon as Phone is up
 
+	bootloader_random_enable();
+	srand(esp_random());
+	bootloader_random_disable();
+
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();
 	auto client = new BLE::Client(gap);
@@ -132,7 +138,7 @@ void init(){
 	FSLVGL::loadCache(settings->get().themeData.theme);
 
 	// Load start screen here
-	lvgl->startScreen([](){ return std::make_unique<LunarLander>(); });
+	lvgl->startScreen([](){ return std::make_unique<LockScreen>(); });
 
 	// Start UI thread after initialization
 	lvgl->start();
@@ -140,7 +146,7 @@ void init(){
 	bl->fadeIn();
 
 	if(settings->get().notificationSounds){
-		/*audio->play({
+		audio->play({
 							Chirp{ .startFreq = 250, .endFreq = 250, .duration = 500 },
 							Chirp{ .startFreq = 0, .endFreq = 0, .duration = 200 },
 							Chirp{ .startFreq = 500, .endFreq = 500, .duration = 500 },
@@ -152,7 +158,7 @@ void init(){
 
 		audio->play({
 							Chirp{ .startFreq = 125, .endFreq = 125, .duration = 1000 }
-					});*/
+					});
 	}
 
 	// Start Battery scanning after everything else, otherwise Critical

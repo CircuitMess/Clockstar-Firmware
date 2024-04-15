@@ -7,6 +7,7 @@
 #include "Theme/theme.h"
 #include "LV_Interface/FSLVGL.h"
 #include "Util/Services.h"
+#include "PausedPopup.h"
 #include <cmath>
 #include <gtx/rotate_vector.hpp>
 #include <gtx/closest_point.hpp>
@@ -23,8 +24,8 @@ LunarLander::LunarLander() : evts(6){
 	lv_obj_set_pos(canvas, 0, 0);
 	lv_obj_set_size(canvas, 128, 128);
 
-	canvData.resize(LV_CANVAS_BUF_SIZE_INDEXED_2BIT(128, 128));
-	lv_canvas_set_buffer(canvas, canvData.data(), 128, 128, LV_IMG_CF_INDEXED_2BIT);
+	canvData.resize(LV_CANVAS_BUF_SIZE_TRUE_COLOR(128, 128));
+	lv_canvas_set_buffer(canvas, canvData.data(), 128, 128, LV_IMG_CF_TRUE_COLOR);
 	lv_canvas_set_palette(canvas, 0, lv_color_black());
 	lv_canvas_set_palette(canvas, 1, Color);
 	lv_canvas_set_palette(canvas, 2, lv_color_white());
@@ -67,6 +68,8 @@ void LunarLander::onStop(){
 	lv_obj_set_style_text_font(loadingText, &devin, 0);
 	lv_obj_set_style_text_color(loadingText, LunarLander::Color, 0);
 
+	lv_obj_invalidate(*this);
+	vTaskDelay(LV_DISP_DEF_REFR_PERIOD);
 	lv_timer_handler();
 
 	if(Settings* settings = (Settings*) Services.get(Service::Settings)){
@@ -100,7 +103,14 @@ void LunarLander::loop(){
 					stopFireAnim();
 				}
 			}else if(data->btn == Input::Alt && data->action == Input::Data::Press){
-				//TODO - pause popup
+				modal = new PausedPopup(this, [this](){
+					paused = false;
+					modal = nullptr;
+				}, [this](){
+					exitFlag = true;
+					modal = nullptr;
+				}, fire);
+
 				endTime = millis();
 				paused = true;
 			}
@@ -129,7 +139,7 @@ void LunarLander::loop(){
 	if(fire){
 		const auto fireDir = glm::rotate(glm::vec2{ 0, -1 }, (float) M_PI * angle / 180);
 		speed += fireDir * dt * 5.0f;
-//		fuel = std::clamp(fuel - 15.0f * dt, 0.0f, 100.0f);
+		fuel = std::clamp(fuel - 15.0f * dt, 0.0f, 100.0f);
 	}
 
 	pos += speed * dt;
@@ -137,6 +147,15 @@ void LunarLander::loop(){
 
 	angle += angleDir * dt * 90.0f;
 	lv_img_set_angle(shuttle, round(angle * 10.0f));
+
+	const glm::vec2 pos(this->pos + glm::vec2(5, 4.5));
+	if(pos.y <= -20.0f || pos.x <= -20.0f || pos.x >= 148.0f){
+		speed = {};
+		endTime = now;
+		stopFireAnim();
+		fire = false;
+		crashed();
+	}
 
 	const auto toTerrain = distToTerrain();
 
@@ -176,13 +195,11 @@ void LunarLander::checkCollision(){
 	}
 
 	if(!targetFlat){ // hit terrain, player loses
-		printf("Not above terrain\n");
 		crashed();
 		return;
 	}
 
 	if(glm::length(speed) > LandingSpeedThreshold){ // too fast
-		printf("Speed: %.2f\n", glm::length(speed));
 		crashed();
 		return;
 	}
@@ -198,13 +215,11 @@ void LunarLander::checkCollision(){
 	}
 
 	if(abs(angle) > LandingAngleThreshold){ // not straight
-		printf("Angle: %.2f\n", angle);
 		crashed();
 		return;
 	}
 
 	gameOver = true;
-	printf("Win!\n");
 
 	score += LandingBaseReward;
 	const float targetFlatWidth = (targetFlat->second.x - targetFlat->first.x);
@@ -212,7 +227,6 @@ void LunarLander::checkCollision(){
 	const float shuttlePlatformOffset = abs(pos.x - targetFlatCenter);
 	const float multiplier = calculateBonusMultiplier(angle, shuttlePlatformOffset, glm::length(speed), fuel, targetFlatWidth, endTime - startTime);
 
-	printf("bonus multiplier: %.2f\n", multiplier);
 	score += ceil(LandingBaseReward * multiplier * PerfectLandingMultiplier);
 
 	score = std::min((uint32_t) 9999, score);
@@ -304,26 +318,19 @@ void LunarLander::drawTerrain(){
 										  lv_point_t{ (lv_coord_t) secondMoved.x, (lv_coord_t) secondMoved.y }));
 	}
 
-	lv_color_t color = Color;
-	color.full = 0;
-	lv_canvas_fill_bg(canvas, color, LV_OPA_COVER);
+	lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
 
 	lv_draw_line_dsc_t draw;
 	lv_draw_line_dsc_init(&draw);
 
 	draw.color = Color;
-	draw.color.full = 1;
 	lv_canvas_draw_line(canvas, terrain.data(), terrain.size(), &draw);
 
 	draw.color = lv_color_white();
-	draw.color.full = 2;
 	for(const auto& flat: flats){
 		lv_point_t points[2] = { flat.first, flat.second };
 		points[0].x++;
 		lv_canvas_draw_line(canvas, points, 2, &draw);
-		lv_canvas_set_px(canvas, points[0].x, points[0].y, draw.color);
-		lv_canvas_set_px(canvas, points[1].x, points[1].y, draw.color);
-		// TODO: cannot draw lines on indexed canvas for some fucking stupid reason
 	}
 }
 
@@ -588,6 +595,7 @@ void LunarLander::crashed(){
 	lv_obj_del(shuttle);
 	gameOver = true;
 
+	delete modal;
 	modal = new GameOverPopup(this, [this](){
 		score = 0;
 

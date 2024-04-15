@@ -32,8 +32,9 @@ private:
 		const char* iconPath = nullptr;
 		const char* iconAltPath = nullptr;
 	};
-	ItemInfo ItemInfos[5] = {
+	ItemInfo ItemInfos[6] = {
 			{ "Find my phone",    "Ringing phone...",                     File::Menu::Theme1::Find,       File::Menu::Theme1::Find },
+			{ "Lunar lander",	  nullptr,                  			  File::Menu::Theme1::Lunar, 	  nullptr },
 			{ "Level",            nullptr,                                File::Menu::Theme1::Level,      nullptr },
 			{ "Theremin",         nullptr,                                File::Menu::Theme1::Theremin,   nullptr },
 			{ "Phone connection", ConnDesc[(int) Phone::PhoneType::None], File::Menu::Theme1::Connection, File::Menu::Theme1::Connection },
