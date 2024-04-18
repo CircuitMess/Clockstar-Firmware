@@ -4,6 +4,7 @@
 #include "Screens/Lock/LockScreen.h"
 #include "Screens/Level.h"
 #include "Screens/Theremin/Theremin.h"
+#include "Screens/PerseCtrl/PerseCtrlScreen.h"
 #include "Screens/Settings/SettingsScreen.h"
 #include "Util/stdafx.h"
 #include "LV_Interface/InputLVGL.h"
@@ -111,7 +112,8 @@ void MainMenu::setupItemPaths(Theme theme){
 	ItemInfos[3].iconPath = THEMED_FILE(Menu, Theremin, theme);
 	ItemInfos[4].iconPath = THEMED_FILE(Menu, Connection, theme);
 	ItemInfos[4].iconAltPath = THEMED_FILE(Menu, Connection, theme);
-	ItemInfos[5].iconPath = THEMED_FILE(Menu, Settings, theme);
+	ItemInfos[5].iconPath = THEMED_FILE(Menu, Rover, theme);
+	ItemInfos[6].iconPath = THEMED_FILE(Menu, Settings, theme);
 }
 
 void MainMenu::resetMenuIndex(){
@@ -181,6 +183,7 @@ void MainMenu::onClick(){
 			[this](){ transition([](){ return std::make_unique<Level>(); }); },
 			[this](){ transition([](){ return std::make_unique<Theremin>(); }); },
 			[](){ },
+			[this](){ transition([](){ return std::make_unique<PerseCtrlScreen>(); }); },
 			[this](){ transition([](){ return std::make_unique<SettingsScreen>(); }); }
 	};
 
