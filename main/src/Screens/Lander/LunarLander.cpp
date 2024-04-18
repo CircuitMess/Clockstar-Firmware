@@ -317,14 +317,6 @@ void LunarLander::buildTerrain(){
 }
 
 void LunarLander::drawTerrain(){
-	const auto view = this->view;
-	static const auto movePoint = [&view](glm::vec2 point){
-		const glm::vec3 full(point, 1);
-		glm::vec3 moved = view * full;
-		moved = glm::round(moved / moved.z);
-		return glm::vec2(moved);
-	};
-
 	std::vector<lv_point_t> terrain;
 	terrain.reserve(terrainPoints.size());
 	for(const auto& point: terrainPoints){
@@ -356,6 +348,13 @@ void LunarLander::drawTerrain(){
 		points[0].x++;
 		lv_canvas_draw_line(canvas, points, 2, &draw);
 	}
+}
+
+glm::vec2 LunarLander::movePoint(glm::vec2 point) const{
+	const glm::vec3 full(point, 1);
+	glm::vec3 moved = view * full;
+	moved = glm::round(moved / moved.z);
+	return glm::vec2(moved);
 }
 
 void LunarLander::setShuttlePos(){

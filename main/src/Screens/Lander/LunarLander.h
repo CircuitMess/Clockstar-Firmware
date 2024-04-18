@@ -21,6 +21,7 @@ private:
 
 	void buildTerrain();
 	void drawTerrain();
+	glm::vec2 movePoint(glm::vec2 point) const;
 	void loop() override;
 
 	std::vector<glm::vec2> terrainPoints;
