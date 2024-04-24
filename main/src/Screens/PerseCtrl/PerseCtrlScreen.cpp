@@ -178,8 +178,8 @@ void PerseCtrlScreen::loop(){
 	auto imu = (IMU*) Services.get(Service::IMU);
 	auto sample = imu->getSample();
 	glm::vec2 dir = {
-			std::clamp(sample.accelY, -1.0, 1.0),
-			std::clamp(-sample.accelX, -1.0, 1.0)
+			std::clamp(sample.accelX, -1.0, 1.0),
+			std::clamp(sample.accelY, -1.0, 1.0)
 	};
 
 	const auto len = std::clamp(glm::length(dir), 0.0f, 1.0f);
