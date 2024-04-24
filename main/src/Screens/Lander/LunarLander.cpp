@@ -618,6 +618,21 @@ void LunarLander::crashed(){
 	lv_obj_del(shuttle);
 	gameOver = true;
 
+	if(Settings* settings = (Settings*) Services.get(Service::Settings)){
+		if(settings->get().notificationSounds){
+			if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+				audio->play({ Chirp{ .startFreq = NOTE_C4, .endFreq = NOTE_C4, .duration = 400 },
+							  Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+							  Chirp{ .startFreq = NOTE_B3, .endFreq = NOTE_B3, .duration = 400 },
+							  Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+							  Chirp{ .startFreq = NOTE_AS3, .endFreq = NOTE_AS3, .duration = 400 },
+							  Chirp{ .startFreq = 0, .endFreq = 0, .duration = 100 },
+							  Chirp{ .startFreq = NOTE_A3, .endFreq = NOTE_A3, .duration = 400 }
+							});
+			}
+		}
+	}
+
 	delete modal;
 	modal = new GameOverPopup(this, [this](){
 		score = 0;
