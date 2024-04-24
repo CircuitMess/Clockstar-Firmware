@@ -154,6 +154,11 @@ void Theremin::audioThreadFunc(){
 						 { 0,    0,    toneDuration }};
 
 	audio.play(sound);
+
+	if(auto* status = (StatusCenter*) Services.get(Service::Status)){
+		status->blinkAll();
+	}
+
 	timer.start();
 
 	sequenceIndex = sequenceIndex + 1;
