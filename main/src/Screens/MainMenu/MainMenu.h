@@ -76,6 +76,8 @@ private:
 
 	void handlePhoneChange(Phone::Event& event);
 	void handleInput(Input::Data& event);
+
+	int lastDefocus = 0;
 };
 
 

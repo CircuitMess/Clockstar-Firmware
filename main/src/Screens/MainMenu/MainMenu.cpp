@@ -9,6 +9,7 @@
 #include "Util/stdafx.h"
 #include "LV_Interface/InputLVGL.h"
 #include "Screens/Lander/LunarLander.h"
+#include "Services/StatusCenter.h"
 
 uint8_t  MainMenu::lastIndex = UINT8_MAX;
 
@@ -67,6 +68,27 @@ MainMenu::MainMenu() : phone(*((Phone*) Services.get(Service::Phone))), queue(4)
 		lv_obj_clear_flag(*item, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
 		items[i] = item;
+
+		lv_obj_add_event_cb(*item, [](lv_event_t* evt){
+			auto menu = static_cast<MainMenu*>(evt->user_data);
+
+			const auto index = lv_obj_get_index(evt->target);
+			menu->lastDefocus = index;
+		}, LV_EVENT_DEFOCUSED, this);
+
+		lv_obj_add_event_cb(*item, [](lv_event_t* evt){
+			auto menu = static_cast<MainMenu*>(evt->user_data);
+
+			const auto index = lv_obj_get_index(evt->target);
+
+			const auto status = (StatusCenter*) Services.get(Service::Status);
+			if(index > menu->lastDefocus){
+				status->blinkDown();
+			}else if(index < menu->lastDefocus){
+				status->blinkUp();
+			}
+
+		}, LV_EVENT_FOCUSED, this);
 	}
 
 	//find my phone
@@ -122,6 +144,9 @@ void MainMenu::resetMenuIndex(){
 
 void MainMenu::onStart(){
 	lv_indev_wait_release(InputLVGL::getInstance()->getIndev());
+
+	const auto status = (StatusCenter*) Services.get(Service::Status);
+	status->blinkAll();
 }
 
 void MainMenu::onStarting(){

@@ -10,6 +10,7 @@
 #include "PausedPopup.h"
 #include "Services/ChirpSystem.h"
 #include "Util/Notes.h"
+#include "Services/StatusCenter.h"
 #include <cmath>
 #include <gtx/rotate_vector.hpp>
 #include <gtx/closest_point.hpp>
@@ -99,6 +100,11 @@ void LunarLander::loop(){
 				fire = data->action == Input::Data::Press;
 				if(fire){
 					startFireAnim();
+
+					if(auto* status = (StatusCenter*) Services.get(Service::Status)){
+						status->blinkRand();
+						blinkTime = now;
+					}
 				}else{
 					stopFireAnim();
 				}
@@ -140,6 +146,14 @@ void LunarLander::loop(){
 		const auto fireDir = glm::rotate(glm::vec2{ 0, -1 }, (float) M_PI * angle / 180);
 		speed += fireDir * dt * 5.0f;
 		fuel = std::clamp(fuel - 15.0f * dt, 0.0f, 100.0f);
+
+		if(now - blinkTime > BlinkInterval){
+			blinkTime = now;
+
+			if(auto* status = (StatusCenter*) Services.get(Service::Status)){
+				status->blinkRand();
+			}
+		}
 	}
 
 	pos += speed * dt;
@@ -254,6 +268,10 @@ void LunarLander::checkCollision(){
 							});
 			}
 		}
+	}
+
+	if(auto* status = (StatusCenter*) Services.get(Service::Status)){
+		status->blinkAllTwice();
 	}
 
 	vTaskDelay(2000);
@@ -631,6 +649,10 @@ void LunarLander::crashed(){
 							});
 			}
 		}
+	}
+
+	if(auto* status = (StatusCenter*) Services.get(Service::Status)){
+		status->blinkAll();
 	}
 
 	delete modal;
