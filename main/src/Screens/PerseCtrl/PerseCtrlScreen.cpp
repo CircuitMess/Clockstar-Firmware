@@ -33,10 +33,10 @@ PerseCtrlScreen::PerseCtrlScreen() : wifi(*(WiFiSTA*) Services.get(Service::WiFi
 	lv_img_set_src(feedImg, &imgDsc);
 
 	pairLabel = lv_label_create(*this);
-	lv_obj_set_size(pairLabel, 128, 20);
+	lv_obj_set_size(pairLabel, 128, 28);
 	lv_obj_set_style_text_color(pairLabel, Color, 0);
 	lv_obj_set_style_text_align(pairLabel, LV_TEXT_ALIGN_CENTER, 0);
-	lv_label_set_text(pairLabel, "Hold select to pair");
+	lv_label_set_text(pairLabel, "Push and hold wheel to pair");
 	lv_obj_set_pos(pairLabel, 0, 60);
 
 	Events::listen(Facility::Input, &evts);
@@ -81,7 +81,7 @@ void PerseCtrlScreen::loop(){
 				pair = std::make_unique<PairService>(wifi, *tcp);
 			}else if(eventData->btn == Input::Select && eventData->action == Input::Data::Release){
 				if(pair){
-					lv_label_set_text(pairLabel, "Hold select to pair");
+					lv_label_set_text(pairLabel, "Push and hold wheel to pair");
 				}
 
 				pair.reset();
@@ -124,7 +124,7 @@ void PerseCtrlScreen::loop(){
 				paired = false;
 				memset(feedBuf, 0, 160*120*2);
 				lv_obj_invalidate(feedImg);
-				lv_label_set_text(pairLabel, "Disconnected\nHold select to pair");
+				lv_label_set_text(pairLabel, "Disconnected\nPush and hold wheel to pair");
 			}
 		}
 		free(evt.data);
@@ -136,7 +136,7 @@ void PerseCtrlScreen::loop(){
 		}else{
 			if(pair->getState() == PairService::State::Fail){
 				paired = false;
-				lv_label_set_text(pairLabel, "Pairing failed\nHold select to pair");
+				lv_label_set_text(pairLabel, "Pairing failed\nPush and hold wheel to pair");
 			}else{
 				lv_label_set_text(pairLabel, "");
 				paired = true;
