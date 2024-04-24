@@ -18,6 +18,8 @@ public:
 
 	void setPostProcCallback(std::function<void(const DriveInfo&, Color*)> callback);
 
+	void clearFrame();
+
 private:
 	std::unique_ptr<class JPEGDEC> jpeg;
 	UDPListener udp;

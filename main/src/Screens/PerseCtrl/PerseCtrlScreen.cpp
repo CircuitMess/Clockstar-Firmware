@@ -123,6 +123,7 @@ void PerseCtrlScreen::loop(){
 			if(eventData->status == TCPClient::Event::Status::Disconnected){
 				paired = false;
 				memset(feedBuf, 0, 160*120*2);
+				feed.clearFrame();
 				lv_obj_invalidate(feedImg);
 				lv_label_set_text(pairLabel, "Disconnected\nPush and hold wheel to pair");
 			}

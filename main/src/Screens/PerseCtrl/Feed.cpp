@@ -31,6 +31,11 @@ void Feed::setPostProcCallback(std::function<void(const DriveInfo&, Color*)> cal
 	postProcCallback = callback;
 }
 
+void Feed::clearFrame(){
+	rxBuf.clear();
+	readyFrame.imgIndex = -1;
+}
+
 bool Feed::nextFrame(std::function<void(const DriveInfo& info, const Color* img)> cb){
 	std::unique_lock lock(readyFrameMut);
 	if(readyFrame.imgIndex == -1) return false;
