@@ -182,6 +182,12 @@ void PerseCtrlScreen::loop(){
 			std::clamp(sample.accelY, -1.0, 1.0)
 	};
 
+	if(Settings* settings = (Settings*) Services.get(Service::Settings)){
+		if(settings->get().screenRotate){
+			dir *= -1.0f;
+		}
+	}
+
 	const auto len = std::clamp(glm::length(dir), 0.0f, 1.0f);
 
 	if(len < 0.2){
