@@ -112,9 +112,9 @@ void PerseCtrlScreen::loop(){
 			}else if((eventData->btn == Input::Up || eventData->btn == Input::Down) && eventData->action == Input::Data::Release){
 				camDir = 0;
 			}else if(eventData->btn == Input::Up && eventData->action == Input::Data::Press){
-				camDir = 5;
+				camDir = 2;
 			}else if(eventData->btn == Input::Down && eventData->action == Input::Data::Press){
-				camDir = -5;
+				camDir = -2;
 			}
 		}
 		else if(evt.facility == Facility::TCP){
