@@ -41,6 +41,7 @@ PerseCtrlScreen::PerseCtrlScreen() : wifi(*(WiFiSTA*) Services.get(Service::WiFi
 
 	Events::listen(Facility::Input, &evts);
 	Events::listen(Facility::TCP, &evts);
+	Events::listen(Facility::Comm, &evts);
 
 	heapRep();
 }
@@ -116,8 +117,7 @@ void PerseCtrlScreen::loop(){
 			}else if(eventData->btn == Input::Down && eventData->action == Input::Data::Press){
 				camDir = -2;
 			}
-		}
-		else if(evt.facility == Facility::TCP){
+		}else if(evt.facility == Facility::TCP){
 			auto eventData = (TCPClient::Event*) evt.data;
 
 			if(eventData->status == TCPClient::Event::Status::Disconnected){
@@ -127,7 +127,22 @@ void PerseCtrlScreen::loop(){
 				lv_obj_invalidate(feedImg);
 				lv_label_set_text(pairLabel, "Disconnected\nPush and hold wheel to pair");
 			}
+		}else if(evt.facility == Facility::Comm){
+			auto eventData = (Comm::Event*) evt.data;
+
+			if(eventData->type == CommType::NoFeed){
+				if(eventData->noFeed){
+					memset(feedBuf, 0, 160*120*2);
+					feed.clearFrame();
+					lv_obj_invalidate(feedImg);
+					lv_label_set_text(pairLabel, "No feed");
+				}else if(std::string(lv_label_get_text(pairLabel)) == "No feed"){
+					lv_label_set_text(pairLabel, "");
+				}
+			}
 		}
+
+
 		free(evt.data);
 	}
 
