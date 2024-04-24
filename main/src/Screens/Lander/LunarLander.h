@@ -40,6 +40,8 @@ private:
 	void stopFireAnim();
 	float fuel = 100;
 
+	uint64_t blinkTime = 0;
+
 	uint32_t score = 0;
 	static constexpr float calculateBonusMultiplier(float angle, float shuttlePlatformOffset, float speed,
 													float leftoverFuel, float platformWidth, uint64_t elapsedTime);
@@ -103,6 +105,8 @@ private:
 	static constexpr uint64_t MinTimeBonusThreshold = 60000; //60s
 
 	static constexpr uint32_t FireAnimationTime = 200; //[ms], time between fire images switching when playing animation
+
+	static constexpr uint64_t BlinkInterval = 100;
 
 };
 
