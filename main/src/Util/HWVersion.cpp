@@ -8,7 +8,13 @@ bool HWVersion::check(){
 		return false;
 	}
 
-	return version == Version;
+	if(version == Version){
+		return true;
+	}
+
+	ESP_LOGE("Hardware check", "Hardware version (0x%04x) does not match software version (0x%04x).", version, Version);
+
+	return false;
 }
 
 bool HWVersion::write(){

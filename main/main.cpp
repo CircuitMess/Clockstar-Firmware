@@ -75,7 +75,6 @@ void init(){
 
 	if(!HWVersion::check()){
 		while(true){
-			ESP_LOGE("Hardware check", "Wrong hardware version.");
 			vTaskDelay(1000);
 		}
 	}
