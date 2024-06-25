@@ -1,7 +1,7 @@
 #include "PinOut.h"
 #include <driver/gpio.h>
 
-PinOut::PinOut(gpio_num_t pin, bool inverted) : pin(pin), inverted(inverted){
+PinOut::PinOut(gpio_num_t pin, bool inverted) : PinOut((int)pin, inverted){
 
 }
 
