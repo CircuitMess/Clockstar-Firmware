@@ -3,6 +3,7 @@
 #include <cstring>
 #include <esp_log.h>
 #include <esp_gap_ble_api.h>
+#include <esp_gattc_api.h>
 
 static const char* TAG = "BLE::Client";
 

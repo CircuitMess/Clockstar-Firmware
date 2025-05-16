@@ -78,8 +78,8 @@ void Battery::checkCharging(bool fresh){
 }
 
 void Battery::sample(bool fresh){
-	if(shutdown) return;
-	if(isCharging()) return;
+	/*if(shutdown) return;
+	if(isCharging()) return;*/
 
 	auto oldLevel = getLevel();
 
@@ -95,11 +95,11 @@ void Battery::sample(bool fresh){
 		Events::post(Facility::Battery, Battery::Event{ .action = Event::LevelChange, .level = getLevel() });
 	}
 
-	if(getLevel() == Critical){
+	/*if(getLevel() == Critical){
 		shutdown = true;
 		extern void shutdown();
 		shutdown();
-	}
+	}*/
 }
 
 void Battery::loop(){
@@ -147,17 +147,21 @@ void Battery::setSleep(bool sleep){
 }
 
 uint8_t Battery::getPerc() const{
+	return 100;
 	return adc.getVal();
 }
 
 Battery::Level Battery::getLevel() const{
+	return Battery::Level::Full;
 	return (Level) hysteresis.get();
 }
 
 bool Battery::isCharging() const{
+	return false;
 	return chargeHyst.get();
 }
 
 bool Battery::isShutdown() const{
+	return false;
 	return shutdown;
 }
