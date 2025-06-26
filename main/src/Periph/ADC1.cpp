@@ -1,11 +1,11 @@
-#include "ADC.h"
+#include "ADC1.h"
 #include <driver/adc.h>
 #include <esp_log.h>
 #include <algorithm>
 
 static const char* TAG = "ADC";
 
-ADC::ADC(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin(pin), ema_a(ema_a), min(min), max(max), offset(readingOffset){
+ADC1::ADC1(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin(pin), ema_a(ema_a), min(min), max(max), offset(readingOffset){
 	if(pin != GPIO_NUM_36){
 		ESP_LOGE(TAG, "Only GPIO 36 is supported for ADC");
 		valid = false;
@@ -20,16 +20,16 @@ ADC::ADC(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin
 	sample();
 }
 
-void ADC::setEmaA(float emaA){
+void ADC1::setEmaA(float emaA){
 	ema_a = emaA;
 }
 
-void ADC::resetEma(){
+void ADC1::resetEma(){
 	val = -1;
 	sample();
 }
 
-float ADC::sample(){
+float ADC1::sample(){
 	if(!valid){
 		return 0;
 	}
@@ -48,7 +48,7 @@ float ADC::sample(){
 	return getVal();
 }
 
-float ADC::getVal() const{
+float ADC1::getVal() const{
 	if(!valid){
 		return 0;
 	}

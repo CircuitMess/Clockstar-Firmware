@@ -28,6 +28,7 @@
 #include "Screens/Lock/LockScreen.h"
 #include "JigHWTest/JigHWTest.h"
 #include "Util/Notes.h"
+#include "Devices/BatteryV2.h"
 
 LVGL* lvgl;
 BacklightBrightness* bl;
@@ -65,16 +66,16 @@ void init(){
 	auto settings = new Settings();
 	Services.set(Service::Settings, settings);
 
-	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
+	auto blPwm = new PWM(Pins::get(Pin::LedBl), LEDC_CHANNEL_1, true);
 	blPwm->detach();
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
 
-	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
+	auto buzzPwm = new PWM(Pins::get(Pin::Buzz), LEDC_CHANNEL_0);
 	auto audio = new ChirpSystem(*buzzPwm);
 	Services.set(Service::Audio, audio);
 
-	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) Pins::get(Pin::I2cSda), (gpio_num_t) Pins::get(Pin::I2cScl));
 	auto imu = new IMU(*i2c);
 	Services.set(Service::IMU, imu);
 

@@ -22,20 +22,11 @@ RTC* JigHWTest::rtc = nullptr;
 
 
 JigHWTest::JigHWTest(){
-	gpio_config_t io_conf = {
-			.pin_bit_mask = 1 << JIG_STATUS,
-			.mode = GPIO_MODE_OUTPUT,
-			.pull_up_en = GPIO_PULLUP_DISABLE,
-			.pull_down_en = GPIO_PULLDOWN_DISABLE,
-			.intr_type = GPIO_INTR_DISABLE
-	};
-	gpio_config(&io_conf);
-	gpio_set_level(statusLed, 1);
 
 	display = new Display();
 	canvas = &display->getLGFX();
 
-	i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	i2c = new I2C(I2C_NUM_0, (gpio_num_t) Pins::get(Pin::I2cSda), (gpio_num_t) Pins::get(Pin::I2cScl));
 	rtc = new RTC(*i2c);
 
 	test = this;
@@ -85,7 +76,7 @@ void JigHWTest::start(){
 	printf("\nTEST:begin:%llx\n", _chipmacid);
 
 	canvas->clear(0);
-	gpio_set_level((gpio_num_t) PIN_BL, 0);
+	gpio_set_level((gpio_num_t) Pins::get(Pin::LedBl), 0);
 	rgb();
 
 	canvas->clear(TFT_BLACK);
@@ -128,7 +119,6 @@ void JigHWTest::start(){
 
 	if(!pass){
 		printf("TEST:fail:%s\n", currentTest);
-		gpio_set_level(statusLed, 0);
 		vTaskDelete(nullptr);
 	}
 
@@ -318,7 +308,7 @@ void JigHWTest::AudioVisualTest(){
 	ledc_timer_config(&ledc_timer);
 
 	ledc_channel_config_t ledc_channel = {
-			.gpio_num       = PIN_BUZZ,
+			.gpio_num       = Pins::get(Pin::Buzz),
 			.speed_mode     = LEDC_LOW_SPEED_MODE,
 			.channel        = LEDC_CHANNEL_0,
 			.intr_type      = LEDC_INTR_DISABLE,
@@ -349,14 +339,12 @@ void JigHWTest::AudioVisualTest(){
 			ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, (1 << (10 - 1)) - 1);
 			ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 		}
-		gpio_set_level(statusLed, 1);
 		vTaskDelay(500);
 
 		if(!mute){
 			ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
 			ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 		}
-		gpio_set_level(statusLed, 0);
 		vTaskDelay(500);
 	}
 }

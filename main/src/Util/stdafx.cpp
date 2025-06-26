@@ -12,6 +12,14 @@ uint64_t micros(){
 	return esp_timer_get_time();
 }
 
+void delayMicros(uint32_t micros){
+	esp_rom_delay_us(micros);
+}
+
+void delayMillis(uint32_t millis){
+	vTaskDelay(millis);
+}
+
 void ramReport(){
 	printf("Free INTERNAL heap: %zu B, largest block %zu B\n", heap_caps_get_free_size(MALLOC_CAP_INTERNAL), heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
 	// printf("Free PSRAM heap: %zu B, largest block %zu B\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM), heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM));

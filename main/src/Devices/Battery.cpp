@@ -9,7 +9,7 @@
 #define MAX_READ 3550 // 4.2V
 #define MIN_READ 3050 // 3.6V
 
-Battery::Battery() : Threaded("Battery", 3 * 1024, 5), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()),
+Battery::Battery() : Threaded("Battery", 3 * 1024, 5), adc((gpio_num_t) Pins::get(Pin::BattRead), 0.05, MIN_READ, MAX_READ, getVoltOffset()),
 					 hysteresis({ 0, 4, 15, 30, 70, 100 }, 3),
 					 chargeHyst(2000, false), sem(xSemaphoreCreateBinary()), timer(ShortMeasureIntverval, isr, sem){
 
@@ -17,7 +17,7 @@ Battery::Battery() : Threaded("Battery", 3 * 1024, 5), adc((gpio_num_t) PIN_BATT
 	cfg_gpio.mode = GPIO_MODE_INPUT;
 	cfg_gpio.pull_down_en = GPIO_PULLDOWN_ENABLE;
 	cfg_gpio.pull_up_en = GPIO_PULLUP_DISABLE;
-	cfg_gpio.pin_bit_mask = 1ULL << PIN_CHARGE;
+	cfg_gpio.pin_bit_mask = 1ULL << Pins::get(Pin::Usb);
 	cfg_gpio.intr_type = GPIO_INTR_POSEDGE;
 	ESP_ERROR_CHECK(gpio_config(&cfg_gpio));
 
@@ -26,8 +26,8 @@ Battery::Battery() : Threaded("Battery", 3 * 1024, 5), adc((gpio_num_t) PIN_BATT
 }
 
 Battery::~Battery(){
-	gpio_set_intr_type((gpio_num_t) PIN_CHARGE, GPIO_INTR_DISABLE);
-	gpio_isr_handler_remove((gpio_num_t) PIN_CHARGE);
+	gpio_set_intr_type((gpio_num_t) Pins::get(Pin::Usb), GPIO_INTR_DISABLE);
+	gpio_isr_handler_remove((gpio_num_t) Pins::get(Pin::Usb));
 
 	timer.stop();
 	stop(0);
@@ -41,7 +41,7 @@ Battery::~Battery(){
 void Battery::begin(){
 	start();
 	startTimer();
-	gpio_isr_handler_add((gpio_num_t) PIN_CHARGE, isr, sem);
+	gpio_isr_handler_add((gpio_num_t) Pins::get(Pin::Usb), isr, sem);
 }
 
 uint16_t Battery::mapRawReading(uint16_t reading){
@@ -58,7 +58,7 @@ int16_t Battery::getVoltOffset(){
 void Battery::checkCharging(bool fresh){
 	if(shutdown) return;
 
-	auto chrg = gpio_get_level((gpio_num_t) PIN_CHARGE) == 1;
+	auto chrg = gpio_get_level((gpio_num_t) Pins::get(Pin::Usb)) == 1;
 	if(fresh){
 		chargeHyst.reset(chrg);
 	}else{

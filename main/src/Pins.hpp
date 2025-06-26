@@ -1,36 +1,61 @@
 #ifndef CLOCKSTAR_LIBRARY_PINS_HPP
 #define CLOCKSTAR_LIBRARY_PINS_HPP
 
-#define BTN_DOWN 40
-#define BTN_UP 38
-#define BTN_SELECT 39
-#define BTN_ALT 37
+#include <unordered_map>
+#include <cstdint>
+#include <cstdio>
+#include <esp_debug_helpers.h>
+#include <vector>
 
-#define BTN_LEFT BTN_UP
-#define BTN_RIGHT BTN_DOWN
-#define BTN_A BTN_SELECT
-#define BTN_B BTN_ALT
+enum class Pin : uint8_t {
+	BtnDown,
+	BtnUp,
+	BtnSelect,
+	BtnAlt,
+	LedBl,
+	Buzz,
+	BattRead,
+	BattVref,
+	Usb,
+	I2cSda,
+	I2cScl,
+	TftSck,
+	TftMosi,
+	TftDc,
+	TftRst,
+	Rgb_r,
+	Rgb_g,
+	Rgb_b,
+	Imu_int1,
+	Imu_int2,
+};
 
-#define RGB_R 8
-#define RGB_G 7
-#define RGB_B 6
+/**
+ * Note: This class does not affect pins used in the bootloader hook!
+ */
+class Pins {
+	typedef std::unordered_map<Pin, int> PinMap;
+public:
+	static int get(Pin pin);
 
-#define PIN_BL 9
-#define PIN_BUZZ 11
-#define PIN_BATT 10
-#define PIN_CHARGE 36 // TODO this is actually USB detect pin idk if they act the same
+	static void setLatest();
 
-#define I2C_SDA 4
-#define I2C_SCL 5
+private:
+	Pins();
 
-#define TFT_SCK 48
-#define TFT_MOSI 34
-#define TFT_DC 33
-#define TFT_RST 47
+	PinMap* currentMap = nullptr;
 
-#define JIG_STATUS 13 // TODO this might be different
+	inline static Pins* instance = nullptr;
 
-#define IMU_INT1 41
-#define IMU_INT2 42
+	void initPinMaps();
+
+	//For original Bit, Bit 2
+	PinMap Revision1;
+
+	//For Bit v3
+	PinMap Revision2;
+
+	std::vector<PinMap*> pinMaps = { &Revision1, &Revision2 };
+};
 
 #endif //CLOCKSTAR_LIBRARY_PINS_HPP

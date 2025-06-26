@@ -52,7 +52,7 @@ void Sleep::sleep(std::function<void()> preWake){
 
 void IRAM_ATTR Sleep::sleepStart(){
 	gpio_config_t io_conf = {
-			.pin_bit_mask = 1ULL << BTN_ALT,
+			.pin_bit_mask = 1ULL << Pins::get(Pin::BtnAlt),
 			.mode = GPIO_MODE_INPUT,
 			.pull_up_en = GPIO_PULLUP_DISABLE,
 			.pull_down_en = GPIO_PULLDOWN_ENABLE,
@@ -78,11 +78,11 @@ void IRAM_ATTR Sleep::intr(void* arg){
 void Sleep::confPM(bool sleep, bool firstTime){
 	if(sleep){
 		gpio_wakeup_enable(WakePin, GPIO_INTR_HIGH_LEVEL);
-		gpio_wakeup_enable((gpio_num_t) IMU_INT2, GPIO_INTR_HIGH_LEVEL);
+		gpio_wakeup_enable((gpio_num_t) Pins::get(Pin::Imu_int2), GPIO_INTR_HIGH_LEVEL);
 		esp_sleep_enable_gpio_wakeup();
 	}else{
 		gpio_wakeup_disable(WakePin);
-		gpio_wakeup_disable((gpio_num_t) IMU_INT2);
+		gpio_wakeup_disable((gpio_num_t) Pins::get(Pin::Imu_int2));
 		if(!firstTime){
 			esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
 		}

@@ -4,14 +4,14 @@
 #include <hal/gpio_types.h>
 #include <atomic>
 #include "Util/Threaded.h"
-#include "Periph/ADC.h"
+#include "Periph/ADC1.h"
 #include "Util/Hysteresis.h"
 #include "Periph/Timer.h"
 #include "Util/TimeHysteresis.h"
 #include <mutex>
 #include <esp_efuse.h>
 
-class Battery : private Threaded {
+class Battery : public Threaded {
 public:
 	Battery();
 	~Battery() override;
@@ -71,7 +71,6 @@ private:
 	static constexpr const esp_efuse_desc_t* efuse_adc1_low[] = { &adc1_low, nullptr };
 	static constexpr esp_efuse_desc_t adc1_high = { EFUSE_BLK3, 103, 9 };
 	static constexpr const esp_efuse_desc_t* efuse_adc1_high[] = { &adc1_high, nullptr };
-
 };
 
 #endif //CLOCKSTAR_LIBRARY_SERVICE_H

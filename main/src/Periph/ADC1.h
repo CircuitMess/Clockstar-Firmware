@@ -3,10 +3,10 @@
 
 #include <hal/gpio_types.h>
 
-class ADC {
+class ADC1 {
 public:
 	// Specifying min and max maps value to [-100, +100]
-	ADC(gpio_num_t pin, float ema_a = 1, int min = 0, int max = 0, int readingOffset = 0);
+	ADC1(gpio_num_t pin, float ema_a = 1, int min = 0, int max = 0, int readingOffset = 0);
 
 	// Take a sample and get current value
 	float sample();
