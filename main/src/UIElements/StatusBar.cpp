@@ -78,7 +78,7 @@ void StatusBar::setPhoneConnected(){
 }
 
 void StatusBar::setDeviceBattery(){
-	if(battery.isCharging()){
+	if(battery.getChargingState() != Battery::ChargingState::Unplugged){
 		batDevice->set(BatteryElement::Charging);
 		return;
 	}

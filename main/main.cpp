@@ -29,6 +29,7 @@
 #include "JigHWTest/JigHWTest.h"
 #include "Util/Notes.h"
 #include "Devices/BatteryV2.h"
+#include <Util/EfuseMeta.h>
 
 LVGL* lvgl;
 BacklightBrightness* bl;
@@ -49,9 +50,25 @@ void shutdown(){
 void init(){
 	if(JigHWTest::checkJig()){
 		printf("Jig\n");
+		Pins::setLatest();
 		auto test = new JigHWTest();
 		test->start();
 		vTaskDelete(nullptr);
+	}
+
+	if(!EfuseMeta::check()){
+		while(true){
+			vTaskDelay(1000);
+			EfuseMeta::log();
+		}
+	}
+
+	uint8_t rev = 0;
+	if(!EfuseMeta::readRev(rev)){
+		while(true){
+			vTaskDelay(1000);
+			printf("Failed to read hardware revision.");
+		}
 	}
 
 	gpio_install_isr_service(ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_SHARED | ESP_INTR_FLAG_IRAM);
@@ -96,7 +113,18 @@ void init(){
 	auto status = new StatusCenter();
 	Services.set(Service::Status, status);
 
-	auto battery = new Battery(); // Battery is doing shutdown
+	auto adc = new ADC(ADC_UNIT_1);
+
+	Battery* battery; // Battery is doing shutdown
+	if(rev == 0){
+		while(true){
+			vTaskDelay(1000);
+			EfuseMeta::log();
+		}
+	}else{
+		battery = new BatteryV2(*adc);
+	}
+
 	if(battery->isShutdown()) return; // Stop initialization if battery is critical
 	Services.set(Service::Battery, battery);
 

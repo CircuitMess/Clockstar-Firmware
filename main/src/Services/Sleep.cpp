@@ -11,7 +11,10 @@
 
 static const char* TAG = "Sleep";
 
+gpio_num_t Sleep::WakePin;
+
 Sleep::Sleep(){
+	WakePin = (gpio_num_t) Pins::get(Pin::BtnAlt);
 	confPM(false, true);
 	wakeSem = xSemaphoreCreateBinary();
 }

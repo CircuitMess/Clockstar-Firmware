@@ -9,9 +9,9 @@ int Pins::get(Pin pin){
 		uint8_t revision = 0;
 		EfuseMeta::readRev(revision);
 
-		if(revision == 0 || revision == 1){
+		if(revision == 0){
 			instance->currentMap = &instance->Revision1;
-		}else if(revision == 2){
+		}else if(revision == 1){
 			instance->currentMap = &instance->Revision2;
 		}else{
 			while(true){
@@ -75,8 +75,8 @@ void Pins::initPinMaps(){
 	};
 
 	Revision2 = {
-			{ Pin::BtnDown,   40 },
-			{ Pin::BtnUp,     38 },
+			{ Pin::BtnDown,   38 },
+			{ Pin::BtnUp,     40 },
 			{ Pin::BtnSelect, 39 },
 			{ Pin::BtnAlt,    37 },
 			{ Pin::LedBl,     9 },

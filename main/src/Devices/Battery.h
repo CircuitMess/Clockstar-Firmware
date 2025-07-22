@@ -1,57 +1,59 @@
 #ifndef CLOCKSTAR_LIBRARY_BATTERY_H
 #define CLOCKSTAR_LIBRARY_BATTERY_H
 
-#include <hal/gpio_types.h>
 #include <atomic>
 #include "Util/Threaded.h"
-#include "Periph/ADC1.h"
-#include "Util/Hysteresis.h"
+#include "Periph/ADC.h"
 #include "Periph/Timer.h"
 #include "Util/TimeHysteresis.h"
 #include <mutex>
-#include <esp_efuse.h>
+#include <memory>
 
 class Battery : public Threaded {
 public:
 	Battery();
-	~Battery() override;
+	virtual ~Battery() override;
 	void begin();
 
 	enum Level { Critical = 0, VeryLow, Low, Mid, Full, COUNT };
+	enum class ChargingState : uint8_t { Unplugged, Charging, Full };
 
-	void setSleep(bool sleep);
-
-	uint8_t getPerc() const;
-	Level getLevel() const;
-	bool isCharging() const;
+	virtual uint8_t getPerc() const = 0;
+	virtual Level getLevel() const = 0;
+	ChargingState getChargingState() const;
 
 	struct Event {
 		enum {
 			Charging, LevelChange
 		} action;
 		union {
-			bool chargeStatus;
+			ChargingState chargeStatus;
 			Level level;
 		};
 	};
 
-	static int16_t getVoltOffset();
-	static uint16_t mapRawReading(uint16_t reading);
-
 	bool isShutdown() const;
+	void setShutdown(bool value) { shutdown = value; }
+
+	void setSleep(bool sleep);
+	void startTimer();
+
+protected:
+	void loop() override;
+
+	void checkCharging(bool fresh = false);
+
+	virtual void sample(bool fresh = false) = 0;
+	virtual void onSleep(bool sleep) {}
 
 private:
 	static constexpr uint32_t ShortMeasureIntverval = 100;
 	static constexpr uint32_t LongMeasureIntverval = 6000;
 
-	ADC adc;
-
-	Hysteresis hysteresis;
-
 	std::mutex mut;
 
-	TimeHysteresis<bool> chargeHyst;
-	bool wasCharging = false;
+	TimeHysteresis<ChargingState> chargeHyst;
+	ChargingState lastCharging = ChargingState::Unplugged;
 	bool sleep = false;
 
 	std::atomic_bool abortFlag = false;
@@ -59,18 +61,18 @@ private:
 	SemaphoreHandle_t sem;
 	Timer timer;
 	static void isr(void* arg);
-	void loop() override;
-
-	void checkCharging(bool fresh = false);
-	void sample(bool fresh = false);
-	void startTimer();
 
 	bool shutdown = false;
 
-	static constexpr esp_efuse_desc_t adc1_low = { EFUSE_BLK3, 96, 7 };
-	static constexpr const esp_efuse_desc_t* efuse_adc1_low[] = { &adc1_low, nullptr };
-	static constexpr esp_efuse_desc_t adc1_high = { EFUSE_BLK3, 103, 9 };
-	static constexpr const esp_efuse_desc_t* efuse_adc1_high[] = { &adc1_high, nullptr };
+	/**
+	 * Sometimes ADC will start having an offset during sleep and after wakeup.
+	 * This method will be called every time the Battery class wakes up during sleep,
+	 * and also after final wakeup of the rest of the system.
+	 *
+	 * Necessary on certain HW revisions because of this ADC reading glitch after/during light sleep
+	 * (https://github.com/espressif/esp-idf/issues/12612)
+	 */
+	virtual void inSleepReconfigure() = 0;
 };
 
-#endif //CLOCKSTAR_LIBRARY_SERVICE_H
+#endif //CLOCKSTAR_LIBRARY_BATTERY_H

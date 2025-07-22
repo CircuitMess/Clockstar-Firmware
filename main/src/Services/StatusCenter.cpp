@@ -53,7 +53,7 @@ void StatusCenter::processPhone(const Phone::Event& evt){
 
 void StatusCenter::processBatt(const Battery::Event& evt){
 	if(evt.action == Battery::Event::Charging){
-		if(evt.chargeStatus){
+		if(evt.chargeStatus != Battery::ChargingState::Unplugged){
 			battState = Charging;
 		}
 	}else{

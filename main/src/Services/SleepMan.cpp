@@ -3,6 +3,7 @@
 #include "Util/Services.h"
 #include "Screens/ShutdownScreen.h"
 #include <esp_sleep.h>
+#include <driver/rtc_io.h>
 #include "Screens/MainMenu/MainMenu.h"
 
 SleepMan::SleepMan(LVGL& lvgl) : events(12), lvgl(lvgl),
@@ -52,6 +53,11 @@ void SleepMan::wake(bool blockLock){
 void SleepMan::shutdown(){
 	bl.fadeOut();
 	imu.shutdown();
+
+	gpio_sleep_set_pull_mode((gpio_num_t)Pins::get(Pin::LedBl), GPIO_PULLUP_ONLY);
+	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::LedBl));
+	rtc_gpio_isolate((gpio_num_t)Pins::get(Pin::LedBl));
+	gpio_deep_sleep_hold_en();
 
 	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
 	/*esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_AUTO);

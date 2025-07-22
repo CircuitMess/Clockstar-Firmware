@@ -3,7 +3,7 @@
 
 #include <esp_adc/adc_cali.h>
 #include <hal/adc_types.h>
-#include "Periph/ADC2.h"
+#include "Periph/ADC.h"
 
 class ADCReader {
 public:
@@ -21,7 +21,7 @@ public:
 	 * @param min Mapping lower bound
 	 * @param max Mapping upper bound
 	 */
-	ADCReader(ADC2& adc, adc_channel_t chan, adc_cali_handle_t cali = nullptr, float offset = 0, float factor = 1, float emaA = 1, float min = 0, float max = 0);
+	ADCReader(ADC& adc, adc_channel_t chan, adc_cali_handle_t cali = nullptr, float offset = 0, float factor = 1, float emaA = 1, float min = 0, float max = 0);
 
 	/** Sample and return new value. */
 	float sample();

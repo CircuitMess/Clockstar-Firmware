@@ -22,9 +22,9 @@ public:
 
 private:
 	static inline uint16_t CachedPID = 0;
-	static inline constexpr const uint16_t PID = 0x0003;
+	static inline constexpr const uint16_t PID = 0x0008;
 
-	static inline constexpr const uint8_t HWRevision = 2;
+	static inline constexpr const uint8_t HWRevision = 1;
 	static inline uint8_t CachedRevision = 0;
 
 	static constexpr esp_efuse_desc_t PIDBlock = { EFUSE_BLK3, 16, 16 };

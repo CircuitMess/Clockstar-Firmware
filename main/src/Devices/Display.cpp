@@ -1,5 +1,6 @@
 #include "Display.h"
 #include <Pins.hpp>
+#include "Util/EfuseMeta.h"
 
 Display::Display(){
 	setupBus();
@@ -33,6 +34,9 @@ void Display::setupBus(){
 }
 
 void Display::setupPanel(){
+	uint8_t rev = 0;
+	EfuseMeta::readRev(rev);
+
 	lgfx::Panel_Device::config_t cfg = {
 			.pin_cs = -1,
 			.pin_rst = (int16_t) Pins::get(Pin::TftRst),
@@ -43,7 +47,7 @@ void Display::setupPanel(){
 			.panel_height = 128,
 			.offset_x = 2,
 			.offset_y = 1,
-			.offset_rotation = 0,
+			.offset_rotation = (uint8_t) (rev == 0 ? 0 : 2),
 			.readable = false,
 			.invert = false,
 			.rgb_order = false,

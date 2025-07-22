@@ -6,16 +6,22 @@
 #include <cmath>
 #include <driver/gpio.h>
 #include "Services/SleepMan.h"
+#include <Util/Services.h>
 
 static const char* TAG = "Battery";
 
-BatteryV2::BatteryV2(ADC2& adc) : adc(adc), refSwitch(Pins::get(Pin::BattVref)), hysteresis({ 0, 4, 15, 30, 70, 100 }, 3){
+BatteryV2::BatteryV2(ADC& adc) : adc(adc), refSwitch(Pins::get(Pin::BattVref)), hysteresis({ 0, 4, 15, 30, 70, 100 }, 3){
 	configReader(Pins::get(Pin::BattRead), caliBatt, readerBatt, true);
 	configReader(Pins::get(Pin::BattRead), caliRef, readerRef, false);
 
 	calibrate();
 
-	sample(true);
+	readerBatt->resetEma();
+	if(readerBatt->getValue() <= 1.f){
+		auto sleepMan = (SleepMan*)Services.get(Service::Sleep);
+		sleepMan->shutdown();
+	}
+
 	sample(true);
 
 	checkCharging(true);
@@ -45,6 +51,7 @@ void BatteryV2::calibrate(){
 	readerBatt->setMoreOffset(offset);
 
 	refSwitch.off();
+	delayMillis(100);
 
 	lastCalibrationOffset = offset;
 
@@ -61,9 +68,11 @@ void BatteryV2::sample(bool fresh){
 		readerBatt->resetEma();
 		const float val = readerBatt->getValue();
 		hysteresis.reset(val);
+		printf("%f\n", val);
 	}else{
 		const float val = readerBatt->sample();
 		hysteresis.update(val);
+		printf("%f\n", val);
 	}
 
 	if(oldLevel != getLevel() || fresh){
@@ -91,6 +100,7 @@ Battery::Level BatteryV2::getLevel() const{
 
 void BatteryV2::inSleepReconfigure(){
 	adc.reinit();
+	adc_cali_delete_scheme_curve_fitting(caliBatt);
 	configReader(Pins::get(Pin::BattRead), caliBatt, readerBatt, true);
 	readerBatt->setMoreOffset(lastCalibrationOffset);
 }
@@ -115,7 +125,7 @@ void BatteryV2::configReader(int pin, adc_cali_handle_t& cali, std::unique_ptr<A
 	ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&curveCfg, &cali));
 
 	if(emaAndMap){
-		reader = std::make_unique<ADCReader>(adc, chan, caliBatt, Offset, Factor, EmaA, VoltEmpty, VoltFull);
+		reader = std::make_unique<ADCReader>(adc, chan, caliBatt, BattReadOffset, Factor, EmaA, VoltEmpty, VoltFull);
 	}else{
 		reader = std::make_unique<ADCReader>(adc, chan, caliBatt, Offset, Factor);
 	}

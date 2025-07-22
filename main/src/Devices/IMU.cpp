@@ -6,6 +6,7 @@
 #include "Services/Sleep.h"
 #include "Util/Services.h"
 #include "Services/SleepMan.h"
+#include "Util/EfuseMeta.h"
 
 static const char* TAG = "IMU";
 
@@ -94,7 +95,15 @@ bool IMU::init(){
 	lsm6ds3tr_c_pin_int1_route_set(&ctx, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 	lsm6ds3tr_c_pin_int2_route_set(&ctx, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }); //wrist tilt to INT2
 
-	setWristPosition(IMU::WatchPosition::FaceDown);
+	uint8_t rev = 0;
+	EfuseMeta::readRev(rev);
+
+	if(rev == 1){
+		setWristPosition(IMU::WatchPosition::FaceUp);
+	}else{
+		setWristPosition(IMU::WatchPosition::FaceDown);
+	}
+
 	setTiltDirection(TiltDirection::Lowered);
 
 	gpio_config_t io_conf = {};
@@ -247,6 +256,16 @@ IMU::Sample IMU::getSample(){
 			xlConv(a[1]),
 			xlConv(a[2])
 	};
+
+	uint8_t rev = 0;
+	EfuseMeta::readRev(rev);
+
+	if(rev == 1){
+		sample.accelX *= -1.0f;
+		sample.gyroX *= -1.0f;
+		sample.accelY *= -1.0f;
+		sample.gyroY *= -1.0f;
+	}
 
 	return sample;
 }

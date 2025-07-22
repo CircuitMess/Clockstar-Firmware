@@ -1,24 +1,23 @@
 #ifndef ARTEMIS_BATTERYV3_H
 #define ARTEMIS_BATTERYV3_H
 
-#include "Periph/ADC2.h"
+#include "Periph/ADC.h"
 #include "Util/Hysteresis.h"
 #include "Services/ADCReader.h"
 #include "Periph/PinOut.h"
 #include <esp_efuse.h>
 #include <memory>
 #include "Battery.h"
-#include <esp_adc/adc_cali.h>
 
 class BatteryV2 : public Battery {
 public:
-	BatteryV2(ADC2& adc);
+	BatteryV2(ADC& adc);
 	virtual ~BatteryV2() override;
 
 	void setSleep(bool sleep);
 
-	uint8_t getPerc() const;
-	Level getLevel() const;
+	virtual uint8_t getPerc() const override;
+	virtual Level getLevel() const override;
 
 private:
 	static constexpr float VoltFull = 4150.0f; //[mV]
@@ -28,10 +27,18 @@ private:
 
 	static constexpr float Factor = 4.0f;
 	static constexpr float Offset = 0;
+
+	/**
+	 * Voltage drop on battery line!
+	 * Measured with full battery on max brightness, and on battery plugged out.
+	 * Voltage drop is approximately linear across 3.6 - 4.2V range.
+	 * Sample size of 2 devices.
+	 */
+	static constexpr float BattReadOffset = 75; //[mV],
 	static constexpr int CalReads = 10;
 	static constexpr float CalExpected = 2500;
 
-	ADC2& adc;
+	ADC& adc;
 	PinOut refSwitch;
 
 	Hysteresis hysteresis;

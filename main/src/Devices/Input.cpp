@@ -5,12 +5,7 @@
 #include <driver/gpio.h>
 
 // button index -> GPIO port
-const std::unordered_map<Input::Button, gpio_num_t> Input::PinMap{
-		{ Up,     (gpio_num_t) Pins::get(Pin::BtnUp) },
-		{ Down,   (gpio_num_t) Pins::get(Pin::BtnDown) },
-		{ Select, (gpio_num_t) Pins::get(Pin::BtnSelect) },
-		{ Alt,    (gpio_num_t) Pins::get(Pin::BtnAlt) },
-};
+std::unordered_map<Input::Button, gpio_num_t> Input::PinMap;
 
 const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 		{ Up,     "Up" },
@@ -20,6 +15,13 @@ const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 };
 
 Input::Input() : SleepyThreaded(SleepTime, "Input", 2048, 6, 0){
+	PinMap = {
+		{ Up,     (gpio_num_t) Pins::get(Pin::BtnUp) },
+		{ Down,   (gpio_num_t) Pins::get(Pin::BtnDown) },
+		{ Select, (gpio_num_t) Pins::get(Pin::BtnSelect) },
+		{ Alt,    (gpio_num_t) Pins::get(Pin::BtnAlt) },
+	};
+
 	auto mask = 0ULL;
 	for(const auto& pair : PinMap){
 		const auto port = pair.first;
@@ -49,6 +51,10 @@ Input::~Input(){
 
 void Input::sleepyLoop(){
 	scan();
+}
+
+bool Input::getState(Input::Button btn) const{
+	return btnState.at(btn);
 }
 
 void Input::scan(){

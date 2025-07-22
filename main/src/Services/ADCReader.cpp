@@ -1,7 +1,7 @@
 #include "ADCReader.h"
 #include <algorithm>
 
-ADCReader::ADCReader(ADC2& adc, adc_channel_t chan, adc_cali_handle_t cali, float offset, float factor, float emaA, float min, float max)
+ADCReader::ADCReader(ADC& adc, adc_channel_t chan, adc_cali_handle_t cali, float offset, float factor, float emaA, float min, float max)
 		: adc(adc), chan(chan), cali(cali), offset(offset), factor(factor), emaA(emaA), min(min), max(max){
 
 }

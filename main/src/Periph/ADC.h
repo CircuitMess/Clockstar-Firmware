@@ -3,10 +3,10 @@
 
 #include <esp_adc/adc_oneshot.h>
 
-class ADC2 {
+class ADC {
 public:
-	explicit ADC2(adc_unit_t unit);
-	virtual ~ADC2();
+	explicit ADC(adc_unit_t unit);
+	virtual ~ADC();
 
 	adc_unit_t getUnit() const;
 

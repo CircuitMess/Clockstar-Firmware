@@ -5,7 +5,7 @@ bool EfuseMeta::check(){
 	readRev(CachedRevision);
 
 	//Make an exception for this product a having blank PID!
-	if(CachedPID == PID || CachedPID == 0){
+	if(CachedPID == PID){
 		return true;
 	}
 
@@ -29,7 +29,6 @@ bool EfuseMeta::write(){
 	if(err != ESP_OK){
 		return false;
 	}
-
 
 	err = esp_efuse_batch_write_commit();
 	if(err != ESP_OK){
