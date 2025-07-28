@@ -68,11 +68,9 @@ void BatteryV2::sample(bool fresh){
 		readerBatt->resetEma();
 		const float val = readerBatt->getValue();
 		hysteresis.reset(val);
-		printf("%f\n", val);
 	}else{
 		const float val = readerBatt->sample();
 		hysteresis.update(val);
-		printf("%f\n", val);
 	}
 
 	if(oldLevel != getLevel() || fresh){

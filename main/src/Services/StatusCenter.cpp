@@ -10,9 +10,9 @@ settings(*((Settings*) Services.get(Service::Settings)))
 	Events::listen(Facility::Phone, &events);
 	Events::listen(Facility::Battery, &events);
 
-	auto pwmR = new PWM(Pins::get(Pin::Rgb_r), LEDC_CHANNEL_2, false);
-	auto pwmG = new PWM(Pins::get(Pin::Rgb_g), LEDC_CHANNEL_3, false);
-	auto pwmB = new PWM(Pins::get(Pin::Rgb_b), LEDC_CHANNEL_4, false);
+	auto pwmR = new PWM(Pins::get(Pin::Rgb_r), LEDC_CHANNEL_2, true);
+	auto pwmG = new PWM(Pins::get(Pin::Rgb_g), LEDC_CHANNEL_3, true);
+	auto pwmB = new PWM(Pins::get(Pin::Rgb_b), LEDC_CHANNEL_4, true);
 
 	led = new RGBLEDController(*pwmR, *pwmG, *pwmB);
 	led->begin();

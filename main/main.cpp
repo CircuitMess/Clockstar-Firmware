@@ -97,6 +97,8 @@ void init(){
 	Services.set(Service::IMU, imu);
 
 	auto disp = new Display();
+	Services.set(Service::Display, disp);
+
 	auto input = new Input();
 	Services.set(Service::Input, input);
 

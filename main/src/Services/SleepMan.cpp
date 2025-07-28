@@ -51,8 +51,21 @@ void SleepMan::wake(bool blockLock){
 }
 
 void SleepMan::shutdown(){
+	Display* display = (Display*) Services.get(Service::Display);
+
 	bl.fadeOut();
 	imu.shutdown();
+	display->getLGFX().sleep();
+
+	gpio_sleep_set_pull_mode((gpio_num_t)Pins::get(Pin::BattVref), GPIO_PULLDOWN_ONLY);
+	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::BattVref));
+	rtc_gpio_isolate((gpio_num_t)Pins::get(Pin::BattVref));
+	gpio_deep_sleep_hold_en();
+
+	gpio_sleep_set_pull_mode((gpio_num_t)Pins::get(Pin::Buzz), GPIO_PULLDOWN_ONLY);
+	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::Buzz));
+	rtc_gpio_isolate((gpio_num_t)Pins::get(Pin::Buzz));
+	gpio_deep_sleep_hold_en();
 
 	gpio_sleep_set_pull_mode((gpio_num_t)Pins::get(Pin::LedBl), GPIO_PULLUP_ONLY);
 	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::LedBl));
