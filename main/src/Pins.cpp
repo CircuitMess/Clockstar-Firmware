@@ -30,7 +30,7 @@ int Pins::get(Pin pin){
 		return -1;
 	}
 
-	if(!pinMap->contains(pin)){
+	if(!pinMap->count(pin)){
 		ESP_LOGE(TAG, "Pin %d not mapped!\n", (int) pin);
 		return -1;
 	}
