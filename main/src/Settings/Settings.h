@@ -8,7 +8,7 @@ struct SettingsStruct {
 	uint8_t screenBrightness = 100;
 	uint8_t sleepTime = 1;
 	bool ledEnable = true;
-	bool motionDetection = true;
+	bool motionDetection = false;
 };
 
 class Settings {
