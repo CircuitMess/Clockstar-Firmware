@@ -54,6 +54,8 @@ void init(){
 		auto test = new JigHWTest();
 		test->start();
 		vTaskDelete(nullptr);
+	}else{
+		printf("Hello\n");
 	}
 
 	if(!EfuseMeta::check()){
